@@ -1,203 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Backtest Brewery</title>
-    <style>
-        :root {
-            --dark: #1a1a1a;
-            --light: #f5f5f5;
-            --accent: #8B4513;
-            --text: #333;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Georgia', serif;
-        }
-        
-        body {
-            background-color: var(--light);
-            color: var(--text);
-            line-height: 1.6;
-            font-size: 18px;
-        }
-        
-        .container {
-            width: 90%;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        /* Header */
-        header {
-            padding: 2rem 0;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--dark);
-            letter-spacing: 1px;
-        }
-        
-        nav ul {
-            display: flex;
-            list-style: none;
-        }
-        
-        nav ul li {
-            margin-left: 2rem;
-        }
-        
-        nav ul li a {
-            color: var(--dark);
-            text-decoration: none;
-            font-size: 1.1rem;
-            transition: color 0.3s;
-        }
-        
-        nav ul li a:hover {
-            color: var(--accent);
-        }
-        
-        /* Hero Section */
-        .hero {
-            text-align: center;
-            padding: 4rem 0;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: var(--dark);
-        }
-        
-        .hero p {
-            font-size: 1.2rem;
-            max-width: 600px;
-            margin: 0 auto;
-            color: #666;
-        }
-        
-        /* Content Section */
-        .content {
-            padding: 4rem 0;
-        }
-        
-        .content-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2.5rem;
-        }
-        
-        .content-item {
-            text-align: center;
-        }
-        
-        .content-item h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--dark);
-        }
-        
-        .content-item p {
-            color: #666;
-        }
-        
-        /* Footer */
-        footer {
-            padding: 2rem 0;
-            border-top: 1px solid #ddd;
-            text-align: center;
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            nav ul {
-                margin-top: 1.5rem;
-                justify-content: center;
-            }
-            
-            nav ul li {
-                margin: 0 1rem;
-            }
-            
-            .hero h1 {
-                font-size: 2rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backtest Brewery</title>
+  <style>
+    :root {
+      --dark: #1a1a1a;
+      --light: #f9f9f9;
+      --accent: #8B4513;
+      --text: #333;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Georgia', serif;
+    }
+
+    body {
+      background-color: var(--light);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 18px;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 950px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+
+    /* Header */
+    header {
+      padding: 1.5rem 0;
+      border-bottom: 1px solid #ddd;
+      background: #fff;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-area img {
+      width: 40px;
+      height: 40px;
+      margin-right: 0.8rem;
+    }
+
+    .site-title {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: var(--dark);
+      letter-spacing: 0.5px;
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+    }
+
+    nav ul li {
+      margin-left: 1.5rem;
+    }
+
+    nav ul li a {
+      color: var(--dark);
+      text-decoration: none;
+      font-size: 1rem;
+      transition: color 0.3s;
+    }
+
+    nav ul li a:hover {
+      color: var(--accent);
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 3rem 0 2rem;
+    }
+
+    .hero h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.8rem;
+      color: var(--dark);
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: #555;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Blog Content */
+    .content {
+      padding: 3rem 0;
+    }
+
+    .blog-placeholder {
+      text-align: center;
+      color: #777;
+      font-size: 1.1rem;
+      padding: 2rem;
+      border: 2px dashed #ccc;
+      border-radius: 12px;
+      background: #fafafa;
+    }
+
+    /* Footer */
+    footer {
+      padding: 1.5rem 0;
+      border-top: 1px solid #ddd;
+      text-align: center;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+      }
+
+      nav ul {
+        margin-top: 1rem;
+      }
+
+      nav ul li {
+        margin: 0 0.8rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">Backtest Brewery</div>
-                <nav>
-                    <ul>
-                        <li><a href="#">Research</a></li>
-                        <li><a href="#">Methods</a></li>
-                        <li><a href="#">Insights</a></li>
-                    </ul>
-                </nav>
-            </div>
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo-area">
+          <img src="https://via.placeholder.com/40" alt="Logo">
+          <div class="site-title">Backtest Brewery</div>
         </div>
-    </header>
+        <nav>
+          <ul>
+            <li><a href="#">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <h1>Quantitative Strategies & Systematic Research</h1>
-            <p>Rigorous backtesting methodologies for robust trading systems</p>
-        </div>
-    </section>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1>Quantitative Strategies & Systematic Research</h1>
+      <p>Exploring rigorous backtesting methodologies for robust trading systems.</p>
+    </div>
+  </section>
 
-    <!-- Content Section -->
-    <section class="content">
-        <div class="container">
-            <div class="content-grid">
-                <div class="content-item">
-                    <h3>Strategy Research</h3>
-                    <p>Methodical development and validation of quantitative trading approaches across asset classes.</p>
-                </div>
-                <div class="content-item">
-                    <h3>Backtest Framework</h3>
-                    <p>Robust testing methodologies designed to evaluate strategy performance under various market regimes.</p>
-                </div>
-                <div class="content-item">
-                    <h3>Systematic Insights</h3>
-                    <p>Extracting meaningful patterns from complex market data through statistical analysis.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+  <!-- Blog Placeholder -->
+  <section class="content">
+    <div class="container">
+      <div class="blog-placeholder">
+        🚧 Blog posts will appear here soon.
+      </div>
+    </div>
+  </section>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <p>Backtest Brewery © 2023</p>
-        </div>
-    </footer>
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>Backtest Brewery © 2025</p>
+    </div>
+  </footer>
 </body>
 </html>
