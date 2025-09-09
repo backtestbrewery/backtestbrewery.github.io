@@ -169,14 +169,25 @@
     </div>
   </section>
 
-  <!-- Blog Placeholder -->
   <section class="content">
     <div class="container">
-      <div class="blog-placeholder">
-        🚧 Blog posts will appear here soon.
-      </div>
+      {% if site.posts.size > 0 %}
+        {% for post in site.posts %}
+          <article>
+            <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+            <p><small>{{ post.date | date: "%B %d, %Y" }}</small></p>
+            <p>{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
+          </article>
+          <hr>
+        {% endfor %}
+      {% else %}
+        <div class="blog-placeholder">
+          🚧 Blog posts will appear here soon.
+        </div>
+      {% endif %}
     </div>
   </section>
+
 
   <!-- Footer -->
   <footer>
