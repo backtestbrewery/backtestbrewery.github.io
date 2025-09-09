@@ -7,15 +7,11 @@ Net profit alone is like judging a car just by its top speed—you’re ignoring
 
 To cut through the noise, let’s break down the real metrics that matter when sizing up a strategy.  
 
----
-
 ## 1. Net Profit ≠ Performance
 
 Net profit tells you what the system brought home during backtests, but it says nothing about risk, stability, or whether those results are repeatable. A system that made $1M ten years ago but lost steadily ever since? Technically “profitable,” but useless in practice.  
 
 A solid system shows **consistency**—profits spread evenly across months and years, not one giant outlier trade.  
-
----
 
 ## 2. Average Trade – The First Reality Check
 
@@ -25,8 +21,6 @@ Think of average trade as “profit per trade.” Take net profit and divide by 
 - If it’s healthy and consistent over time, that’s a sign of a real edge.  
 
 A good hack: plot average trade as a percentage over time to see whether the system is getting stronger or weaker.  
-
----
 
 ## 3. Win Rate Isn’t Everything
 
@@ -39,8 +33,6 @@ Instead, pair win rate with the **average win / average loss ratio**:
 
 The real test? **Mathematical expectancy** = (Win% × Avg Win) – (Loss% × Avg Loss). If this number isn’t positive, the system’s doomed.  
 
----
-
 ## 4. Profit Factor – The Quick Comparison Tool
 
 This is the ratio of gross profit to gross loss.  
@@ -48,8 +40,6 @@ This is the ratio of gross profit to gross loss.
 - 2.0 is generally “healthy.”  
 - 1.5–3.0 is the usual range for solid systems.  
 - Anything over 3.0? Be skeptical—it might be overfitted.  
-
----
 
 ## 5. Drawdown – The Psychological Killer
 
@@ -63,19 +53,13 @@ Drawdown shows how much your system loses before bouncing back.
 
 And it’s not just the size—it’s the **frequency and distribution**. Occasional dips are fine. A system that constantly plunges underwater? Hard to stomach in real time, even if the backtest says “profitable.”  
 
----
-
 ## 6. Time in Trades – Portfolio Building
 
 How long a system holds trades matters. If one strategy trades once a week and another scalps 50 times a day, they won’t blend well in a portfolio. Aligning average trade duration helps smooth the equity line when combining strategies.  
 
----
-
 ## 7. Balance Between Long and Short
 
 Good systems don’t just work on one side of the market. If all the profits come from longs (or shorts), that’s a red flag unless there’s a solid reason.  
-
----
 
 ## The Trader’s Checklist
 
