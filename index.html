@@ -7,6 +7,7 @@ title: Backtest Brewery
 <section class="hero">
   <div class="container">
     <h1>Quantitative Strategies & Systematic Research</h1>
+    <p class="subtitle">Notes, experiments, and insights on systematic trading & quant finance.</p>
   </div>
 </section>
 
@@ -15,12 +16,11 @@ title: Backtest Brewery
   <div class="container">
     {% if site.posts.size > 0 %}
       {% for post in site.posts %}
-        <article>
+        <article class="post-card">
           <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
-          <p><small>{{ post.date | date: "%B %d, %Y" }}</small></p>
-          <p>{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
+          <p class="date">{{ post.date | date: "%B %d, %Y" }}</p>
+          <p class="excerpt">{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
         </article>
-        <hr>
       {% endfor %}
     {% else %}
       <div class="blog-placeholder">
@@ -29,3 +29,81 @@ title: Backtest Brewery
     {% endif %}
   </div>
 </section>
+
+<style>
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 4rem 1rem 2rem;
+}
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.6rem;
+  color: var(--dark);
+}
+.hero .subtitle {
+  font-size: 1.2rem;
+  color: #555;
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Content */
+.content {
+  padding: 3rem 1rem;
+}
+.post-card {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+.post-card:hover {
+  transform: translateY(-3px);
+}
+.post-card h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.4rem;
+}
+.post-card h2 a {
+  text-decoration: none;
+  color: var(--dark);
+}
+.post-card h2 a:hover {
+  color: var(--accent);
+}
+.post-card .date {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 0.8rem;
+}
+.post-card .excerpt {
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.6;
+}
+
+/* Placeholder */
+.blog-placeholder {
+  text-align: center;
+  color: #777;
+  font-size: 1.1rem;
+  padding: 2rem;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2rem;
+  }
+  .post-card {
+    padding: 1.2rem;
+  }
+}
+</style>
