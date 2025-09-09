@@ -1,205 +1,31 @@
 ---
 layout: default
+title: Backtest Brewery
 ---
 
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <h1>Quantitative Strategies & Systematic Research</h1>
+  </div>
+</section>
 
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Backtest Brewery</title>
-  <style>
-    :root {
-      --dark: #1a1a1a;
-      --light: #f9f9f9;
-      --accent: #8B4513;
-      --text: #333;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      background-color: var(--light);
-      color: var(--text);
-      line-height: 1.7;
-      font-size: 18px;
-    }
-
-    .container {
-      width: 90%;
-      max-width: 950px;
-      margin: 0 auto;
-      padding: 0 15px;
-    }
-
-    /* Header */
-    header {
-      padding: 1.5rem 0;
-      border-bottom: 1px solid #ddd;
-      background: #fff;
-    }
-
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .logo-area {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-      color: var(--dark);
-    }
-
-    .logo-area img {
-      width: 40px;
-      height: 40px;
-      margin-right: 0.8rem;
-    }
-
-    .site-title {
-      font-size: 1.6rem;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-    }
-
-    nav ul {
-      display: flex;
-      list-style: none;
-    }
-
-    nav ul li {
-      margin-left: 1.5rem;
-    }
-
-    nav ul li a {
-      color: var(--dark);
-      text-decoration: none;
-      font-size: 1rem;
-      transition: color 0.3s;
-    }
-
-    nav ul li a:hover {
-      color: var(--accent);
-    }
-
-    /* Hero */
-    .hero {
-      text-align: center;
-      padding: 3rem 0 2rem;
-    }
-
-    .hero h1 {
-      font-size: 2.2rem;
-      margin-bottom: 0.8rem;
-      color: var(--dark);
-    }
-
-    .hero p {
-      font-size: 1.15rem;
-      color: #555;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    /* Blog Content */
-    .content {
-      padding: 3rem 0;
-    }
-
-    .blog-placeholder {
-      text-align: center;
-      color: #777;
-      font-size: 1.1rem;
-      padding: 2rem;
-      border: 2px dashed #ccc;
-      border-radius: 12px;
-      background: #fafafa;
-    }
-
-    /* Footer */
-    footer {
-      padding: 1.5rem 0;
-      border-top: 1px solid #ddd;
-      text-align: center;
-      color: #666;
-      font-size: 0.9rem;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .header-content {
-        flex-direction: column;
-      }
-
-      nav ul {
-        margin-top: 1rem;
-      }
-
-      nav ul li {
-        margin: 0 0.8rem;
-      }
-    }
-  </style>
-</head>
-<body>
-  <!-- Header -->
-  <header>
-    <div class="container">
-      <div class="header-content">
-        <a href="index.html" class="logo-area">
-          <img src="logo.png" alt="Backtest Brewery Logo">
-          <div class="site-title">Backtest Brewery</div>
-        </a>
-        <nav>
-          <ul>
-            <li><a href="about.html">About</a></li>
-          </ul>
-        </nav>
+<!-- Blog Content -->
+<section class="content">
+  <div class="container">
+    {% if site.posts.size > 0 %}
+      {% for post in site.posts %}
+        <article>
+          <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+          <p><small>{{ post.date | date: "%B %d, %Y" }}</small></p>
+          <p>{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
+        </article>
+        <hr>
+      {% endfor %}
+    {% else %}
+      <div class="blog-placeholder">
+        🚧 Blog posts will appear here soon.
       </div>
-    </div>
-  </header>
-
-  <!-- Hero -->
-  <section class="hero">
-    <div class="container">
-      <h1>Quantitative Strategies & Systematic Research</h1>
-    </div>
-  </section>
-
-  <section class="content">
-    <div class="container">
-      {% if site.posts.size > 0 %}
-        {% for post in site.posts %}
-          <article>
-            <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
-            <p><small>{{ post.date | date: "%B %d, %Y" }}</small></p>
-            <p>{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
-          </article>
-          <hr>
-        {% endfor %}
-      {% else %}
-        <div class="blog-placeholder">
-          🚧 Blog posts will appear here soon.
-        </div>
-      {% endif %}
-    </div>
-  </section>
-
-
-  <!-- Footer -->
-  <footer>
-    <div class="container">
-      <p>Backtest Brewery © 2025</p>
-    </div>
-  </footer>
-</body>
-</html>
+    {% endif %}
+  </div>
+</section>
