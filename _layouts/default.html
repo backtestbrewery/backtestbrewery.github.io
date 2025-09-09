@@ -9,35 +9,36 @@
       --dark: #1a1a1a;
       --light: #f9f9f9;
       --accent: #8B4513;
-      --text: #333;
+      --text: #2c2c2c;
     }
 
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: Arial, sans-serif;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
     }
 
     body {
       background-color: var(--light);
       color: var(--text);
-      line-height: 1.7;
+      line-height: 1.75;
       font-size: 18px;
     }
 
     .container {
-      width: 90%;
-      max-width: 950px;
+      width: 92%;
+      max-width: 760px;
       margin: 0 auto;
-      padding: 0 15px;
+      padding: 0 1rem;
     }
 
     /* Header */
     header {
       padding: 1.5rem 0;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #e6e6e6;
       background: #fff;
+      margin-bottom: 2rem;
     }
 
     .header-content {
@@ -54,15 +55,14 @@
     }
 
     .logo-area img {
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       margin-right: 0.8rem;
     }
 
     .site-title {
-      font-size: 1.6rem;
-      font-weight: bold;
-      letter-spacing: 0.5px;
+      font-size: 1.5rem;
+      font-weight: 600;
     }
 
     nav ul {
@@ -71,38 +71,84 @@
     }
 
     nav ul li {
-      margin-left: 1.5rem;
+      margin-left: 1.2rem;
     }
 
     nav ul li a {
       color: var(--dark);
       text-decoration: none;
       font-size: 1rem;
-      transition: color 0.3s;
+      transition: color 0.2s;
     }
 
     nav ul li a:hover {
       color: var(--accent);
     }
 
-    /* Footer */
-    footer {
-      padding: 1.5rem 0;
-      border-top: 1px solid #ddd;
-      text-align: center;
-      color: #666;
+    /* Main Content */
+    main {
+      margin-bottom: 3rem;
+    }
+
+    article {
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #ddd;
+    }
+
+    article h2 {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+    }
+
+    article h2 a {
+      text-decoration: none;
+      color: var(--dark);
+    }
+
+    article h2 a:hover {
+      color: var(--accent);
+    }
+
+    article p {
+      margin-top: 0.3rem;
+      color: #444;
+      font-size: 1.05rem;
+    }
+
+    article small {
+      color: #777;
       font-size: 0.9rem;
     }
 
+    /* Footer */
+    footer {
+      padding: 1.5rem 0;
+      border-top: 1px solid #e6e6e6;
+      text-align: center;
+      color: #666;
+      font-size: 0.9rem;
+      background: #fff;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
       .header-content {
         flex-direction: column;
+        text-align: center;
       }
+
       nav ul {
-        margin-top: 1rem;
+        margin-top: 0.8rem;
       }
+
       nav ul li {
         margin: 0 0.8rem;
+      }
+
+      article h2 {
+        font-size: 1.4rem;
       }
     }
   </style>
@@ -126,7 +172,7 @@
   </header>
 
   <!-- Page Content -->
-  <main>
+  <main class="container">
     {{ content }}
   </main>
 
