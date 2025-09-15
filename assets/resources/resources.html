@@ -1,0 +1,42 @@
+---
+layout: default
+title: Resources
+permalink: /resources/
+---
+
+<section class="content">
+  <div class="container">
+    <h1>Resources</h1>
+    <p>Here are useful files, presentations, and notes related to systematic trading and quant finance.</p>
+
+    <ul class="resources-list">
+      {% assign resources = site.static_files | where_exp: "file", "file.path contains '/assets/resources/'" %}
+      {% for file in resources %}
+        <li>
+          <a href="{{ file.path }}" target="_blank" download>
+            📁 {{ file.name }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<style>
+.resources-list {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 2rem;
+}
+.resources-list li {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+.resources-list a {
+  color: var(--accent, #8B4513);
+  text-decoration: none;
+}
+.resources-list a:hover {
+  text-decoration: underline;
+}
+</style>
