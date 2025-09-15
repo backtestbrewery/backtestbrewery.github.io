@@ -7,9 +7,6 @@ permalink: /resources/
 <section class="content">
   <div class="container">
     <h1>Resources</h1>
-    <p class="intro">
-      Browse useful files, presentations, and notes related to systematic trading and quant finance.
-    </p>
 
     <div class="resources-grid">
       {% assign resources = site.static_files | where_exp: "file", "file.path contains '/assets/resources/'" %}
