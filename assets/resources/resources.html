@@ -7,36 +7,71 @@ permalink: /resources/
 <section class="content">
   <div class="container">
     <h1>Resources</h1>
-    <p>Here are useful files, presentations, and notes related to systematic trading and quant finance.</p>
+    <p class="intro">
+      Browse useful files, presentations, and notes related to systematic trading and quant finance.
+    </p>
 
-    <ul class="resources-list">
+    <div class="resources-grid">
       {% assign resources = site.static_files | where_exp: "file", "file.path contains '/assets/resources/'" %}
       {% for file in resources %}
-        <li>
+        <div class="resource-card">
           <a href="{{ file.path }}" target="_blank" download>
             📁 {{ file.name }}
           </a>
-        </li>
+        </div>
       {% endfor %}
-    </ul>
+    </div>
   </div>
 </section>
 
 <style>
-.resources-list {
-  list-style: none;
-  padding-left: 0;
-  margin-top: 2rem;
+/* Intro text */
+.intro {
+  margin-top: 0.5rem;
+  margin-bottom: 2.5rem;
+  color: #555;
+  line-height: 1.7;
+  font-size: 1.05rem;
+  text-align: center;
 }
-.resources-list li {
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
+
+/* Grid Layout */
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.5rem;
 }
-.resources-list a {
+
+/* Each Resource Card */
+.resource-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.2rem;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.resource-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+}
+
+.resource-card a {
   color: var(--accent, #8B4513);
   text-decoration: none;
+  font-size: 1.05rem;
+  word-break: break-word;
 }
-.resources-list a:hover {
+
+.resource-card a:hover {
   text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .resources-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
