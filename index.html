@@ -38,15 +38,15 @@ body {
 }
 
 .container {
-  max-width: 850px; /* match About page */
+  max-width: 1000px; /* widened from 850px */
   margin: 0 auto;
-  padding: 0 2rem; /* wider side padding */
+  padding: 0 3rem; /* more space on the sides */
 }
 
 /* Hero */
 .hero {
   text-align: center;
-  padding: 7rem 2rem 4rem; /* match About spacing */
+  padding: 7rem 2rem 4rem;
 }
 
 .site-logo {
@@ -68,21 +68,21 @@ body {
 .hero .subtitle {
   font-size: 1.15rem;
   color: #555;
-  max-width: 650px;
+  max-width: 700px;
   margin: 0 auto;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
 /* Blog Content */
 .content {
-  padding: 4rem 2rem 6rem; /* more bottom padding */
+  padding: 4rem 2rem 6rem;
 }
 
 .post-card {
-  margin-bottom: 3rem; /* same spacing rhythm as about page */
-  padding: 3rem; /* consistent with about-card */
+  margin-bottom: 3.5rem; /* slightly more vertical spacing */
+  padding: 3.2rem; /* a bit more breathing room inside */
   background: #fff;
-  border-radius: 14px;
+  border-radius: 16px;
   box-shadow: 0 6px 14px rgba(0,0,0,0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -135,6 +135,9 @@ body {
 @media (max-width: 768px) {
   .hero h1 {
     font-size: 2.2rem;
+  }
+  .container {
+    padding: 0 1.5rem; /* tighter on mobile */
   }
   .post-card {
     padding: 2rem;
