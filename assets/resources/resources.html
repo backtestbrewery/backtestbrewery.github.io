@@ -4,9 +4,12 @@ title: Resources
 permalink: /resources/
 ---
 
-<section class="content">
+<section class="resources-section">
   <div class="container">
     <h1>Resources</h1>
+    <p class="intro">
+      A collection of files, notes, and references that might be useful for exploring quant finance and systematic research.
+    </p>
 
     <div class="resources-grid">
       {% assign resources = site.static_files | where_exp: "file", "file.path contains '/assets/resources/'" %}
@@ -22,42 +25,76 @@ permalink: /resources/
 </section>
 
 <style>
+:root {
+  --background: #fdfdfd;
+  --text-primary: #292929;
+  --text-secondary: #555;
+  --border-color: #e0e0e0;
+  --accent: #8B4513; /* consistent accent */
+}
+
+body {
+  background: var(--background);
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.container {
+  max-width: 1000px; /* ✅ matches index/about */
+  margin: 0 auto;
+  padding: 0 3rem;
+}
+
+.resources-section {
+  padding: 6.5rem 2rem 5.5rem;
+}
+
+.resources-section h1 {
+  font-size: 2.4rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
 /* Intro text */
 .intro {
-  margin-top: 0.5rem;
-  margin-bottom: 2.5rem;
-  color: #555;
+  margin: 0 auto 3rem auto;
+  color: var(--text-secondary);
   line-height: 1.7;
   font-size: 1.05rem;
   text-align: center;
+  max-width: 700px;
 }
 
 /* Grid Layout */
 .resources-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.8rem;
 }
 
 /* Each Resource Card */
 .resource-card {
   background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 1.2rem;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1.6rem;
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .resource-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
 }
 
 .resource-card a {
-  color: var(--accent, #8B4513);
+  color: var(--accent);
   text-decoration: none;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
+  font-weight: 500;
   word-break: break-word;
 }
 
@@ -66,9 +103,34 @@ permalink: /resources/
 }
 
 /* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+  .resources-section h1 {
+    font-size: 2.1rem;
+  }
+  .intro {
+    font-size: 1rem;
+  }
+}
+
 @media (max-width: 600px) {
+  .resources-section {
+    padding: 4.5rem 1rem 3.5rem;
+  }
+  .resources-section h1 {
+    font-size: 1.85rem;
+  }
   .resources-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* stack for mobile */
+  }
+  .resource-card {
+    padding: 1.4rem;
+    border-radius: 12px;
+  }
+  .resource-card a {
+    font-size: 1rem;
   }
 }
 </style>
