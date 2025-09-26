@@ -33,36 +33,45 @@ title: About | Backtest Brewery
   --accent: #007bff;
 }
 
-.container {
-  max-width: 1000px; /* match index */
-  margin: 0 auto;
-  padding: 0 3rem; /* match index */
+body {
+  background: var(--background);
+  color: var(--text-primary);
+  line-height: 1.75;
 }
 
+.container {
+  max-width: 1050px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Section */
 .about-section {
-  padding: 7rem 2rem 6rem; /* similar spacing as index hero/content */
+  padding: 6.5rem 2rem 5.5rem;
 }
 
 .about-section h1 {
-  font-size: 2.4rem;
-  margin-bottom: 3rem;
+  font-size: 2.6rem;
+  margin-bottom: 3.2rem;
   color: var(--text-primary);
   text-align: center;
+  line-height: 1.3;
 }
 
+/* Card */
 .about-card {
   background: #fff;
-  padding: 3.2rem; /* match post-card internal spacing */
-  border-radius: 16px;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+  padding: 3rem;
+  border-radius: 18px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
   margin: 0 auto 4rem auto;
 }
 
 .about-card p {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   margin-bottom: 2rem;
   color: var(--text-secondary);
-  line-height: 1.8;
+  line-height: 1.85;
   text-align: justify;
 }
 
@@ -70,23 +79,24 @@ title: About | Backtest Brewery
   margin-bottom: 0;
 }
 
+/* Contact */
 .contact-me {
   text-align: center;
   margin-top: 4rem;
 }
 
 .contact-me p {
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: var(--text-secondary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.7rem;
 }
 
 .contact-link {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 500;
   color: var(--accent);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color 0.25s ease;
 }
 
 .contact-link:hover {
@@ -94,13 +104,39 @@ title: About | Backtest Brewery
   text-decoration: underline;
 }
 
-@media (max-width: 768px) {
-  .container {
-    padding: 0 1.5rem;
+/* Responsive */
+@media (max-width: 992px) {
+  .about-section h1 {
+    font-size: 2.2rem;
   }
   .about-card {
-    padding: 2.5rem;
+    padding: 2.4rem;
+  }
+  .about-card p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+  }
+}
+
+@media (max-width: 600px) {
+  .about-section {
+    padding: 4.5rem 1rem 3.5rem;
+  }
+  .about-section h1 {
+    font-size: 1.9rem;
+  }
+  .about-card {
+    padding: 1.8rem;
+    border-radius: 14px;
     margin-bottom: 3rem;
+  }
+  .about-card p {
+    font-size: 1rem;
+    line-height: 1.7;
+    text-align: left; /* easier to read on mobile */
+  }
+  .contact-link {
+    font-size: 1.05rem;
   }
 }
 </style>
