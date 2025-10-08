@@ -5,27 +5,12 @@ permalink: /about/
 ---
 
 
-These are my musings about strategies, statistics, computer science, numerical techniques, etc.    I am a quant / developer, living in the New York area.
+These are my musings on trading, stats, and whatever bit of math I’ve been playing with. It’s not a polished blog, more like a notebook where I park ideas, half-baked experiments, and things I found interesting in quant finance.
 
-I arrived here via a twisted road.    Given my area of study in
-university, parallel algorithms and applied math, I never had any intention of joining Wall
-Street.   By chance I became involved with a research group at Lehman
-Brothers in the 90s; the group developed cutting edge technologies:
-Neural Nets, VR, Parallel Processing, and NLP -- applied to trading
-and risk management.   The problems were interesting and the technology on wall street was
-still nascent / bleeding-edge at the time.
+Back in my first year at IIT Roorkee, I was more into economics and wanted to understand how markets worked on a broader scale. Somewhere along the way I found quant finance, and it clicked. The mix of math, coding, and markets felt way more real than theory—you could test things out, trade them, break them, and rebuild, which made it addictive, almost like a game.
 
-After some years in New York, Japan, and London grew less interested
-in the most complex products (derivatives) as seemed that almost every
-angle had been explored.
+I actively trade too, mostly testing and tweaking the strategies I build. Outside of finance, I’m big on sports. I follow football closely (Real Madrid all the way), I’ve always loved cricket, and I’ve been exploring algobetting—treating sports odds and match data like another dataset to model. Feels a lot like trading, just with goals and wickets instead of price charts.
 
-Algo Trading reignited my interest in "Wall Street".  Though I did
-some  early work in building the first
-electronic marketplace for bonds in Japan in the late 90s, it was not
-until the mid 2000s that I was able to focus on algo trading specifically.
+Most of what you’ll find here is me trying out strategies, running backtests, or playing with numbers that catch my attention. It’s less about giving answers and more about keeping track of the journey, and maybe making sense of the noise along the way.
 
-What appeals to me about algo trading is that it requires and allows
-one to practice as a polymath, pulling together mathematics, computer science, market knowledge,
-and creativity into one package.  
-
-[contact me](mailto: jonathan.shore@gmail.com)
+[contact me](mailto: yashveer269@gmail.com)
