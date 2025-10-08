@@ -1,0 +1,6 @@
+// Define mobile mixin for responsive design
+@mixin mobile {
+  @media only screen and (max-width: 768px) {
+    @content;
+  }
+}
