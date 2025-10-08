@@ -10,10 +10,6 @@ avatar: /images/avatar.png   # optional — place avatar.png inside /images fold
 
 # Author / Footer Links
 footer-links:
-  github: backtestbrewery
-  linkedin: backtestbrewery
-  twitter: backtestbrewery
-  email: backtestbrewery@gmail.com
   rss: backtestbrewery
 
 # Commenting & Analytics
