@@ -1,0 +1,148 @@
+---
+layout: default
+title: About | Backtest Brewery
+---
+
+<section class="about-section">
+  <div class="container">
+    <h1>About</h1>
+    <div class="about-card">
+      <p>
+        These are my musings on trading, stats, and whatever bit of math I’ve been playing with. It’s not a polished blog, more like a notebook where I park ideas, half-baked experiments, and things I found interesting in quant finance.
+      </p>
+      <p>
+        Back in my first year at IIT Roorkee, I was more into economics and wanted to understand how markets worked on a broader scale. Somewhere along the way I found quant finance, and it clicked. The mix of math, coding, and markets felt way more real than theory—you could test things out, trade them, break them, and rebuild, which made it addictive, almost like a game.
+      </p>
+      <p>
+        I actively trade too, mostly testing and tweaking the strategies I build. Outside of finance, I’m big on sports. I follow football closely (Real Madrid all the way), I’ve always loved cricket, and I’ve been exploring algobetting—treating sports odds and match data like another dataset to model. Feels a lot like trading, just with goals and wickets instead of price charts.
+      </p>
+      <p>
+        Most of what you’ll find here is me trying out strategies, running backtests, or playing with numbers that catch my attention. It’s less about giving answers and more about keeping track of the journey, and maybe making sense of the noise along the way.
+      </p>
+    </div>
+    <div class="contact-me">
+      <p>If something here resonates, feel free to reach out.</p>
+      <a href="mailto:yashveer269@gmail.com" class="contact-link">yashveer269@gmail.com</a>
+    </div>
+  </div>
+</section>
+
+<style>
+:root {
+  --background: #fdfdfd;
+  --text-primary: #292929;
+  --text-secondary: #555;
+  --border-color: #e0e0e0;
+  --accent: #007bff;
+}
+
+body {
+  background: var(--background);
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.container {
+  max-width: 1000px; /* ✅ match index page */
+  margin: 0 auto;
+  padding: 0 3rem;   /* ✅ match index page */
+}
+
+/* Section */
+.about-section {
+  padding: 6.5rem 2rem 5.5rem;
+}
+
+.about-section h1 {
+  font-size: 2.6rem;
+  margin-bottom: 3.2rem;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Card */
+.about-card {
+  background: #fff;
+  padding: 3rem;
+  border-radius: 18px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+  margin: 0 auto 4rem auto;
+}
+
+.about-card p {
+  font-size: 1.15rem;
+  margin-bottom: 2rem;
+  color: var(--text-secondary);
+  line-height: 1.85;
+  text-align: justify;
+}
+
+.about-card p:last-of-type {
+  margin-bottom: 0;
+}
+
+/* Contact */
+.contact-me {
+  text-align: center;
+  margin-top: 4rem;
+}
+
+.contact-me p {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.7rem;
+}
+
+.contact-link {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+
+.contact-link:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1.5rem; /* ✅ match index responsive */
+  }
+  .about-section h1 {
+    font-size: 2.2rem;
+  }
+  .about-card {
+    padding: 2.4rem;
+  }
+  .about-card p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+  }
+}
+
+@media (max-width: 600px) {
+  .about-section {
+    padding: 4.5rem 1rem 3.5rem;
+  }
+  .about-section h1 {
+    font-size: 1.9rem;
+  }
+  .about-card {
+    padding: 1.8rem;
+    border-radius: 14px;
+    margin-bottom: 3rem;
+  }
+  .about-card p {
+    font-size: 1rem;
+    line-height: 1.7;
+    text-align: left; /* easier reading on small screens */
+  }
+  .contact-link {
+    font-size: 1.05rem;
+  }
+}
+</style>
