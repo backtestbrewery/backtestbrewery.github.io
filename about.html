@@ -1,161 +1,450 @@
----
-layout: default
-title: About | Backtest Brewery
----
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Backtest Brewery</title>
+  <meta name="description" content="About the author of Backtest Brewery." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Source+Code+Pro:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script>
+    (function(){
+      var t=localStorage.getItem('bb-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+      document.documentElement.setAttribute('data-theme',t);
+    })();
+  </script>
+  <style>
+    /* ── Variables ──────────────────────────────────────── */
+    :root {
+      --bg:      #FAFAF8;
+      --ink:     #111110;
+      --muted:   #777770;
+      --rule:    #DDDDD8;
+      --red:     #B83232;
+      --surface: #F3F3F0;
+      --toggle-bg: #E8E8E4;
+    }
+    [data-theme="dark"] {
+      --bg:      #0C0C0B;
+      --ink:     #E8E4DB;
+      --muted:   #7A7A72;
+      --rule:    #252522;
+      --red:     #C94040;
+      --surface: #161614;
+      --toggle-bg: #222220;
+    }
 
-<section class="hero">
-  <div class="container">
-    <h1>About Backtest Brewery</h1>
-    <p class="subtitle">
-      Thoughts on quantitative trading, experiments, and systematic research.
-    </p>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { font-size: 16px; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.05rem;
+      line-height: 1.75;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .page {
+      width: min(92%, 760px);
+      margin-inline: auto;
+      padding-bottom: 5rem;
+    }
+
+    /* ── Journal bar ────────────────────────────────────── */
+    .journal-bar {
+      border-bottom: 2px solid var(--ink);
+      padding: 0.85rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      opacity: 0;
+      animation: fadeUp 0.45s ease forwards;
+    }
+
+    .bar-left { display: flex; align-items: center; gap: 0.5rem; }
+    .bar-left strong { color: var(--ink); font-weight: 500; }
+    .bar-right { display: flex; align-items: center; gap: 1rem; }
+
+    #theme-toggle {
+      background: var(--toggle-bg);
+      border: none;
+      cursor: pointer;
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 3px 9px;
+      border-radius: 2px;
+      transition: color 0.15s, background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    #theme-toggle:hover { color: var(--ink); }
+
+    /* Back link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--ink); }
+
+    /* ── Title block ────────────────────────────────────── */
+    .title-block {
+      padding: 3.5rem 0 2.8rem;
+      border-bottom: 1px solid var(--rule);
+      opacity: 0;
+      animation: fadeUp 0.45s 0.08s ease forwards;
+    }
+
+    .page-label {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 1rem;
+    }
+
+    .page-title {
+      font-size: clamp(1.9rem, 4.5vw, 2.6rem);
+      font-weight: 500;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      font-size: 1.05rem;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    /* ── Body sections ──────────────────────────────────── */
+    .about-body {
+      opacity: 0;
+      animation: fadeUp 0.45s 0.16s ease forwards;
+    }
+
+    .about-section {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 0 2.5rem;
+      border-bottom: 1px solid var(--rule);
+      padding: 2.5rem 0;
+    }
+
+    .about-section:last-of-type { border-bottom: none; }
+
+    .section-label {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-top: 0.35rem;
+      line-height: 1.5;
+    }
+
+    .section-label .num {
+      color: var(--red);
+      display: block;
+      margin-bottom: 0.3rem;
+      font-size: 0.58rem;
+    }
+
+    .section-content p {
+      font-size: 0.98rem;
+      color: var(--muted);
+      line-height: 1.9;
+      margin-bottom: 1.1rem;
+    }
+
+    .section-content p:last-child { margin-bottom: 0; }
+
+    /* Interests grid */
+    .interests-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+    }
+
+    .interest-item {
+      border: 1px solid var(--rule);
+      padding: 0.75rem 0.85rem;
+      border-radius: 2px;
+      transition: border-color 0.15s;
+    }
+
+    .interest-item:hover { border-color: var(--muted); }
+
+    .interest-label {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .interest-desc {
+      font-size: 0.88rem;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+
+    /* Disclaimer box */
+    .disclaimer-box {
+      border: 1px solid var(--rule);
+      padding: 1rem 1.2rem;
+      background: var(--surface);
+      border-radius: 2px;
+    }
+
+    .disclaimer-box p {
+      font-size: 0.85rem !important;
+      color: var(--muted) !important;
+      margin-bottom: 0 !important;
+      line-height: 1.7 !important;
+    }
+
+    /* ── Footer ─────────────────────────────────────────── */
+    footer {
+      margin-top: 4rem;
+      border-top: 2px solid var(--ink);
+      padding: 1.1rem 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.45s 0.35s ease forwards;
+    }
+
+    .footer-left {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.055em;
+      color: var(--muted);
+    }
+
+    .footer-nav { display: flex; gap: 1.6rem; flex-wrap: wrap; }
+
+    .footer-nav a {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.15s;
+    }
+
+    .footer-nav a:hover { color: var(--ink); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ─────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .about-section {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+        padding: 2rem 0;
+      }
+
+      .section-label { padding-top: 0; }
+
+      .journal-bar { flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+      .bar-right { width: 100%; justify-content: space-between; }
+
+      footer { flex-direction: column; gap: 0.8rem; }
+      .footer-nav { gap: 1rem; }
+
+      .interests-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Journal bar -->
+  <div class="journal-bar">
+    <div class="bar-left">
+      <strong>Backtest Brewery</strong>
+      <span>·</span>
+      <a href="index.html" class="back-link">← All Research</a>
+    </div>
+    <div class="bar-right">
+      <span>Vol. 1 · 2025</span>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span id="toggle-icon">◐</span>
+        <span id="toggle-label">Dark</span>
+      </button>
+    </div>
   </div>
-</section>
 
-<section class="content">
-  <div class="container newspaper about-section">
-    <div class="about-card">
-      <p>
-        This blog is a collection of my musings on algorithmic trading and the various strategy ideas I am experimenting with. It is not a polished blog but rather a notebook where I park ideas, half-baked experiments, and anything that sparks my curiosity.
-      </p>
-      <p>
-        While pursuing my undergraduate degree in Economics, I discovered quant finance and realized how a combination of math, coding, and markets can feel both surreal and practical, more engaging than anything I had studied before. I enjoy building trading strategies, breaking them, refining them, deploying them, and watching them perform. The process is addictive and feels almost like a game.
-      </p>
-      <p>
-        Beyond finance, I am passionate about sports. I follow football closely, supporting Real Madrid, I have always loved cricket, and recently I have been exploring algo-betting, treating sports odds and match data as another dataset to model. It is very similar to trading, just with goals and wickets instead of price charts.
-      </p>
-      <p>
-        Most of what you will find here is me trying out strategies, running backtests, or playing with numbers that catch my attention. It is less about giving answers and more about documenting the journey, making sense of the noise, and sharing the occasional insight along the way.
-      </p>
+  <!-- Title block -->
+  <div class="title-block">
+    <p class="page-label">§ About</p>
+    <h1 class="page-title">About This Journal</h1>
+    <p class="page-subtitle">On the author, the interests, and the intent</p>
+  </div>
+
+  <!-- Body -->
+  <div class="about-body">
+
+    <!-- Overview -->
+    <div class="about-section">
+      <div class="section-label">
+        <span class="num">§ 1</span>
+        Overview
+      </div>
+      <div class="section-content">
+        <p>
+          This blog is a collection of my musings on algorithmic trading and the various strategy ideas
+          I am experimenting with. It is not a polished blog but rather a notebook where I park ideas,
+          half-baked experiments, and anything that sparks my curiosity.
+        </p>
+        <p>
+          Most of what you will find here is me trying out strategies, running backtests, or playing with
+          numbers that catch my attention. It is less about giving answers and more about documenting the
+          journey — making sense of the noise, and sharing the occasional insight along the way.
+        </p>
+      </div>
     </div>
 
-    <div class="contact-me">
-      <p>If something here resonates, feel free to reach out.</p>
-      <a href="mailto:yashveer269@gmail.com" class="contact-link">yashveer269@gmail.com</a>
+    <!-- Background -->
+    <div class="about-section">
+      <div class="section-label">
+        <span class="num">§ 2</span>
+        Background
+      </div>
+      <div class="section-content">
+        <p>
+          While pursuing my undergraduate degree in Economics, I discovered quant finance and realised
+          how a combination of math, coding, and markets can feel both surreal and practical — more
+          engaging than anything I had studied before.
+        </p>
+        <p>
+          I enjoy building trading strategies, breaking them, refining them, deploying them, and watching
+          them perform. The process is addictive and feels almost like a game.
+        </p>
+      </div>
     </div>
-  </div>
-</section>
 
-<style>
-/* Global consistency with index page */
-body {
-  font-family: "Georgia", "Times New Roman", serif;
-  color: #222;
-  background: #fcfcfc;
-  line-height: 1.8;
-}
+    <!-- Interests -->
+    <div class="about-section">
+      <div class="section-label">
+        <span class="num">§ 3</span>
+        Interests
+      </div>
+      <div class="section-content">
+        <p>
+          Beyond finance, I am passionate about sports. I follow football closely, supporting Real Madrid;
+          I have always loved cricket; and recently I have been exploring algo-betting — treating sports
+          odds and match data as another dataset to model. It is very similar to trading, just with goals
+          and wickets instead of price charts.
+        </p>
+        <div class="interests-grid">
+          <div class="interest-item">
+            <div class="interest-label">Algo Trading</div>
+            <div class="interest-desc">Mean reversion, momentum, stat-arb</div>
+          </div>
+          <div class="interest-item">
+            <div class="interest-label">Football</div>
+            <div class="interest-desc">Real Madrid · xG modelling</div>
+          </div>
+          <div class="interest-item">
+            <div class="interest-label">Cricket</div>
+            <div class="interest-desc">Win probability · IPL data</div>
+          </div>
+          <div class="interest-item">
+            <div class="interest-label">Sports Betting</div>
+            <div class="interest-desc">Odds as price, edges as alpha</div>
+          </div>
+          <div class="interest-item">
+            <div class="interest-label">Python</div>
+            <div class="interest-desc">pandas · vectorbt · statsmodels</div>
+          </div>
+          <div class="interest-item">
+            <div class="interest-label">Economics</div>
+            <div class="interest-desc">Undergraduate background</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
+    <!-- Disclaimer -->
+    <div class="about-section">
+      <div class="section-label">
+        <span class="num">§ 4</span>
+        Disclaimer
+      </div>
+      <div class="section-content">
+        <div class="disclaimer-box">
+          <p>
+            Nothing on this blog constitutes financial advice. All strategy research, backtest results,
+            and commentary are shared for educational and exploratory purposes only. Past performance
+            of any modelled strategy does not imply future results. Trade at your own risk.
+          </p>
+        </div>
+      </div>
+    </div>
 
-/* Hero section */
-.hero {
-  text-align: center;
-  padding: 4rem 1.5rem 3rem;
-}
+  </div><!-- /.about-body -->
 
-.hero h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: #111;
-  line-height: 1.3;
-  font-weight: bold;
-}
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">Backtest Brewery · © 2025 · Not financial advice</div>
+    <nav class="footer-nav">
+      <a href="index.html">Research</a>
+      <a href="#">GitHub ↗</a>
+    </nav>
+  </footer>
 
-.hero .subtitle {
-  font-size: 1.1rem;
-  color: #555;
-  max-width: 680px;
-  margin: 0 auto;
-  line-height: 1.8;
-  font-style: italic;
-}
+</div>
 
-/* About card */
-.about-card {
-  background: #fff;
-  padding: 3rem;
-  border-radius: 18px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-  margin: 0 auto 4rem auto;
-}
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn  = document.getElementById('theme-toggle');
+    var icon = document.getElementById('toggle-icon');
+    var lbl  = document.getElementById('toggle-label');
 
-.about-card p {
-  font-size: 1.15rem;
-  margin-bottom: 2rem;
-  color: #555;
-  line-height: 1.85;
-  text-align: justify;
-}
+    function apply(t) {
+      root.setAttribute('data-theme', t);
+      localStorage.setItem('bb-theme', t);
+      icon.textContent = t === 'dark' ? '◑' : '◐';
+      lbl.textContent  = t === 'dark' ? 'Light' : 'Dark';
+    }
 
-.about-card p:last-of-type {
-  margin-bottom: 0;
-}
+    apply(root.getAttribute('data-theme') || 'light');
 
-/* Contact */
-.contact-me {
-  text-align: center;
-  margin-top: 4rem;
-}
-
-.contact-me p {
-  font-size: 1.05rem;
-  color: #555;
-  margin-bottom: 0.7rem;
-}
-
-.contact-link {
-  font-size: 1.15rem;
-  font-weight: 500;
-  color: #007bff;
-  text-decoration: none;
-  transition: color 0.25s ease;
-}
-
-.contact-link:hover {
-  color: #111;
-  text-decoration: underline;
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-  .container {
-    padding: 0 1.5rem;
-  }
-  .hero h1 {
-    font-size: 2.2rem;
-  }
-  .hero .subtitle {
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .hero {
-    padding: 3rem 1rem 2rem;
-  }
-  .hero h1 {
-    font-size: 1.8rem;
-  }
-  .hero .subtitle {
-    font-size: 0.95rem;
-    line-height: 1.5;
-  }
-  .about-card {
-    padding: 2rem;
-    border-radius: 14px;
-    margin-bottom: 3rem;
-  }
-  .about-card p {
-    font-size: 1rem;
-    line-height: 1.7;
-    text-align: left;
-  }
-  .contact-link {
-    font-size: 1.05rem;
-  }
-}
-</style>
+    btn.addEventListener('click', function () {
+      apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+  })();
+</script>
+</body>
+</html>
