@@ -584,54 +584,6 @@
       </p>
     </div>
 
-    <h2><span class="sec">§ 7</span> What Works and What I'm Not Fully Convinced By</h2>
-
-    <p>
-      <strong>Convinced:</strong> the Swiss system constraint set is clean. The no-rematch constraint
-      (C-Swiss-1), the points-ordered pairing bound (C-Swiss-2), and the travel-adjusted rest floor
-      (C-Swiss-4) together solve the three main failure modes of group formats — repeated opponents
-      are impossible, scheduling inequity is bounded, and rest is enforced on effective rather than
-      nominal terms. The Gini comparison is the cleanest fairness analysis I have seen applied to
-      tournament formats.
-    </p>
-
-    <p>
-      <strong>Less convinced:</strong> the 85% importance figure for Round 1 is slightly inflated,
-      as discussed above. More significantly, the objective function weights <code>w₁...w₅</code>
-      are left unspecified — which means the MILP is a framework rather than a solved optimisation.
-      Different weight choices could favour different formats; a sensitivity analysis showing which
-      conclusions hold across a range of plausible weight vectors would make this much stronger.
-    </p>
-
-    <p>
-      <strong>The Wild Card golden-goal argument</strong> is interesting but slightly inconsistent.
-      Golden goal is appropriate for the Wild Card because penalty shootouts undermine the merit-based
-      logic of the Swiss system — a draw after 90 minutes should not be decided by a lottery. Fair enough.
-      But the same argument applies to every knockout round. Shootouts are retained from Round of 16
-      onward on cultural grounds ("established and accepted part of the game's identity"), which is not
-      a mathematical argument. The math would say golden goal everywhere or nowhere.
-    </p>
-
-    <h2><span class="sec">§ 8</span> Why This Belongs Here</h2>
-
-    <p>
-      The parallel to trading is direct. Tournament formats and market mechanisms share the same
-      design problem: you have participants of varying quality, imperfect information about that
-      quality, a finite number of interactions, and an objective to surface the best performers
-      while keeping everyone engaged. Group stages are like fixed-weight portfolios — the composition
-      is set at the draw and does not adapt to observed performance. The Swiss system is like a
-      momentum strategy — it dynamically reweights based on recent results, concentrating future
-      matches where the information content is highest.
-    </p>
-
-    <p>
-      The Gini coefficient as a fairness measure, the Kendall tau as a measurement reliability metric,
-      the MILP as a scheduling optimiser — these are all standard quantitative tools applied to a domain
-      people normally discuss with pure intuition. The paper is a good demonstration that "this is
-      sport, not math" is a false dichotomy. Everything is math. Some things just haven't been
-      written down yet.
-    </p>
-
   </div>
 
 </div>
