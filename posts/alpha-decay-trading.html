@@ -169,7 +169,7 @@
 
   <div class="post-header">
     <p class="post-label">Market Microstructure</p>
-    <h1 class="post-title">Alpha Decay — Why Your Edge Has a Half-Life</h1>
+    <h1 class="post-title">Alpha Decay</h1>
     <div class="post-meta">
       <span>2026-05-17</span>
       <span class="meta-dot"></span>
@@ -182,14 +182,12 @@
   <div class="post-body">
 
     <p>
-      Alpha decay is real. It is not a theoretical concern for quants to worry about eventually —
-      it is an active, ongoing process happening to every strategy in production right now. The
-      moment a signal is discovered, the clock starts. Markets are learning machines, and they
-      learn fast.
+      I saw this firsthand with a volatility dispersion strategy I deployed on Bank Nifty and its constituents. What looked robust in early backtests showed a steady, unmistakable decline in returns across successive months. Not noise, not a bad period, but a directional bleed that only made sense in one frame: the edge was being competed away in real time. Alpha decay is real. It is not a theoretical concern for quants to worry about eventually. It is an active, ongoing process happening to every strategy in production right now. The moment a signal is discovered, the clock starts. Markets are learning machines, and they learn fast.
+      That pattern in the backtest was the signal. The strategy wasn't broken. It was just becoming known.
     </p>
 
     <p>
-      The term borrows deliberately from nuclear physics. A radioactive isotope loses half its
+      The term borrows deliberately from nuclear physics (which is a very interesting subject in itself). A radioactive isotope loses half its
       activity in a fixed period — the half-life. A trading signal loses half its predictive power
       on a similar curve. The only question is how steep that curve is. And that answer depends
       almost entirely on the frequency at which you are operating.
@@ -201,14 +199,14 @@
       Alpha exists because of an information asymmetry — you know something the price does not yet
       reflect. The decay happens as that information propagates. Other participants observe the same
       patterns, deploy similar logic, and compete away the edge. What was once a 10 bps expected
-      return per trade becomes 6, then 2, then noise.
+      return per trade becomes 6, then 2, then noise. 
     </p>
 
     <p>
       This is not a failure of the strategy. It is the market doing its job. Price discovery is
       the mechanism that destroys edges, and it is ruthlessly efficient. The practical implication
-      is that no signal is permanent — only signals at timescales where discovery is slow enough
-      to still be exploitable.
+      is that no signal is permanent and only signals at timescales where discovery is slow enough
+      to still be exploitable. (I am sure EMA crossovers must have been a decent strategy in itself during 1980s.)
     </p>
 
     <div class="formula">
@@ -239,8 +237,7 @@
       <div class="callout-label">The execution is the strategy</div>
       <p>
         In HFT, the signal and the execution are inseparable. A correct directional prediction
-        that arrives 50 microseconds late is worth zero — or less than zero, if you end up on
-        the wrong side of a move you saw coming. Decay here is not just about the signal
+        that arrives 50 microseconds late is worth zero (or less than zero). Decay here is not just about the signal
         fading; it is about the execution infrastructure becoming the competitive moat, and
         that moat shrinking as hardware costs fall and access democratises.
       </p>
@@ -292,12 +289,12 @@
           </tr>
           <tr>
             <td>Alpha half-life</td>
-            <td class="bad">Weeks – months</td>
-            <td class="good">Months – years</td>
+            <td>Weeks – months</td>
+            <td>Months – years</td>
           </tr>
           <tr>
             <td>Crowding risk</td>
-            <td class="bad">Extreme — arms race dynamics</td>
+            <td>Extreme — arms race dynamics</td>
             <td>Moderate — capacity absorbs more capital</td>
           </tr>
           <tr>
@@ -312,9 +309,7 @@
     <h2><span class="sec">§ 4</span> What To Do About It</h2>
 
     <p>
-      The honest answer is: not much beyond accepting it and building for it. A strategy
-      research pipeline should treat decay as a first-class variable — not something that
-      happens after launch, but something to model before it. Walk-forward analysis, out-of-sample
+      The honest answer is: not much beyond accepting it and building for it. Walk-forward analysis, out-of-sample
       validation windows, and live-versus-backtest Sharpe comparisons are all decay detectors,
       not just performance metrics.
     </p>
@@ -341,6 +336,8 @@
       Alpha decay is the market's immune response to being predicted. Every strategy is in a
       race against it. The frequency at which you operate determines how fast you are running —
       and how quickly the ground beneath you shifts.
+
+      PS - This slower decay nature of MFT is honestly one of the bigger reasons I gravitated toward it after a certain point. The other reason is more straightforward: I did not get into a CS program. HFT is an infrastructure game at its core, and without a strong CS foundation and access to the tooling that comes with it, competing on latency and execution pipelines is a non-starter. MFT let me compete on ideas and statistical rigor instead, which felt like a more honest playing field given where I was starting from.
     </p>
 
   </div>
