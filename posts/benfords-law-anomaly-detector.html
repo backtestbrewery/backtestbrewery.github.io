@@ -1,1 +1,494 @@
 
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Benford's Law as a Market Anomaly Detector — Backtest Brewery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Source+Code+Pro:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script>
+    (function(){
+      var t=localStorage.getItem('bb-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+      document.documentElement.setAttribute('data-theme',t);
+    })();
+  </script>
+  <style>
+    :root {
+      --bg:#FAFAF8; --ink:#111110; --muted:#777770;
+      --rule:#DDDDD8; --red:#B83232; --toggle-bg:#E8E8E4;
+      --surface:#F3F3F0;
+    }
+    [data-theme="dark"] {
+      --bg:#0C0C0B; --ink:#E8E4DB; --muted:#7A7A72;
+      --rule:#252522; --red:#C94040; --toggle-bg:#222220;
+      --surface:#161614;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { font-size:16px; }
+    body {
+      background:var(--bg); color:var(--ink);
+      font-family:'EB Garamond',Georgia,serif;
+      font-size:1.05rem; line-height:1.75;
+      transition:background 0.2s, color 0.2s;
+    }
+    .page { width:min(92%,760px); margin-inline:auto; padding-bottom:5rem; }
+
+    /* ── bar ── */
+    .journal-bar {
+      border-bottom:2px solid var(--ink); padding:0.85rem 0;
+      display:flex; justify-content:space-between; align-items:center;
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.08em;
+    }
+    .back-link { color:var(--muted); text-decoration:none; transition:color 0.15s; }
+    .back-link:hover { color:var(--ink); }
+    .bar-right { display:flex; align-items:center; gap:1.2rem; }
+    .nav-link {
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.09em; text-transform:uppercase;
+      color:var(--muted); text-decoration:none; transition:color 0.15s;
+    }
+    .nav-link:hover { color:var(--ink); }
+    #theme-toggle {
+      background:var(--toggle-bg); border:none; cursor:pointer;
+      font-family:'Source Code Pro',monospace; font-size:0.6rem;
+      letter-spacing:0.08em; color:var(--muted); padding:3px 9px;
+      border-radius:2px; display:flex; align-items:center; gap:5px;
+      transition:color 0.15s;
+    }
+    #theme-toggle:hover { color:var(--ink); }
+
+    /* ── post header ── */
+    .post-header { padding:3.5rem 0 2.5rem; border-bottom:1px solid var(--rule); }
+    .post-label {
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.13em; text-transform:uppercase;
+      color:var(--red); margin-bottom:0.9rem;
+    }
+    .post-title {
+      font-size:clamp(1.8rem,4.5vw,2.5rem); font-weight:500;
+      line-height:1.15; letter-spacing:-0.01em; margin-bottom:1.5rem;
+    }
+    .post-meta {
+      font-family:'Source Code Pro',monospace; font-size:0.61rem;
+      letter-spacing:0.07em; color:var(--muted);
+      display:flex; gap:1rem; flex-wrap:wrap; align-items:center;
+    }
+    .meta-dot {
+      width:3px; height:3px; border-radius:50%;
+      background:var(--rule); display:inline-block; vertical-align:middle;
+    }
+    .meta-tag { color:var(--ink); }
+
+    /* ── prose ── */
+    .post-body { padding:2.5rem 0; }
+
+    .post-body p {
+      font-size:0.98rem; color:var(--muted);
+      line-height:1.95; margin-bottom:1.2rem;
+    }
+
+    .post-body h2 {
+      font-size:1.28rem; font-weight:500; color:var(--ink);
+      margin:2.8rem 0 0.8rem;
+      display:flex; align-items:baseline; gap:0.6rem;
+    }
+    .post-body h2 .sec {
+      font-family:'Source Code Pro',monospace;
+      font-size:0.7rem; color:var(--red); font-weight:400;
+    }
+
+    .post-body strong { color:var(--ink); font-weight:600; }
+    .post-body em { font-style:italic; }
+
+    /* inline code */
+    .post-body code {
+      font-family:'Source Code Pro',monospace; font-size:0.8em;
+      background:var(--surface); padding:1px 5px; border-radius:2px;
+      color:var(--ink);
+    }
+
+    /* code block */
+    .post-body pre {
+      background:var(--surface); border:1px solid var(--rule);
+      border-radius:3px; padding:1.2rem 1.4rem;
+      overflow-x:auto; margin:1.5rem 0; position:relative;
+    }
+    .post-body pre code {
+      background:none; padding:0;
+      font-size:0.79rem; line-height:1.65; color:var(--ink);
+    }
+    .pre-lang {
+      font-family:'Source Code Pro',monospace; font-size:0.55rem;
+      letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
+      display:block; margin-bottom:0.6rem;
+    }
+
+    /* formula */
+    .formula {
+      text-align:center; padding:1rem 1.2rem;
+      border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);
+      margin:1.5rem 0;
+      font-family:'Source Code Pro',monospace; font-size:0.85rem;
+      color:var(--muted); letter-spacing:0.02em;
+    }
+    .formula-caption {
+      display:block; font-size:0.62rem; text-transform:uppercase;
+      letter-spacing:0.1em; color:var(--muted); opacity:0.7;
+      margin-top:0.4rem;
+    }
+
+    /* figures */
+    .figure { margin:2rem 0; }
+    .figure img {
+      width:100%; border:1px solid var(--rule); border-radius:3px;
+      display:block;
+    }
+    .figure-caption {
+      font-family:'Source Code Pre',monospace;
+      font-size:0.65rem; letter-spacing:0.06em; color:var(--muted);
+      margin-top:0.5rem; text-align:center;
+    }
+    .fig-num { color:var(--red); }
+
+    /* table */
+    .post-body table {
+      width:100%; border-collapse:collapse;
+      font-size:0.88rem; margin:1.5rem 0;
+    }
+    .post-body th {
+      font-family:'Source Code Pro',monospace; font-size:0.58rem;
+      letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);
+      border-bottom:2px solid var(--rule); padding:0.5rem 0.6rem;
+      text-align:left; font-weight:400;
+    }
+    .post-body td {
+      padding:0.5rem 0.6rem; border-bottom:1px solid var(--rule); color:var(--muted);
+    }
+    .post-body tr:last-child td { border-bottom:none; }
+    .num { text-align:right; font-family:'Source Code Pro',monospace; font-size:0.82rem; }
+
+    /* callout */
+    .callout {
+      border-left:2px solid var(--rule); padding:0.8rem 1.2rem;
+      margin:1.5rem 0; background:var(--surface);
+    }
+    .callout p { margin-bottom:0; font-size:0.92rem; }
+    .callout-label {
+      font-family:'Source Code Pro',monospace; font-size:0.58rem;
+      letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
+      margin-bottom:0.4rem;
+    }
+
+    @media (max-width:640px) {
+      .journal-bar { flex-wrap:wrap; gap:0.6rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="journal-bar">
+    <a href="../index.html" class="back-link">← Backtest Brewery</a>
+    <div class="bar-right">
+      <a href="../about.html" class="nav-link">About</a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span id="toggle-icon">◐</span>
+        <span id="toggle-label">Dark</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="post-header">
+    <p class="post-label">Research</p>
+    <h1 class="post-title">Benford's Law as a Market Anomaly Detector</h1>
+    <div class="post-meta">
+      <span>2025-05-17</span>
+      <span class="meta-dot"></span>
+      <span class="meta-tag">Benford's Law · Anomaly Detection · ETH/USDT</span>
+      <span class="meta-dot"></span>
+      <span>12 min read</span>
+    </div>
+  </div>
+
+  <div class="post-body">
+
+    <h2><span class="sec">§ 1</span> The Idea</h2>
+
+    <p>
+      Benford's Law is one of those mathematical curiosities that feels like it shouldn't work, and then
+      keeps working. The law states that in many naturally occurring datasets, the leading digit is not
+      uniformly distributed. Instead, lower digits appear far more frequently than higher ones. The number
+      1 appears as the leading digit roughly 30% of the time. The number 9 appears less than 5% of the time.
+    </p>
+
+    <p>
+      It shows up in census data, stock prices, accounting figures, earthquake magnitudes, street addresses.
+      The intuition is that data spanning multiple orders of magnitude — anything that grows or compounds
+      over time — tends to spend more time with smaller leading digits simply because of how logarithmic
+      scales work. Markets, which are multiplicative by nature, are a natural candidate.
+    </p>
+
+    <p>
+      What I found interesting is not that markets follow Benford's Law — they approximately do, most of
+      the time — but what happens when they <em>stop</em> following it. When the observed distribution of
+      leading digits in recent price changes diverges significantly from the Benford expectation, something
+      in the data's behaviour has changed. The question is whether that change is tradeable.
+    </p>
+
+    <div class="figure">
+      <img src="img/fig1_benford_theory.png" alt="Benford's Law theoretical distribution" />
+      <div class="figure-caption">
+        <span class="fig-num">Fig. 1 —</span>
+        The theoretical first-digit distribution from Benford's Law.
+        Digit 1 accounts for ~30% of occurrences; each successive digit is less frequent.
+      </div>
+    </div>
+
+    <h2><span class="sec">§ 2</span> Why Price Returns Approximately Follow It</h2>
+
+    <p>
+      Daily percentage changes in asset prices are not uniformly distributed across leading digits. They
+      can't be — the distribution of returns is itself structured. Small moves (0.1%, 1.x%, 2.x%) are
+      far more common than large moves (8.x%, 9.x%). That asymmetry, when you extract just the first
+      digit, produces a distribution that loosely mirrors Benford's.
+    </p>
+
+    <div class="formula">
+      P(d) = log₁₀(1 + 1/d) &nbsp;&nbsp; for d ∈ {1, 2, ..., 9}
+      <span class="formula-caption">Eq. 1 — Benford's Law probability for leading digit d</span>
+    </div>
+
+    <p>
+      The alignment is imperfect — financial returns have fat tails and are not scale-invariant in the
+      strict sense — but over rolling windows of reasonable length, markets tend to produce digit
+      distributions that pass a chi-square goodness-of-fit test against Benford's expected frequencies.
+      The interesting signal is when they don't.
+    </p>
+
+    <h2><span class="sec">§ 3</span> The Implementation</h2>
+
+    <p>
+      The approach is straightforward. For each bar, I look back at the last <code>n</code> daily
+      percentage changes and extract the leading digit from each. I then run a chi-square test comparing
+      the observed digit frequency to the Benford-theoretical expected frequency. If the p-value falls
+      below 0.05, the window is flagged as a deviation.
+    </p>
+
+    <pre><code><span class="pre-lang">python</span>def leading_digit(x):
+    if pd.isna(x) or x == 0:
+        return 0
+    return int(str(abs(x)).lstrip('0.')[0])
+
+def benford(df, n=20):
+    df['percentage_change'] = df['close'].pct_change() * 100
+    df['leading_digit'] = df['percentage_change'].apply(leading_digit)
+    benford_dist = np.log10(1 + 1 / np.arange(1, 10))
+    df['deviation_flag'] = 0
+
+    for i in range(n+1, len(df)):
+        window = df.iloc[i-n:i]
+        # Laplace smoothing (+1) to avoid zero-frequency issues
+        frequency = window['leading_digit'].value_counts() \
+                        .add(1, fill_value=1).sort_index()
+        frequency /= frequency.sum()
+        observed = frequency.reindex(range(1, 10), fill_value=0).values * n
+        expected = benford_dist * observed.sum()
+        chi2, p_value = chisquare(f_obs=observed, f_exp=expected)
+        if p_value < 0.05:
+            df.at[i, 'deviation_flag'] = 1
+
+    return df</code></pre>
+
+    <p>
+      A few decisions embedded in that code are worth unpacking. The window is set to 20 bars — small
+      enough to be responsive, large enough that the chi-square test has meaningful degrees of freedom
+      to work with. Laplace smoothing (adding 1 to each count before normalising) prevents zero-frequency
+      cells from inflating the test statistic artificially. And the threshold is the standard 0.05 — nothing
+      clever there, it's a starting point.
+    </p>
+
+    <p>
+      The chi-square test here has 8 degrees of freedom (9 digit categories minus 1). The critical
+      value at α = 0.05 is 15.5. When the observed digit distribution is wildly skewed — say, an unusual
+      cluster of large-digit moves (7%, 8%, 9% daily changes) — the statistic blows past that threshold
+      and the flag fires.
+    </p>
+
+    <div class="figure">
+      <img src="img/fig2_observed_vs_expected.png" alt="Observed vs expected digit distributions" />
+      <div class="figure-caption">
+        <span class="fig-num">Fig. 2 —</span>
+        Left: a quiet window where the observed digit distribution roughly tracks the Benford expectation.
+        Right: a flagged window — note the concentration in higher digits, indicating larger-than-normal moves dominating the recent window.
+      </div>
+    </div>
+
+    <h2><span class="sec">§ 4</span> What the Flag Actually Means</h2>
+
+    <p>
+      A Benford deviation flag does not tell you direction. It does not say "sell" or "buy." It says the
+      recent return environment has been abnormal — the mix of move sizes has diverged from what you'd
+      expect under ordinary market behaviour. In practice, this tends to coincide with:
+    </p>
+
+    <ul style="padding-left:1.4rem; margin-bottom:1.2rem; color:var(--muted); font-size:0.97rem; line-height:1.9;">
+      <li>Sustained trending with large daily moves (lots of 5s, 6s, 7s as leading digits)</li>
+      <li>Volatility clusters — not a single spike, but a run of outsized bars</li>
+      <li>Regime transitions, where the character of price action is changing</li>
+    </ul>
+
+    <p>
+      The flag is not a timing signal in the conventional sense. It is a risk signal — a warning that the
+      current environment is no longer behaving like the one the strategy was designed for. Acting on that
+      warning by exiting is a form of regime-conditional risk management.
+    </p>
+
+    <div class="figure">
+      <img src="img/fig3_rolling_pvalue.png" alt="Rolling p-value and price chart with flags" />
+      <div class="figure-caption">
+        <span class="fig-num">Fig. 3 —</span>
+        Top: ETH/USDT price with Benford deviation flags marked in red (shaded regions and dots).
+        Bottom: rolling chi-square p-value; shaded in red below the α = 0.05 threshold.
+      </div>
+    </div>
+
+    <h2><span class="sec">§ 5</span> How I Use It in the Strategy</h2>
+
+    <p>
+      In the full strategy — which combines Heikin-Ashi candles, Supertrend, ADXR, PVO, and a smoothened
+      Parabolic SAR — the Benford flag is wired into the exit logic on long positions only. The reasoning
+      is asymmetric: on a long, you are exposed to sudden downward moves. If the market has recently been
+      printing large-digit moves, the probability of a violent reversal is elevated. The flag is a prompt
+      to step aside.
+    </p>
+
+    <pre><code><span class="pre-lang">python</span>if pos == 1:
+    if deviation == 1:
+        # Benford flag — exit regardless of other signals
+        data.at[i + 1, 'Position'] = 0
+    elif close_price < supertrend and ha_close <= ha_open:
+        data.at[i + 1, 'Position'] = 0
+    elif ha_close < ha_open and prev_ha_close < prev_ha_open \
+         and atr_diff_ratio > 0.25:
+        data.at[i + 1, 'Position'] = 0
+    else:
+        data.at[i + 1, 'Position'] = 1</code></pre>
+
+    <p>
+      The flag takes priority — it overrides all other hold conditions. This is intentional. The philosophy
+      is that if the price action has become structurally abnormal, no other indicator is reliable enough
+      to argue against getting out. The strategy re-enters when conditions normalise, so missing a few bars
+      while waiting for the flag to clear is an acceptable cost.
+    </p>
+
+    <div class="callout">
+      <div class="callout-label">Note on short exits</div>
+      <p>
+        The Benford flag is not currently wired into short exit logic. On a short position, large-digit
+        moves in the downward direction are in your favour — the flag fires indiscriminately regardless of
+        direction. Filtering the flag by the sign of recent moves (only exit shorts on upward large-digit
+        clusters) is a logical extension I haven't tested yet.
+      </p>
+    </div>
+
+    <h2><span class="sec">§ 6</span> The Chi-Square Distribution in Practice</h2>
+
+    <p>
+      Looking at the distribution of chi-square statistics across the full ETH/USDT daily series (2021–2026),
+      the vast majority of windows fall comfortably below the critical value. The flag is not common — by
+      design. Over-flagging would make the strategy perpetually flat, which defeats the purpose.
+    </p>
+
+    <div class="figure">
+      <img src="img/fig4_chi2_distribution.png" alt="Chi-square statistic distribution" />
+      <div class="figure-caption">
+        <span class="fig-num">Fig. 4 —</span>
+        Distribution of rolling χ² statistics across the full sample.
+        The vast majority of windows (grey) fall below the critical value of 15.5 (df = 8, α = 0.05).
+        Flagged windows (red) cluster in the upper tail.
+      </div>
+    </div>
+
+    <h2><span class="sec">§ 7</span> Caveats and What I Am Not Sure About</h2>
+
+    <p>
+      There are a few things I am genuinely uncertain about here, and I'd rather flag them than pretend
+      the implementation is clean.
+    </p>
+
+    <p>
+      <strong>The 20-bar window is arbitrary.</strong> I picked it because it felt responsive without being
+      noisy, but I have not run a proper sensitivity analysis. A shorter window (10 bars) produces far more
+      flags with questionable informativeness. A longer window (60 bars) almost never fires — which might
+      be better, or might just mean it misses the signal entirely.
+    </p>
+
+    <p>
+      <strong>Benford's Law and financial returns are not a natural fit.</strong> The law's theoretical
+      grounding assumes data spanning several orders of magnitude. Daily percentage changes are bounded —
+      they don't range from 0.0001% to 10000%. The approximate match is empirical, not derivable. I am
+      using the distribution as a benchmark for "normal" digit mix, not as a strict probabilistic model.
+    </p>
+
+    <p>
+      <strong>The chi-square test assumes independence.</strong> Rolling windows of daily returns are not
+      independent. Consecutive windows overlap by <code>n-1</code> bars. The test's p-values are therefore
+      not strictly valid as independent hypothesis tests. They are being used as a relative measure — how
+      far is this window from Benford — not as a formal statistical claim.
+    </p>
+
+    <p>
+      <strong>The flag fires after the fact.</strong> On a 20-bar window, by the time the distribution has
+      diverged enough to trigger the chi-square threshold, the market has already been abnormal for a while.
+      The flag is late by construction. Whether it is still early enough to be useful is an empirical question
+      that the backtest answers optimistically but reality may not.
+    </p>
+
+    <h2><span class="sec">§ 8</span> What's Next</h2>
+
+    <p>
+      The obvious extension is to make the window adaptive — shrinking it during high-volatility regimes
+      (where you need faster signals) and expanding it during quiet periods (where fewer false positives
+      matter more). Something like tying window length to a normalised ATR measure.
+    </p>
+
+    <p>
+      The other thing I want to try is applying this not just to price returns but to volume. Volume is
+      another naturally-occurring large-scale dataset and should, under normal market conditions, also
+      roughly conform to Benford's. When volume digit distributions deviate — say, an unusual frequency
+      of very large round-number volume bars — that might carry independent information about institutional
+      activity or manipulation. That's a separate experiment.
+    </p>
+
+    <p>
+      For now, the Benford flag lives in the strategy as a passive risk filter. It doesn't generate
+      alpha by itself. It just stops the strategy from holding through regimes it wasn't designed for.
+      That's enough for it to earn its place in the code.
+    </p>
+
+  </div><!-- /.post-body -->
+
+</div>
+<script>
+  (function () {
+    var root=document.documentElement;
+    var btn=document.getElementById('theme-toggle');
+    var icon=document.getElementById('toggle-icon');
+    var lbl=document.getElementById('toggle-label');
+    function apply(t) {
+      root.setAttribute('data-theme',t);
+      localStorage.setItem('bb-theme',t);
+      icon.textContent=t==='dark'?'◑':'◐';
+      lbl.textContent=t==='dark'?'Light':'Dark';
+    }
+    apply(root.getAttribute('data-theme')||'light');
+    btn.addEventListener('click',function(){
+      apply(root.getAttribute('data-theme')==='dark'?'light':'dark');
+    });
+  })();
+</script>
+</body>
+</html>
