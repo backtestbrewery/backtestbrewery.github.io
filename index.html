@@ -15,6 +15,9 @@
       --rule:      #DDDDD8;
       --red:       #B83232;
       --toggle-bg: #E8E8E4;
+      --tag-bg:    #F0F0EC;
+      --tag-active-bg: #111110;
+      --tag-active-ink: #FAFAF8;
     }
     [data-theme="dark"] {
       --bg:        #0C0C0B;
@@ -23,6 +26,9 @@
       --rule:      #252522;
       --red:       #C94040;
       --toggle-bg: #222220;
+      --tag-bg:    #1A1A18;
+      --tag-active-bg: #E8E4DB;
+      --tag-active-ink: #0C0C0B;
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -116,10 +122,18 @@
       animation: fadeUp 0.45s 0.16s ease forwards;
     }
 
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 0.2rem;
+    }
+
     .section-heading {
       font-size: 1.3rem;
       font-weight: 500;
-      margin-bottom: 0.2rem;
       display: flex;
       align-items: baseline;
       gap: 0.75rem;
@@ -132,27 +146,68 @@
       font-weight: 400;
     }
 
+    /* Tag filters */
+    .tag-filters {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-label {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-right: 0.15rem;
+    }
+
+    .tag-btn {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: var(--tag-bg);
+      color: var(--muted);
+      border: 1px solid var(--rule);
+      padding: 3px 9px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .tag-btn:hover {
+      color: var(--ink);
+      border-color: var(--muted);
+    }
+    .tag-btn.active {
+      background: var(--tag-active-bg);
+      color: var(--tag-active-ink);
+      border-color: var(--tag-active-bg);
+    }
+
     .section-divider {
       border: none;
       border-top: 1px solid var(--rule);
       margin: 0.7rem 0 0;
     }
 
-    /* Empty state */
-    .empty-state {
-      padding: 3.5rem 0;
+    /* No results state */
+    .no-results {
+      display: none;
+      padding: 3rem 0;
       text-align: center;
       border-bottom: 1px solid var(--rule);
     }
-    .empty-state p {
+    .no-results p {
       font-family: 'Source Code Pro', monospace;
       font-size: 0.68rem;
       letter-spacing: 0.1em;
       color: var(--muted);
       text-transform: uppercase;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
     }
-    .empty-state span {
+    .no-results span {
       font-size: 0.9rem;
       font-style: italic;
       color: var(--muted);
@@ -165,8 +220,11 @@
       display: grid;
       grid-template-columns: 2rem 1fr;
       gap: 0 1.6rem;
+      transition: opacity 0.2s;
     }
-    .paper-entry:last-child { border-bottom: none; }
+    .paper-entry.hidden {
+      display: none;
+    }
 
     .entry-index {
       font-family: 'Source Code Pro', monospace;
@@ -205,13 +263,43 @@
       flex-wrap: wrap;
       align-items: center;
     }
-    .entry-meta .meta-tag { color: var(--ink); }
+
     .meta-dot {
       width: 3px; height: 3px;
       border-radius: 50%;
       background: var(--rule);
       display: inline-block;
       vertical-align: middle;
+    }
+
+    /* Inline tag pill inside entry meta */
+    .entry-tag {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: var(--tag-bg);
+      color: var(--muted);
+      border: 1px solid var(--rule);
+      padding: 2px 7px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      line-height: 1.6;
+    }
+    .entry-tag:hover {
+      color: var(--ink);
+      border-color: var(--muted);
+    }
+
+    /* Result counter */
+    .result-count {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      margin-top: 0.6rem;
+      min-height: 1rem;
     }
 
     @keyframes fadeUp {
@@ -223,6 +311,7 @@
       .paper-entry { grid-template-columns: 1fr; gap: 0.3rem; }
       .entry-index { display: none; }
       .journal-bar { flex-wrap: wrap; gap: 0.6rem; }
+      .section-header { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
@@ -230,7 +319,7 @@
 <div class="page">
 
   <div class="journal-bar">
-    <strong>Backtest Brewery</strong>
+    <span class="bar-left"><strong>Backtest Brewery</strong></span>
     <div class="bar-right">
       <a href="about.html" class="nav-link">About</a>
       <button id="theme-toggle" aria-label="Toggle theme">
@@ -245,12 +334,22 @@
   </div>
 
   <section class="papers-section">
-    <h2 class="section-heading">
-      <span class="sec-num">§ 1</span> Research
-    </h2>
+    <div class="section-header">
+      <h2 class="section-heading">
+        <span class="sec-num">§ 1</span> Research
+      </h2>
+      <div class="tag-filters">
+        <span class="filter-label">Filter:</span>
+        <button class="tag-btn active" data-filter="all">All</button>
+        <button class="tag-btn" data-filter="Sports Analytics">Sports Analytics</button>
+        <button class="tag-btn" data-filter="Markets">Markets</button>
+      </div>
+    </div>
     <hr class="section-divider" />
+    <p class="result-count" id="result-count"></p>
 
-    <div class="paper-entry">
+    <!-- Entry 1 -->
+    <div class="paper-entry" data-tag="Sports Analytics">
       <span class="entry-index">[1]</span>
       <div>
         <a href="posts/apex40-tournament-format.html" class="entry-title">
@@ -262,14 +361,16 @@
         <div class="entry-meta">
           <span>2025-05-17</span>
           <span class="meta-dot"></span>
-          <span class="meta-tag">Research</span>
+          <button class="entry-tag" data-filter="Sports Analytics">Sports Analytics</button>
           <span class="meta-dot"></span>
           <span>12 min read</span>
         </div>
+      </div>
     </div>
 
-    <div class="paper-entry">
-      <span class="entry-index">[1]</span>
+    <!-- Entry 2 -->
+    <div class="paper-entry" data-tag="Markets">
+      <span class="entry-index">[2]</span>
       <div>
         <a href="posts/benfords-law-anomaly-detector.html" class="entry-title">
           Benford's Law as a Market Anomaly Detector
@@ -280,17 +381,24 @@
         <div class="entry-meta">
           <span>2025-05-17</span>
           <span class="meta-dot"></span>
-          <span class="meta-tag">Research</span>
+          <button class="entry-tag" data-filter="Markets">Markets</button>
           <span class="meta-dot"></span>
           <span>12 min read</span>
         </div>
       </div>
     </div>
 
+    <div class="no-results" id="no-results">
+      <p>No posts found</p>
+      <span>Nothing here yet for this tag.</span>
+    </div>
+
   </section>
 
 </div>
+
 <script>
+  /* ── Theme toggle ── */
   (function () {
     var root = document.documentElement;
     var btn  = document.getElementById('theme-toggle');
@@ -302,10 +410,71 @@
       icon.textContent = t === 'dark' ? '◑' : '◐';
       lbl.textContent  = t === 'dark' ? 'Light' : 'Dark';
     }
-    apply(root.getAttribute('data-theme') || 'light');
+    var saved = localStorage.getItem('bb-theme') || 'light';
+    apply(saved);
     btn.addEventListener('click', function () {
       apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
+  })();
+
+  /* ── Tag filtering ── */
+  (function () {
+    var filterBtns   = document.querySelectorAll('[data-filter]');
+    var entries      = document.querySelectorAll('.paper-entry');
+    var noResults    = document.getElementById('no-results');
+    var resultCount  = document.getElementById('result-count');
+    var active       = 'all';
+
+    function updateIndices() {
+      var visible = Array.from(entries).filter(function(e) { return !e.classList.contains('hidden'); });
+      visible.forEach(function(entry, i) {
+        var idx = entry.querySelector('.entry-index');
+        if (idx) idx.textContent = '[' + (i + 1) + ']';
+      });
+    }
+
+    function filter(tag) {
+      active = tag;
+      var count = 0;
+
+      entries.forEach(function (entry) {
+        var entryTag = entry.getAttribute('data-tag');
+        var show = tag === 'all' || entryTag === tag;
+        entry.classList.toggle('hidden', !show);
+        if (show) count++;
+      });
+
+      noResults.style.display = count === 0 ? 'block' : 'none';
+
+      if (tag === 'all') {
+        resultCount.textContent = '';
+      } else {
+        resultCount.textContent = count + ' post' + (count !== 1 ? 's' : '') + ' tagged "' + tag + '"';
+      }
+
+      filterBtns.forEach(function (btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-filter') === tag);
+      });
+
+      updateIndices();
+    }
+
+    /* Top filter bar buttons */
+    filterBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        filter(btn.getAttribute('data-filter'));
+      });
+    });
+
+    /* Inline entry-tag pills */
+    document.querySelectorAll('.entry-tag').forEach(function (pill) {
+      pill.addEventListener('click', function (e) {
+        e.preventDefault();
+        filter(pill.getAttribute('data-filter'));
+      });
+    });
+
+    filter('all');
   })();
 </script>
 </body>
