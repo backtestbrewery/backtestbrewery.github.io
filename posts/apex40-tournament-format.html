@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Optimising the World Cup — The Apex 40 Format — Backtest Brewery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Source+Code+Pro:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script>
+    (function(){
+      var t=localStorage.getItem('bb-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+      document.documentElement.setAttribute('data-theme',t);
+    })();
+  </script>
+  <style>
+    :root {
+      --bg:#FAFAF8; --ink:#111110; --muted:#777770;
+      --rule:#DDDDD8; --red:#B83232; --toggle-bg:#E8E8E4;
+      --surface:#F3F3F0; --green:#3A7D44;
+    }
+    [data-theme="dark"] {
+      --bg:#0C0C0B; --ink:#E8E4DB; --muted:#7A7A72;
+      --rule:#252522; --red:#C94040; --toggle-bg:#222220;
+      --surface:#161614; --green:#5aab64;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { font-size:16px; }
+    body {
+      background:var(--bg); color:var(--ink);
+      font-family:'EB Garamond',Georgia,serif;
+      font-size:1.05rem; line-height:1.75;
+      transition:background 0.2s, color 0.2s;
+    }
+    .page { width:min(92%,760px); margin-inline:auto; padding-bottom:5rem; }
+
+    /* bar */
+    .journal-bar {
+      border-bottom:2px solid var(--ink); padding:0.85rem 0;
+      display:flex; justify-content:space-between; align-items:center;
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.08em;
+    }
+    .back-link { color:var(--muted); text-decoration:none; transition:color 0.15s; }
+    .back-link:hover { color:var(--ink); }
+    .bar-right { display:flex; align-items:center; gap:1.2rem; }
+    .nav-link {
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.09em; text-transform:uppercase;
+      color:var(--muted); text-decoration:none; transition:color 0.15s;
+    }
+    .nav-link:hover { color:var(--ink); }
+    #theme-toggle {
+      background:var(--toggle-bg); border:none; cursor:pointer;
+      font-family:'Source Code Pro',monospace; font-size:0.6rem;
+      letter-spacing:0.08em; color:var(--muted); padding:3px 9px;
+      border-radius:2px; display:flex; align-items:center; gap:5px;
+      transition:color 0.15s;
+    }
+    #theme-toggle:hover { color:var(--ink); }
+
+    /* post header */
+    .post-header { padding:3.5rem 0 2.5rem; border-bottom:1px solid var(--rule); }
+    .post-label {
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.13em; text-transform:uppercase;
+      color:var(--red); margin-bottom:0.9rem;
+    }
+    .post-title {
+      font-size:clamp(1.8rem,4.5vw,2.5rem); font-weight:500;
+      line-height:1.15; letter-spacing:-0.01em; margin-bottom:1.5rem;
+    }
+    .post-meta {
+      font-family:'Source Code Pro',monospace; font-size:0.61rem;
+      letter-spacing:0.07em; color:var(--muted);
+      display:flex; gap:1rem; flex-wrap:wrap; align-items:center;
+    }
+    .meta-dot {
+      width:3px; height:3px; border-radius:50%;
+      background:var(--rule); display:inline-block; vertical-align:middle;
+    }
+    .meta-tag { color:var(--ink); }
+
+    /* prose */
+    .post-body { padding:2.5rem 0; }
+    .post-body p {
+      font-size:0.98rem; color:var(--muted);
+      line-height:1.95; margin-bottom:1.2rem;
+    }
+    .post-body h2 {
+      font-size:1.28rem; font-weight:500; color:var(--ink);
+      margin:2.8rem 0 0.8rem;
+      display:flex; align-items:baseline; gap:0.6rem;
+    }
+    .post-body h2 .sec {
+      font-family:'Source Code Pro',monospace;
+      font-size:0.7rem; color:var(--red); font-weight:400;
+    }
+    .post-body strong { color:var(--ink); font-weight:600; }
+    .post-body em { font-style:italic; }
+    .post-body code {
+      font-family:'Source Code Pro',monospace; font-size:0.8em;
+      background:var(--surface); padding:1px 5px; border-radius:2px;
+      color:var(--ink);
+    }
+
+    /* formula blocks */
+    .formula {
+      border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);
+      padding:1.1rem 1.4rem; margin:1.5rem 0;
+      font-family:'Source Code Pro',monospace; font-size:0.82rem;
+      color:var(--ink); line-height:1.8;
+    }
+    .formula-caption {
+      display:block; font-size:0.6rem; text-transform:uppercase;
+      letter-spacing:0.1em; color:var(--muted); margin-top:0.5rem;
+    }
+    .formula-row { display:block; margin-bottom:0.25rem; }
+    .formula-row:last-child { margin-bottom:0; }
+    .formula-indent { padding-left:1.6rem; display:block; font-size:0.78rem; color:var(--muted); }
+
+    /* tables */
+    .table-wrap { overflow-x:auto; margin:1.5rem 0; }
+    table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+    th {
+      font-family:'Source Code Pro',monospace; font-size:0.58rem;
+      letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);
+      border-bottom:2px solid var(--rule); padding:0.55rem 0.7rem;
+      text-align:left; font-weight:400;
+    }
+    td { padding:0.5rem 0.7rem; border-bottom:1px solid var(--rule); color:var(--muted); font-size:0.9rem; }
+    tr:last-child td { border-bottom:none; }
+    .num { text-align:right; font-family:'Source Code Pro',monospace; font-size:0.82rem; }
+    .best { color:var(--ink); font-weight:500; }
+    .good { color:var(--green); }
+    .bad  { color:var(--red); }
+
+    /* callout */
+    .callout {
+      border-left:2px solid var(--rule);
+      padding:0.8rem 1.2rem; margin:1.8rem 0;
+      background:var(--surface);
+    }
+    .callout p { margin-bottom:0; font-size:0.92rem; }
+    .callout-label {
+      font-family:'Source Code Pro',monospace; font-size:0.58rem;
+      letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
+      margin-bottom:0.4rem;
+    }
+    .callout.highlight { border-left-color:var(--ink); }
+
+    @media (max-width:640px) {
+      .journal-bar { flex-wrap:wrap; gap:0.6rem; }
+      th, td { padding:0.45rem 0.5rem; font-size:0.82rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="journal-bar">
+    <a href="../index.html" class="back-link">← Backtest Brewery</a>
+    <div class="bar-right">
+      <a href="../about.html" class="nav-link">About</a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span id="toggle-icon">◐</span>
+        <span id="toggle-label">Dark</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="post-header">
+    <p class="post-label">Sports Algo</p>
+    <h1 class="post-title">Optimising the World Cup — What the Math Says About the Apex 40 Format</h1>
+    <div class="post-meta">
+      <span>2025-05-17</span>
+      <span class="meta-dot"></span>
+      <span class="meta-tag">Tournament Design · Swiss System · MILP · Fairness</span>
+      <span class="meta-dot"></span>
+      <span>14 min read</span>
+    </div>
+  </div>
+
+  <div class="post-body">
+
+    <p>
+      I spend a lot of time thinking about how markets work — how price discovery happens, how
+      information flows through a system, how incentives shape behaviour. Turns out tournament
+      design is the same problem in a different costume. The FIFA World Cup format, treated like
+      a broken exchange mechanism: identify the failure modes, write down the objective function,
+      optimise.
+    </p>
+
+    <p>
+      The idea: reduce the field from 48 to 40 teams, replace the group stage with a 4-round
+      Swiss system, add a Wild Card elimination round for places 13–20, and enforce medical-grade
+      rest protocols throughout. Call it the Apex 40. Total matches: 100. Total duration: 50 days.
+      The question I want to dig into is not "would this be fun to watch" — it obviously would —
+      but whether the math actually holds up.
+    </p>
+
+    <h2><span class="sec">§ 1</span> The Objective Function</h2>
+
+    <p>
+      I framed the scheduling problem as a multi-objective Mixed Integer Linear Programme.
+      The objective function minimises a weighted composite of five cost components:
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">min Z = w₁·C_operational + w₂·C_travel + w₃·C_rest + w₄·C_fairness + w₅·C_quality</span>
+      <span class="formula-caption">Eq. 1 — MILP objective function over five cost components</span>
+    </div>
+
+    <p>
+      Where each component captures a different failure mode of existing formats:
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">C_travel = Σ_(t,i,j) dist(i,j) · y[t,i,j]</span>
+      <span class="formula-indent">— total weighted team travel distance across all rounds</span>
+      <span class="formula-row" style="margin-top:0.6rem;">C_rest = Σ_(t,m) max(0, R_min_stage − r_eff[t,m])</span>
+      <span class="formula-indent">— penalty for effective rest falling below minimum, after deducting travel time</span>
+      <span class="formula-row" style="margin-top:0.6rem;">C_fairness = Var(points_earned / opponent_quality[t])</span>
+      <span class="formula-indent">— variance in quality-adjusted performance across all teams</span>
+      <span class="formula-row" style="margin-top:0.6rem;">C_quality = Σ_m FIFA_rank_gap[m] / 40</span>
+      <span class="formula-indent">— penalises large mismatches; by construction smaller in Swiss than fixed groups</span>
+      <span class="formula-caption">Eq. 2 — Expanded cost components</span>
+    </div>
+
+    <p>
+      The structure is familiar to anyone who has written a portfolio optimisation — you are minimising
+      a weighted sum of costs, each of which captures something you care about but which partially
+      conflict with each other. Lower travel cost might mean playing more matches in the same venue,
+      which conflicts with optimal rest windows. The weights <code>w₁...w₅</code> are calibration
+      parameters — I have not pinned their exact values, which is an honest admission that this is
+      a policy choice as much as a mathematical one.
+    </p>
+
+    <h2><span class="sec">§ 2</span> The Swiss System Constraints</h2>
+
+    <p>
+      The pairing algorithm is where most of the interesting math lives. Four constraints govern how
+      matches are generated after each round:
+    </p>
+
+    <div class="formula">
+      <span class="formula-row"><strong>C-Swiss-1: No Rematch</strong></span>
+      <span class="formula-row">Σ_(d &lt; d') x[m,s,d] · x[m',s',d'] = 0  ∀ (t₁,t₂) pairs already matched</span>
+      <span class="formula-caption">Eq. 3 — No pair of teams may meet twice in the Swiss phase</span>
+    </div>
+
+    <div class="formula">
+      <span class="formula-row"><strong>C-Swiss-2: Points-Ordered Pairing</strong></span>
+      <span class="formula-row">rank[t₁,d] − rank[t₂,d] ≤ 3  ∀ match m on day d</span>
+      <span class="formula-caption">Eq. 4 — Teams paired within 3 ranking positions of each other</span>
+    </div>
+
+    <div class="formula">
+      <span class="formula-row"><strong>C-Swiss-3: Wild Card Seeding</strong></span>
+      <span class="formula-row">y_wc[i,j] = 1  iff  i = (12+k) and j = (21−k)  for k = 1,2,3,4</span>
+      <span class="formula-caption">Eq. 5 — 13th vs 20th, 14th vs 19th, 15th vs 18th, 16th vs 17th</span>
+    </div>
+
+    <div class="formula">
+      <span class="formula-row"><strong>C-Swiss-4: Effective Rest with Travel Deduction</strong></span>
+      <span class="formula-row">r_eff[t,m] = r[t,m] − TravelTime[t, prev_venue → next_venue] ≥ R_min_stage</span>
+      <span class="formula-caption">Eq. 6 — Effective rest must exceed minimum after deducting travel hours</span>
+    </div>
+
+    <p>
+      C-Swiss-2 is the critical one. The ≤ 3 ranking-position bound means you always play someone
+      at approximately your current level — but not necessarily your exact mirror. This is important
+      because in a 40-team field with a no-rematch constraint, strict adjacent pairing (rank 1 vs 2,
+      3 vs 4...) quickly becomes infeasible once teams share identical points records. The ±3 slack
+      allows the algorithm to find valid pairings without compromising competitive balance too severely.
+    </p>
+
+    <p>
+      C-Swiss-4 is quietly the most operationally significant. Scheduling rest as a raw time gap
+      is naive — a team that finishes a match in São Paulo and plays next in New York four days later
+      has effectively lost a day to travel. The constraint bakes this in explicitly, which is genuinely
+      novel in tournament scheduling literature.
+    </p>
+
+    <h2><span class="sec">§ 3</span> Match Importance — Formal Definition</h2>
+
+    <p>
+      Match importance here is defined as the probability that a result materially changes at least
+      one team's qualification status:
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">I(m) = 1 − P(result_m has no effect on team's qualification status)</span>
+      <span class="formula-caption">Eq. 7 — Match importance as probability of material outcome effect</span>
+    </div>
+
+    <p>
+      The no-effect probability is estimated via Monte Carlo — 10,000 simulated Apex 40 tournaments.
+      The results are striking:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Phase</th>
+            <th class="num">Importance</th>
+            <th>Dead Rubber Risk</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Swiss Round 1</td>
+            <td class="num">85%</td>
+            <td>None</td>
+            <td>Loss moves to harder bracket only</td>
+          </tr>
+          <tr>
+            <td>Swiss Round 2</td>
+            <td class="num">96%</td>
+            <td>Near zero</td>
+            <td>2 losses = must win both remaining</td>
+          </tr>
+          <tr>
+            <td>Swiss Round 3</td>
+            <td class="num">99%</td>
+            <td>None</td>
+            <td>Bubble fully formed; positions 12–20 all live</td>
+          </tr>
+          <tr>
+            <td>Decider Day (R4)</td>
+            <td class="num best">100%</td>
+            <td>None</td>
+            <td>Simultaneous; cut applied after final whistle</td>
+          </tr>
+          <tr>
+            <td>Wild Card</td>
+            <td class="num best">100%</td>
+            <td>None</td>
+            <td>Single-elimination with golden goal</td>
+          </tr>
+          <tr>
+            <td>Knockouts R16–F</td>
+            <td class="num best">100%</td>
+            <td>None</td>
+            <td>Standard knockout</td>
+          </tr>
+          <tr style="border-top:2px solid var(--rule);">
+            <td><strong>Weighted Average</strong></td>
+            <td class="num best">97%</td>
+            <td><span class="good">Zero</span></td>
+            <td><strong>Best of any format analysed</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The 85% figure for Round 1 is the only number that invites scrutiny. A Round 1 loss doesn't
+      eliminate you — it just sends you into a harder bracket. True, but it slightly inflates the
+      importance score: a team that loses Round 1 has not had a match that changed their qualification
+      status in any concrete sense — they have simply had their path made harder. Whether "harder path"
+      constitutes "material effect" is a definitional choice that slightly flatters the format.
+    </p>
+
+    <p>
+      The 96–100% range from Round 2 onwards is essentially inarguable. By Round 2, the field
+      has self-sorted enough that most matches directly determine who sits above or below the
+      qualification cutoff.
+    </p>
+
+    <h2><span class="sec">§ 4</span> Fairness — The Gini Coefficient</h2>
+
+    <p>
+      I used the Gini coefficient of expected advancement probability across all 40 teams as
+      the primary fairness metric — a coefficient of 0 means all teams have equal expected advancement,
+      1 means one team has certainty. The comparison across formats:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Format</th>
+            <th class="num">Gini (pre-draw)</th>
+            <th class="num">Gini (post-draw)</th>
+            <th>Draw Effect</th>
+            <th>Verdict</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Pure Knockout (32)</td>
+            <td class="num bad">0.38</td>
+            <td class="num bad">0.38</td>
+            <td>None (no draw)</td>
+            <td class="bad">Unfair</td>
+          </tr>
+          <tr>
+            <td>FIFA 2026 (12×4)</td>
+            <td class="num">0.29</td>
+            <td class="num bad">0.31</td>
+            <td>+0.02</td>
+            <td>Moderate</td>
+          </tr>
+          <tr>
+            <td>8 Groups of 6 (top 2)</td>
+            <td class="num">0.26</td>
+            <td class="num">0.28</td>
+            <td>+0.02</td>
+            <td>Moderate</td>
+          </tr>
+          <tr>
+            <td>Swiss 48 (3 rounds)</td>
+            <td class="num good">0.19</td>
+            <td class="num good">0.19</td>
+            <td>0.00</td>
+            <td class="good">Good</td>
+          </tr>
+          <tr>
+            <td><strong>Apex 40 (4 rounds)</strong></td>
+            <td class="num best">0.14</td>
+            <td class="num best">0.14</td>
+            <td class="good">0.00</td>
+            <td class="best good">Best</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The 0.00 draw effect is the most important number in this table. Every group-based format
+      introduces randomness at the draw stage — which group you land in affects your qualification
+      probability before a single match is played. The Apex 40's Swiss system self-corrects for
+      this entirely: pre-draw and post-draw Gini are identical because there is no draw.
+    </p>
+
+    <p>
+      The jump from Swiss 48 at 0.19 to Apex 40 at 0.14 is the direct effect of adding a fourth
+      round. More rounds of self-correcting pairing means more equalisation of opponent difficulty,
+      which compresses the expected advancement distribution further. The law of diminishing returns
+      applies — a 5th round would probably drop this to ~0.11, but the schedule cost would be
+      prohibitive.
+    </p>
+
+    <h2><span class="sec">§ 5</span> The Qualification Determinism Argument</h2>
+
+    <p>
+      One number that settled the "does a 4th game matter" question for me: looking at World Cup
+      results since 1998, the rank correlation between pre-tournament FIFA ranking and points-per-game:
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">τ(FIFA rank, PPG) ≈ 0.61 over 3 group games</span>
+      <span class="formula-row">τ(FIFA rank, PPG) ≈ 0.79 over 4+ games</span>
+      <span class="formula-caption">Eq. 8 — Kendall's tau rank correlation: quality vs. measured performance</span>
+    </div>
+
+    <p>
+      This is the statistical argument for why a 4th game matters. Football is a high-variance sport —
+      a single red card or penalty decision can swing a match. Three games is a dangerously small
+      sample to determine who advances in a tournament supposedly identifying the best team in the world.
+      The jump from 0.61 to 0.79 with one additional game is a substantial improvement in measurement
+      reliability — and the cleanest empirical argument for the format.
+    </p>
+
+    <h2><span class="sec">§ 6</span> Full Format Comparison</h2>
+
+    <p>
+      The master comparison, across every metric I tracked:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>32-team KO</th>
+            <th>FIFA 2026</th>
+            <th>8×6 Groups</th>
+            <th>Apex 40</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Total teams</td>
+            <td>32</td>
+            <td>48</td>
+            <td>48</td>
+            <td class="best">40</td>
+          </tr>
+          <tr>
+            <td>Total matches</td>
+            <td>47</td>
+            <td>104</td>
+            <td>136</td>
+            <td class="best">100</td>
+          </tr>
+          <tr>
+            <td>Guaranteed games/team</td>
+            <td class="bad">1</td>
+            <td>3</td>
+            <td>5</td>
+            <td class="best">4</td>
+          </tr>
+          <tr>
+            <td>Avg match importance</td>
+            <td>100%*</td>
+            <td class="bad">74%</td>
+            <td class="bad">69%</td>
+            <td class="best good">97%</td>
+          </tr>
+          <tr>
+            <td>Dead rubbers</td>
+            <td>None*</td>
+            <td class="bad">Moderate</td>
+            <td class="bad">High</td>
+            <td class="good">Zero</td>
+          </tr>
+          <tr>
+            <td>Cross-group comparison</td>
+            <td>N/A</td>
+            <td class="bad">Yes</td>
+            <td>No</td>
+            <td class="good">No</td>
+          </tr>
+          <tr>
+            <td>Difficulty equalisation</td>
+            <td>No</td>
+            <td>No</td>
+            <td>No</td>
+            <td class="good">Yes</td>
+          </tr>
+          <tr>
+            <td>Rest ≥ 96hrs in KO</td>
+            <td>Yes</td>
+            <td class="bad">No</td>
+            <td class="bad">No</td>
+            <td class="good">Yes</td>
+          </tr>
+          <tr>
+            <td>Gini coefficient</td>
+            <td class="bad">0.38</td>
+            <td class="bad">0.31</td>
+            <td>0.28</td>
+            <td class="best good">0.14</td>
+          </tr>
+          <tr>
+            <td>Duration</td>
+            <td class="good">~25d</td>
+            <td>39d</td>
+            <td>~50d</td>
+            <td>~50d</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The asterisk on the pure knockout format is important — it achieves 100% match importance
+      trivially, because every game is elimination. But a single bad day sends you home after one
+      match. That is not fairness, it is volatility. The Apex 40's 97% average is more interesting
+      precisely because it achieves near-equivalent match stakes while giving teams four chances to
+      demonstrate quality.
+    </p>
+
+    <p>
+      The 8×6 groups format (eight groups of six teams, top two advance) is the obvious candidate.
+      It produces 136 total matches — 36 more than Apex 40 — while achieving <em>lower</em> match
+      importance (69%) because the third-through-sixth teams in each group frequently have nothing
+      meaningful to play for in later group games. More matches, less drama. Bad trade.
+    </p>
+
+    <div class="callout highlight">
+      <div class="callout-label">The draw-effect finding</div>
+      <p>
+        The most underappreciated number in this whole analysis is the 0.00 draw effect on the Gini
+        coefficient. In the current FIFA format, your group draw moves expected advancement probability
+        by ±0.02 Gini points before any football is played. That might sound small. For a team on the
+        margin of the field — the 40th or 45th ranked nation — the difference between being drawn into
+        an easy group and a group of death can be the difference between qualifying and going home.
+        The Swiss system eliminates this entirely.
+      </p>
+    </div>
+
+    <h2><span class="sec">§ 7</span> What Works and What I'm Not Fully Convinced By</h2>
+
+    <p>
+      <strong>Convinced:</strong> the Swiss system constraint set is clean. The no-rematch constraint
+      (C-Swiss-1), the points-ordered pairing bound (C-Swiss-2), and the travel-adjusted rest floor
+      (C-Swiss-4) together solve the three main failure modes of group formats — repeated opponents
+      are impossible, scheduling inequity is bounded, and rest is enforced on effective rather than
+      nominal terms. The Gini comparison is the cleanest fairness analysis I have seen applied to
+      tournament formats.
+    </p>
+
+    <p>
+      <strong>Less convinced:</strong> the 85% importance figure for Round 1 is slightly inflated,
+      as discussed above. More significantly, the objective function weights <code>w₁...w₅</code>
+      are left unspecified — which means the MILP is a framework rather than a solved optimisation.
+      Different weight choices could favour different formats; a sensitivity analysis showing which
+      conclusions hold across a range of plausible weight vectors would make this much stronger.
+    </p>
+
+    <p>
+      <strong>The Wild Card golden-goal argument</strong> is interesting but slightly inconsistent.
+      Golden goal is appropriate for the Wild Card because penalty shootouts undermine the merit-based
+      logic of the Swiss system — a draw after 90 minutes should not be decided by a lottery. Fair enough.
+      But the same argument applies to every knockout round. Shootouts are retained from Round of 16
+      onward on cultural grounds ("established and accepted part of the game's identity"), which is not
+      a mathematical argument. The math would say golden goal everywhere or nowhere.
+    </p>
+
+    <h2><span class="sec">§ 8</span> Why This Belongs Here</h2>
+
+    <p>
+      The parallel to trading is direct. Tournament formats and market mechanisms share the same
+      design problem: you have participants of varying quality, imperfect information about that
+      quality, a finite number of interactions, and an objective to surface the best performers
+      while keeping everyone engaged. Group stages are like fixed-weight portfolios — the composition
+      is set at the draw and does not adapt to observed performance. The Swiss system is like a
+      momentum strategy — it dynamically reweights based on recent results, concentrating future
+      matches where the information content is highest.
+    </p>
+
+    <p>
+      The Gini coefficient as a fairness measure, the Kendall tau as a measurement reliability metric,
+      the MILP as a scheduling optimiser — these are all standard quantitative tools applied to a domain
+      people normally discuss with pure intuition. The paper is a good demonstration that "this is
+      sport, not math" is a false dichotomy. Everything is math. Some things just haven't been
+      written down yet.
+    </p>
+
+  </div>
+
+</div>
+<script>
+  (function () {
+    var root=document.documentElement;
+    var btn=document.getElementById('theme-toggle');
+    var icon=document.getElementById('toggle-icon');
+    var lbl=document.getElementById('toggle-label');
+    function apply(t) {
+      root.setAttribute('data-theme',t);
+      localStorage.setItem('bb-theme',t);
+      icon.textContent=t==='dark'?'◑':'◐';
+      lbl.textContent=t==='dark'?'Light':'Dark';
+    }
+    apply(root.getAttribute('data-theme')||'light');
+    btn.addEventListener('click',function(){
+      apply(root.getAttribute('data-theme')==='dark'?'light':'dark');
+    });
+  })();
+</script>
+</body>
+</html>
