@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alpha Decay — Why Your Edge Has a Half-Life — Backtest Brewery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Source+Code+Pro:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script>
+    (function(){
+      var t=localStorage.getItem('bb-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+      document.documentElement.setAttribute('data-theme',t);
+    })();
+  </script>
+  <style>
+    :root {
+      --bg:#FAFAF8; --ink:#111110; --muted:#777770;
+      --rule:#DDDDD8; --red:#B83232; --toggle-bg:#E8E8E4;
+      --surface:#F3F3F0; --green:#3A7D44;
+    }
+    [data-theme="dark"] {
+      --bg:#0C0C0B; --ink:#E8E4DB; --muted:#7A7A72;
+      --rule:#252522; --red:#C94040; --toggle-bg:#222220;
+      --surface:#161614; --green:#5aab64;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { font-size:16px; }
+    body {
+      background:var(--bg); color:var(--ink);
+      font-family:'EB Garamond',Georgia,serif;
+      font-size:1.05rem; line-height:1.75;
+      transition:background 0.2s, color 0.2s;
+    }
+    .page { width:min(92%,760px); margin-inline:auto; padding-bottom:5rem; }
+
+    /* bar */
+    .journal-bar {
+      border-bottom:2px solid var(--ink); padding:0.85rem 0;
+      display:flex; justify-content:space-between; align-items:center;
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.08em;
+    }
+    .back-link { color:var(--muted); text-decoration:none; transition:color 0.15s; }
+    .back-link:hover { color:var(--ink); }
+    .bar-right { display:flex; align-items:center; gap:1.2rem; }
+    .nav-link {
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.09em; text-transform:uppercase;
+      color:var(--muted); text-decoration:none; transition:color 0.15s;
+    }
+    .nav-link:hover { color:var(--ink); }
+    #theme-toggle {
+      background:var(--toggle-bg); border:none; cursor:pointer;
+      font-family:'Source Code Pro',monospace; font-size:0.6rem;
+      letter-spacing:0.08em; color:var(--muted); padding:3px 9px;
+      border-radius:2px; display:flex; align-items:center; gap:5px;
+      transition:color 0.15s;
+    }
+    #theme-toggle:hover { color:var(--ink); }
+
+    /* post header */
+    .post-header { padding:3.5rem 0 2.5rem; border-bottom:1px solid var(--rule); }
+    .post-label {
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.13em; text-transform:uppercase;
+      color:var(--red); margin-bottom:0.9rem;
+    }
+    .post-title {
+      font-size:clamp(1.8rem,4.5vw,2.5rem); font-weight:500;
+      line-height:1.15; letter-spacing:-0.01em; margin-bottom:1.5rem;
+    }
+    .post-meta {
+      font-family:'Source Code Pro',monospace; font-size:0.61rem;
+      letter-spacing:0.07em; color:var(--muted);
+      display:flex; gap:1rem; flex-wrap:wrap; align-items:center;
+    }
+    .meta-dot {
+      width:3px; height:3px; border-radius:50%;
+      background:var(--rule); display:inline-block; vertical-align:middle;
+    }
+    .meta-tag { color:var(--ink); }
+
+    /* prose */
+    .post-body { padding:2.5rem 0; }
+    .post-body p {
+      font-size:0.98rem; color:var(--muted);
+      line-height:1.95; margin-bottom:1.2rem;
+    }
+    .post-body h2 {
+      font-size:1.28rem; font-weight:500; color:var(--ink);
+      margin:2.8rem 0 0.8rem;
+      display:flex; align-items:baseline; gap:0.6rem;
+    }
+    .post-body h2 .sec {
+      font-family:'Source Code Pro',monospace;
+      font-size:0.7rem; color:var(--red); font-weight:400;
+    }
+    .post-body strong { color:var(--ink); font-weight:600; }
+    .post-body em { font-style:italic; }
+    .post-body code {
+      font-family:'Source Code Pro',monospace; font-size:0.8em;
+      background:var(--surface); padding:1px 5px; border-radius:2px;
+      color:var(--ink);
+    }
+
+    /* formula blocks */
+    .formula {
+      border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);
+      padding:1.1rem 1.4rem; margin:1.5rem 0;
+      font-family:'Source Code Pro',monospace; font-size:0.82rem;
+      color:var(--ink); line-height:1.8;
+    }
+    .formula-caption {
+      display:block; font-size:0.6rem; text-transform:uppercase;
+      letter-spacing:0.1em; color:var(--muted); margin-top:0.5rem;
+    }
+    .formula-row { display:block; margin-bottom:0.25rem; }
+
+    /* tables */
+    .table-wrap { overflow-x:auto; margin:1.5rem 0; }
+    table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+    th {
+      font-family:'Source Code Pro',monospace; font-size:0.58rem;
+      letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);
+      border-bottom:2px solid var(--rule); padding:0.55rem 0.7rem;
+      text-align:left; font-weight:400;
+    }
+    td { padding:0.5rem 0.7rem; border-bottom:1px solid var(--rule); color:var(--muted); font-size:0.9rem; }
+    tr:last-child td { border-bottom:none; }
+    .num { text-align:right; font-family:'Source Code Pro',monospace; font-size:0.82rem; }
+    .best { color:var(--ink); font-weight:500; }
+    .good { color:var(--green); }
+    .bad  { color:var(--red); }
+
+    /* callout */
+    .callout {
+      border-left:2px solid var(--rule);
+      padding:0.8rem 1.2rem; margin:1.8rem 0;
+      background:var(--surface);
+    }
+    .callout p { margin-bottom:0; font-size:0.92rem; }
+    .callout-label {
+      font-family:'Source Code Pro',monospace; font-size:0.58rem;
+      letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
+      margin-bottom:0.4rem;
+    }
+    .callout.highlight { border-left-color:var(--ink); }
+
+    @media (max-width:640px) {
+      .journal-bar { flex-wrap:wrap; gap:0.6rem; }
+      th, td { padding:0.45rem 0.5rem; font-size:0.82rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="journal-bar">
+    <a href="../index.html" class="back-link">← Backtest Brewery</a>
+    <div class="bar-right">
+      <a href="../about.html" class="nav-link">About</a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span id="toggle-icon">◐</span>
+        <span id="toggle-label">Dark</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="post-header">
+    <p class="post-label">Market Microstructure</p>
+    <h1 class="post-title">Alpha Decay — Why Your Edge Has a Half-Life</h1>
+    <div class="post-meta">
+      <span>2026-05-17</span>
+      <span class="meta-dot"></span>
+      <span class="meta-tag">Alpha Decay · HFT · MFT · Edge Erosion</span>
+      <span class="meta-dot"></span>
+      <span>5 min read</span>
+    </div>
+  </div>
+
+  <div class="post-body">
+
+    <p>
+      Alpha decay is real. It is not a theoretical concern for quants to worry about eventually —
+      it is an active, ongoing process happening to every strategy in production right now. The
+      moment a signal is discovered, the clock starts. Markets are learning machines, and they
+      learn fast.
+    </p>
+
+    <p>
+      The term borrows deliberately from nuclear physics. A radioactive isotope loses half its
+      activity in a fixed period — the half-life. A trading signal loses half its predictive power
+      on a similar curve. The only question is how steep that curve is. And that answer depends
+      almost entirely on the frequency at which you are operating.
+    </p>
+
+    <h2><span class="sec">§ 1</span> What Alpha Actually Decays Into</h2>
+
+    <p>
+      Alpha exists because of an information asymmetry — you know something the price does not yet
+      reflect. The decay happens as that information propagates. Other participants observe the same
+      patterns, deploy similar logic, and compete away the edge. What was once a 10 bps expected
+      return per trade becomes 6, then 2, then noise.
+    </p>
+
+    <p>
+      This is not a failure of the strategy. It is the market doing its job. Price discovery is
+      the mechanism that destroys edges, and it is ruthlessly efficient. The practical implication
+      is that no signal is permanent — only signals at timescales where discovery is slow enough
+      to still be exploitable.
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">α(t) = α₀ · e<sup>−λt</sup></span>
+      <span class="formula-row" style="color:var(--muted); font-size:0.78rem;">where λ is the decay rate — high in HFT, low in MFT</span>
+      <span class="formula-caption">Stylised alpha decay model — exponential erosion of signal strength over time</span>
+    </div>
+
+    <h2><span class="sec">§ 2</span> HFT — Edges Measured in Microseconds</h2>
+
+    <p>
+      At the high-frequency end, alpha decay is not a quarterly review problem. It is a
+      <em>today</em> problem. HFT strategies extract edge from execution quality, latency
+      advantages, and order book microstructure — not from any fundamental view on where a
+      stock should trade. The signal is the spread. The alpha is the fill.
+    </p>
+
+    <p>
+      Because the informational content of these signals is small and fleeting, they are
+      discovered quickly and competed away aggressively. A co-location advantage is worth
+      less every year as more participants colocate. A specific order flow pattern gets
+      arbitraged the moment a second firm notices it. The half-life of an HFT edge can
+      be measured in <strong>weeks to months</strong> before capacity thins out or competitors
+      close the gap.
+    </p>
+
+    <div class="callout highlight">
+      <div class="callout-label">The execution is the strategy</div>
+      <p>
+        In HFT, the signal and the execution are inseparable. A correct directional prediction
+        that arrives 50 microseconds late is worth zero — or less than zero, if you end up on
+        the wrong side of a move you saw coming. Decay here is not just about the signal
+        fading; it is about the execution infrastructure becoming the competitive moat, and
+        that moat shrinking as hardware costs fall and access democratises.
+      </p>
+    </div>
+
+    <h2><span class="sec">§ 3</span> MFT — Slower Decay, Deeper Roots</h2>
+
+    <p>
+      Medium-frequency strategies — holding periods from hours to a few days — operate on a
+      different informational basis. The signals here are closer to price action: momentum,
+      mean reversion, volatility regimes, order flow imbalance over longer windows. These
+      are not pure microstructure plays. There is a fundamental logic underneath them, even
+      if it is statistical rather than fundamental in the analyst sense.
+    </p>
+
+    <p>
+      Because the signal is rooted in something more structural — how participants behave
+      across a session, how volatility clusters, how trends persist or reverse — the decay
+      rate is meaningfully slower. A well-constructed MFT momentum signal might have a
+      half-life measured in <strong>months to a few years</strong> before the edge is
+      substantially competed away. Capacity is larger, the universe of applicable instruments
+      is wider, and the capital required to crowd it out is much greater.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>HFT</th>
+            <th>MFT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Holding period</td>
+            <td>Microseconds – seconds</td>
+            <td>Hours – days</td>
+          </tr>
+          <tr>
+            <td>Edge source</td>
+            <td>Latency, microstructure, execution</td>
+            <td>Price action, flow imbalance, regimes</td>
+          </tr>
+          <tr>
+            <td>Signal nature</td>
+            <td>Mechanical, infrastructure-dependent</td>
+            <td>Statistical, somewhat fundamental</td>
+          </tr>
+          <tr>
+            <td>Alpha half-life</td>
+            <td class="bad">Weeks – months</td>
+            <td class="good">Months – years</td>
+          </tr>
+          <tr>
+            <td>Crowding risk</td>
+            <td class="bad">Extreme — arms race dynamics</td>
+            <td>Moderate — capacity absorbs more capital</td>
+          </tr>
+          <tr>
+            <td>Decay driver</td>
+            <td>Hardware parity, competitor discovery</td>
+            <td>Capital inflows, strategy replication</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2><span class="sec">§ 4</span> What To Do About It</h2>
+
+    <p>
+      The honest answer is: not much beyond accepting it and building for it. A strategy
+      research pipeline should treat decay as a first-class variable — not something that
+      happens after launch, but something to model before it. Walk-forward analysis, out-of-sample
+      validation windows, and live-versus-backtest Sharpe comparisons are all decay detectors,
+      not just performance metrics.
+    </p>
+
+    <p>
+      For HFT, the response to decay is infrastructure investment and signal refresh — constant
+      iteration on execution logic, not the kind of "find a new factor" research cycle that MFT
+      shops run. For MFT, the lever is diversification across uncorrelated signals, so that as
+      one signal decays another is still contributing. The portfolio of alphas outlives any
+      individual alpha.
+    </p>
+
+    <div class="callout">
+      <div class="callout-label">The uncomfortable truth</div>
+      <p>
+        The best evidence that your alpha has decayed is often the live performance of the
+        strategy itself — by which point you have already been trading it for months.
+        Building decay monitoring into production infrastructure, not just the research
+        process, is one of the more underrated operational disciplines in systematic trading.
+      </p>
+    </div>
+
+    <p>
+      Alpha decay is the market's immune response to being predicted. Every strategy is in a
+      race against it. The frequency at which you operate determines how fast you are running —
+      and how quickly the ground beneath you shifts.
+    </p>
+
+  </div>
+
+</div>
+<script>
+  (function () {
+    var root=document.documentElement;
+    var btn=document.getElementById('theme-toggle');
+    var icon=document.getElementById('toggle-icon');
+    var lbl=document.getElementById('toggle-label');
+    function apply(t) {
+      root.setAttribute('data-theme',t);
+      localStorage.setItem('bb-theme',t);
+      icon.textContent=t==='dark'?'◑':'◐';
+      lbl.textContent=t==='dark'?'Light':'Dark';
+    }
+    apply(root.getAttribute('data-theme')||'light');
+    btn.addEventListener('click',function(){
+      apply(root.getAttribute('data-theme')==='dark'?'light':'dark');
+    });
+  })();
+</script>
+</body>
+</html>
