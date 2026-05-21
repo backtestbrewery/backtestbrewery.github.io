@@ -341,19 +341,10 @@ def benford(df, n=20):
     </ul>
 
     <p>
-      The flag is not a timing signal in the conventional sense. It is a risk signal — a warning that the
+      The flag is not a timing signal in the conventional sense. It is a risk signal, a warning that the
       current environment is no longer behaving like the one the strategy was designed for. Acting on that
       warning by exiting is a form of regime-conditional risk management.
     </p>
-
-    <div class="figure">
-      <img src="fig3_rolling_pvalue.png" alt="Rolling p-value and price chart with flags" />
-      <div class="figure-caption">
-        <span class="fig-num">Fig. 3 —</span>
-        Top: ETH/USDT price with Benford deviation flags marked in red (shaded regions and dots).
-        Bottom: rolling chi-square p-value; shaded in red below the α = 0.05 threshold.
-      </div>
-    </div>
 
     <h2><span class="sec">§ 5</span> How I Use It in the Strategy</h2>
 
@@ -394,24 +385,6 @@ def benford(df, n=20):
       </p>
     </div>
 
-    <h2><span class="sec">§ 6</span> The Chi-Square Distribution in Practice</h2>
-
-    <p>
-      Looking at the distribution of chi-square statistics across the full ETH/USDT daily series (2021–2026),
-      the vast majority of windows fall comfortably below the critical value. The flag is not common — by
-      design. Over-flagging would make the strategy perpetually flat, which defeats the purpose.
-    </p>
-
-    <div class="figure">
-      <img src="fig4_chi2_distribution.png" alt="Chi-square statistic distribution" />
-      <div class="figure-caption">
-        <span class="fig-num">Fig. 4 —</span>
-        Distribution of rolling χ² statistics across the full sample.
-        The vast majority of windows (grey) fall below the critical value of 15.5 (df = 8, α = 0.05).
-        Flagged windows (red) cluster in the upper tail.
-      </div>
-    </div>
-
     <h2><span class="sec">§ 7</span> What I Am Not Sure About</h2>
 
     <p>
@@ -445,28 +418,6 @@ def benford(df, n=20):
       diverged enough to trigger the chi-square threshold, the market has already been abnormal for a while.
       The flag is late by construction. Whether it is still early enough to be useful is an empirical question
       that the backtest answers optimistically but reality may not.
-    </p>
-
-    <h2><span class="sec">§ 8</span> What's Next</h2>
-
-    <p>
-      The obvious extension is to make the window adaptive — shrinking it during high-volatility regimes
-      (where you need faster signals) and expanding it during quiet periods (where fewer false positives
-      matter more). Something like tying window length to a normalised ATR measure.
-    </p>
-
-    <p>
-      The other thing I want to try is applying this not just to price returns but to volume. Volume is
-      another naturally-occurring large-scale dataset and should, under normal market conditions, also
-      roughly conform to Benford's. When volume digit distributions deviate — say, an unusual frequency
-      of very large round-number volume bars — that might carry independent information about institutional
-      activity or manipulation. That's a separate experiment.
-    </p>
-
-    <p>
-      For now, the Benford flag lives in the strategy as a passive risk filter. It doesn't generate
-      alpha by itself. It just stops the strategy from holding through regimes it wasn't designed for.
-      That's enough for it to earn its place in the code.
     </p>
 
   </div><!-- /.post-body -->
