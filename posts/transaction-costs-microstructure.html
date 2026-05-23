@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transaction Costs Are a Black Hole · Backtest Brewery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Source+Code+Pro:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script>
+    (function(){
+      var t=localStorage.getItem('bb-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+      document.documentElement.setAttribute('data-theme',t);
+    })();
+  </script>
+  <style>
+    :root {
+      --bg:#FAFAF8; --ink:#111110; --muted:#777770;
+      --rule:#DDDDD8; --red:#B83232; --toggle-bg:#E8E8E4;
+      --surface:#F3F3F0;
+    }
+    [data-theme="dark"] {
+      --bg:#0C0C0B; --ink:#E8E4DB; --muted:#7A7A72;
+      --rule:#252522; --red:#C94040; --toggle-bg:#222220;
+      --surface:#161614;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { font-size:16px; }
+    body {
+      background:var(--bg); color:var(--ink);
+      font-family:'EB Garamond',Georgia,serif;
+      font-size:1.05rem; line-height:1.75;
+      transition:background 0.2s, color 0.2s;
+    }
+    .page { width:min(92%,760px); margin-inline:auto; padding-bottom:5rem; }
+
+    /* ── bar ── */
+    .journal-bar {
+      border-bottom:2px solid var(--ink); padding:0.85rem 0;
+      display:flex; justify-content:space-between; align-items:center;
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.08em;
+    }
+    .back-link { color:var(--muted); text-decoration:none; transition:color 0.15s; }
+    .back-link:hover { color:var(--ink); }
+    .bar-right { display:flex; align-items:center; gap:1.2rem; }
+    .nav-link {
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.09em; text-transform:uppercase;
+      color:var(--muted); text-decoration:none; transition:color 0.15s;
+    }
+    .nav-link:hover { color:var(--ink); }
+    #theme-toggle {
+      background:var(--toggle-bg); border:none; cursor:pointer;
+      font-family:'Source Code Pro',monospace; font-size:0.6rem;
+      letter-spacing:0.08em; color:var(--muted); padding:3px 9px;
+      border-radius:2px; display:flex; align-items:center; gap:5px;
+      transition:color 0.15s;
+    }
+    #theme-toggle:hover { color:var(--ink); }
+
+    /* ── post header ── */
+    .post-header { padding:3.5rem 0 2.5rem; border-bottom:1px solid var(--rule); }
+    .post-label {
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.13em; text-transform:uppercase;
+      color:var(--red); margin-bottom:0.9rem;
+    }
+    .post-title {
+      font-size:clamp(1.8rem,4.5vw,2.5rem); font-weight:500;
+      line-height:1.15; letter-spacing:-0.01em; margin-bottom:1.5rem;
+    }
+    .post-meta {
+      font-family:'Source Code Pro',monospace; font-size:0.61rem;
+      letter-spacing:0.07em; color:var(--muted);
+      display:flex; gap:1rem; flex-wrap:wrap; align-items:center;
+    }
+    .meta-dot {
+      width:3px; height:3px; border-radius:50%;
+      background:var(--rule); display:inline-block; vertical-align:middle;
+    }
+    .meta-tag { color:var(--ink); }
+
+    /* ── prose ── */
+    .post-body { padding:2.5rem 0; }
+
+    .post-body p {
+      font-size:0.98rem; color:var(--muted);
+      line-height:1.95; margin-bottom:1.2rem;
+    }
+
+    .post-body h2 {
+      font-size:1.28rem; font-weight:500; color:var(--ink);
+      margin:2.8rem 0 0.8rem;
+      display:flex; align-items:baseline; gap:0.6rem;
+    }
+    .post-body h2 .sec {
+      font-family:'Source Code Pro',monospace;
+      font-size:0.7rem; color:var(--red); font-weight:400;
+    }
+
+    .post-body strong { color:var(--ink); font-weight:600; }
+    .post-body em { font-style:italic; }
+
+    /* inline code */
+    .post-body code {
+      font-family:'Source Code Pro',monospace; font-size:0.8em;
+      background:var(--surface); padding:1px 5px; border-radius:2px;
+      color:var(--ink);
+    }
+
+    /* code block */
+    .post-body pre {
+      background:var(--surface); border:1px solid var(--rule);
+      border-radius:3px; padding:1.2rem 1.4rem;
+      overflow-x:auto; margin:1.5rem 0; position:relative;
+    }
+    .post-body pre code {
+      background:none; padding:0;
+      font-size:0.79rem; line-height:1.65; color:var(--ink);
+    }
+    .pre-lang {
+      font-family:'Source Code Pro',monospace; font-size:0.55rem;
+      letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
+      display:block; margin-bottom:0.6rem;
+    }
+
+    /* formula */
+    .formula {
+      text-align:center; padding:1rem 1.2rem;
+      border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);
+      margin:1.5rem 0;
+      font-family:'Source Code Pro',monospace; font-size:0.85rem;
+      color:var(--muted); letter-spacing:0.02em;
+    }
+    .formula-caption {
+      display:block; font-size:0.62rem; text-transform:uppercase;
+      letter-spacing:0.1em; color:var(--muted); opacity:0.7;
+      margin-top:0.4rem;
+    }
+
+    /* table */
+    .post-body table {
+      width:100%; border-collapse:collapse;
+      font-size:0.88rem; margin:1.5rem 0;
+    }
+    .post-body th {
+      font-family:'Source Code Pro',monospace; font-size:0.58rem;
+      letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);
+      border-bottom:2px solid var(--rule); padding:0.5rem 0.6rem;
+      text-align:left; font-weight:400;
+    }
+    .post-body td {
+      padding:0.5rem 0.6rem; border-bottom:1px solid var(--rule); color:var(--muted);
+    }
+    .post-body tr:last-child td { border-bottom:none; }
+    .post-body tr.total-row td { color:var(--ink); font-weight:600; border-top:2px solid var(--rule); border-bottom:none; }
+    .num { text-align:right; font-family:'Source Code Pro',monospace; font-size:0.82rem; }
+    .neg { color:var(--red); }
+
+    /* callout */
+    .callout {
+      border-left:2px solid var(--rule); padding:0.8rem 1.2rem;
+      margin:1.5rem 0; background:var(--surface);
+    }
+    .callout p { margin-bottom:0; font-size:0.92rem; }
+    .callout-label {
+      font-family:'Source Code Pro',monospace; font-size:0.58rem;
+      letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
+      margin-bottom:0.4rem;
+    }
+
+    /* state diagram */
+    .state-grid {
+      display:grid; grid-template-columns:1fr 1fr 1fr;
+      gap:1px; background:var(--rule);
+      border:1px solid var(--rule); border-radius:3px;
+      margin:1.5rem 0; overflow:hidden;
+    }
+    .state-cell {
+      background:var(--surface); padding:1rem 0.9rem; text-align:center;
+    }
+    .state-cell .state-label {
+      font-family:'Source Code Pro',monospace; font-size:0.58rem;
+      letter-spacing:0.12em; text-transform:uppercase;
+      color:var(--muted); margin-bottom:0.3rem;
+    }
+    .state-cell .state-pct {
+      font-size:1.6rem; font-weight:500; line-height:1; color:var(--ink);
+    }
+    .state-cell .state-desc {
+      font-size:0.72rem; color:var(--muted); margin-top:0.3rem; line-height:1.4;
+    }
+    .state-cell.is-bad .state-pct { color:var(--red); }
+
+    @media (max-width:640px) {
+      .journal-bar { flex-wrap:wrap; gap:0.6rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="journal-bar">
+    <a href="../index.html" class="back-link">← Backtest Brewery</a>
+    <div class="bar-right">
+      <a href="../about.html" class="nav-link">About</a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span id="toggle-icon">◐</span>
+        <span id="toggle-label">Dark</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="post-header">
+    <p class="post-label">Field Notes</p>
+    <h1 class="post-title">Transaction Costs Are a Black Hole</h1>
+    <div class="post-meta">
+      <span>2026-05-23</span>
+      <span class="meta-dot"></span>
+      <span class="meta-tag">Microstructure · Transaction Costs · NSE Equity</span>
+      <span class="meta-dot"></span>
+      <span>8 min read</span>
+    </div>
+  </div>
+
+  <div class="post-body">
+
+    <h2><span class="sec">§ 1</span> Been a Few Days</h2>
+
+    <p>
+      Heads-down on microstructure strategies for a while now. Genuinely fun, genuinely frustrating - starting
+      from scratch with no playbook, no mentor, just market data and a suspicion that there's something
+      extractable at the tick level. Found a family of trigger-happy setups that <em>do not lose</em> roughly
+      90% of the time. Sharpes in double digits. Looked great until I remembered there are three states, not two.
+    </p>
+
+    <h2><span class="sec">§ 2</span> The Three-State Problem</h2>
+
+    <p>
+      Most people think in terms of win and loss. At the microstructure level there's a third state: the draw.
+      A draw is when you correctly predict a 1-tick directional move - the model is right - but the spread
+      width equals that 1 tick. You beat the spread by exactly nothing. Gross P&amp;L: zero.
+    </p>
+
+    <div class="state-grid">
+      <div class="state-cell">
+        <div class="state-label">Win</div>
+        <div class="state-pct">45%</div>
+        <div class="state-desc">Correct prediction, move &gt; 1 tick. Gross P&amp;L positive.</div>
+      </div>
+      <div class="state-cell is-bad">
+        <div class="state-label">Draw</div>
+        <div class="state-pct">45%</div>
+        <div class="state-desc">Correct prediction, move = 1 tick. Spread eats it. Gross P&amp;L zero.</div>
+      </div>
+      <div class="state-cell is-bad">
+        <div class="state-label">Loss</div>
+        <div class="state-pct">10%</div>
+        <div class="state-desc">Wrong prediction. Gross P&amp;L negative.</div>
+      </div>
+    </div>
+
+    <p>
+      On paper that 45/45/10 split looks fine - you're right 90% of the time. In gross terms you end up
+      flat on half your trades. The real kick in the teeth comes when you layer transaction costs on top.
+      Draws become losses. Some wins become draws. The 65% that looked like acceptable churn is now
+      net-negative territory. The strategy that didn't lose is now definitely losing.
+    </p>
+
+    <h2><span class="sec">§ 3</span> What the Cost Actually Is on NSE</h2>
+
+    <p>
+      The US version of this problem involves a broker fee and an exchange liquidity removal fee. India's
+      version is structurally different and, at the tick level, considerably more hostile. There are six
+      separate charges stacked on every round trip, and three of them are levied by the government regardless
+      of whether the trade is profitable.
+    </p>
+
+    <p>
+      Take a liquid large-cap on NSE at <strong>₹500/share</strong>, 1,000 shares, intraday. Tick size is
+      ₹0.05. Here's where the money actually goes:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Charge</th>
+          <th>Side</th>
+          <th>Rate</th>
+          <th class="num">₹ / share</th>
+          <th class="num">Ticks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>STT</td>
+          <td>Sell only</td>
+          <td>0.025%</td>
+          <td class="num neg">0.1250</td>
+          <td class="num neg">2.50</td>
+        </tr>
+        <tr>
+          <td>Stamp Duty</td>
+          <td>Buy only</td>
+          <td>0.015%</td>
+          <td class="num neg">0.0750</td>
+          <td class="num neg">1.50</td>
+        </tr>
+        <tr>
+          <td>NSE Exchange Txn</td>
+          <td>Both</td>
+          <td>0.00297% each</td>
+          <td class="num neg">0.0297</td>
+          <td class="num neg">0.59</td>
+        </tr>
+        <tr>
+          <td>SEBI Turnover Fee</td>
+          <td>Both</td>
+          <td>0.0001% each</td>
+          <td class="num neg">0.0010</td>
+          <td class="num neg">0.02</td>
+        </tr>
+        <tr>
+          <td>NSE IPFT</td>
+          <td>Both</td>
+          <td>0.0001% each</td>
+          <td class="num neg">0.0010</td>
+          <td class="num neg">0.02</td>
+        </tr>
+        <tr>
+          <td>GST (18%)</td>
+          <td>On exchange + SEBI + IPFT</td>
+          <td>-</td>
+          <td class="num neg">0.0056</td>
+          <td class="num neg">0.11</td>
+        </tr>
+        <tr>
+          <td>Brokerage</td>
+          <td>Both</td>
+          <td>₹20 flat / order</td>
+          <td class="num neg">0.0400</td>
+          <td class="num neg">0.80</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="3"><strong>Round-trip total</strong></td>
+          <td class="num neg"><strong>₹0.2773</strong></td>
+          <td class="num neg"><strong>5.55 ticks</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      The draw zone on NSE isn't 1 tick wide. It's <strong>5.5 ticks wide</strong>. You need to capture
+      at least a ₹0.28/share move just to break even. For a ₹500 stock that's a 0.056% move per trade - on
+      a strategy designed to trade 1–2 tick setups. The math collapses before you've written a single line
+      of strategy logic.
+    </p>
+
+    <div class="callout">
+      <div class="callout-label">STT is the largest single line item</div>
+      <p>
+        STT alone - 0.025% on sell-side turnover - costs 2.5 ticks per round trip. Stamp Duty on the
+        buy side costs another 1.5. Together, those two government levies account for 4 of your 5.5-tick
+        break-even before the exchange has taken a rupee. There's no way to negotiate or route around them.
+      </p>
+    </div>
+
+    <h2><span class="sec">§ 4</span> Futures Are No Escape</h2>
+
+    <p>
+      The knee-jerk response is to switch to Nifty futures where tick size is 0.5 points and contract
+      value is larger - costs get diluted, right? Partially. But Budget 2026 had other ideas. From
+      April 1st, STT on futures went from 0.02% to <strong>0.05%</strong> on the sell side. A 150% jump.
+    </p>
+
+    <p>
+      On a single Nifty lot (75 units, ~₹24,000 index level, contract value ≈ ₹18 lakh), the round-trip
+      cost breaks down roughly as:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Charge</th>
+          <th class="num">₹ / lot</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>STT (0.05% on sell, Budget 2026)</td>
+          <td class="num neg">900</td>
+        </tr>
+        <tr>
+          <td>Stamp Duty (0.002% on buy)</td>
+          <td class="num neg">36</td>
+        </tr>
+        <tr>
+          <td>NSE Exchange Txn (0.00173% × 2)</td>
+          <td class="num neg">62</td>
+        </tr>
+        <tr>
+          <td>SEBI + IPFT + GST</td>
+          <td class="num neg">19</td>
+        </tr>
+        <tr>
+          <td>Brokerage (₹20 × 2)</td>
+          <td class="num neg">40</td>
+        </tr>
+        <tr class="total-row">
+          <td><strong>Round-trip total</strong></td>
+          <td class="num neg"><strong>≈ ₹1,057</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      Each Nifty point is worth ₹75. Break-even on a futures round trip is <strong>~14 Nifty points</strong>.
+      Scalping a 1–2 point move on Nifty futures isn't a strategy, it's a donation. The 3× STT hike on
+      futures this year essentially killed the tick-scalp trade at the retail level.
+    </p>
+
+    <div class="formula">
+      break-even (ticks) = total_round_trip_cost / (tick_size × lot_size)
+      <span class="formula-caption">Eq. 1 - Minimum price move required for net-zero P&amp;L</span>
+    </div>
+
+    <h2><span class="sec">§ 5</span> The Rejected Jump Shot</h2>
+
+    <p>
+      Here's what's actually happening in the strategy. The model correctly identifies a 1-tick directional
+      move. Price ticks up. But within the same bar - sometimes within milliseconds - mean reversion
+      kicks in. Everyone who was waiting on the first uptick jumps on it, sells into the move, and the
+      price is knocked straight back down. In basketball terms: a clean read of the defence, a good jump
+      shot, rejected at the rim by the shot blocker who was already positioned.
+    </p>
+
+    <p>
+      The gross P&amp;L on a rejected jump shot is zero - the model predicted correctly. The net P&amp;L
+      after 5.5 ticks of transaction cost is deeply negative. And because these rejected shots happen roughly
+      45% of the time, the cost bleeds are relentless. The strategy fails not because the signal is wrong
+      but because statutory costs alone are wide enough to swallow the available profit on the correctly
+      predicted move.
+    </p>
+
+    <h2><span class="sec">§ 6</span> What I Am Not Sure About</h2>
+
+    <p>
+      <strong>Whether any tick-level equity strategy survives India's cost structure.</strong> The
+      STT + stamp duty combination is genuinely punishing relative to the available profit on a 1–3 tick
+      move. I've not found published evidence of retail participants profitably scalping NSE equities at
+      this frequency. That absence might mean it's impossible, or it might mean nobody who can do it
+      is writing about it.
+    </p>
+
+    <p>
+      <strong>Whether the classifier problem is tractable.</strong> The difference between a held move
+      and a rejected one may not be cleanly separable from publicly available data. If the rejected
+      shots are driven by latency-advantaged participants reacting faster than any signal can capture,
+      filtering for them from the retail data feed might be fundamentally underdetermined.
+    </p>
+
+    <p>
+      <strong>Whether futures make sense post-Budget 2026.</strong> The STT hike to 0.05% substantially
+      narrows the window for intraday futures strategies. Options have their own cost dynamics - options
+      STT is now 0.15% on premium, up from 0.10% - and the tick structure is non-linear. Neither segment
+      is obviously better than equity cash for a tick-level approach. The search continues.
+    </p>
+
+    <p>
+      ...the expedition continues.
+    </p>
+
+    <h2><span class="sec">§ A</span> Appendix - Cost Calculator (Python)</h2>
+
+    <p>
+      The numbers in this post come from a small utility I keep updated whenever SEBI or the exchanges
+      revise their fee schedules. Rates below reflect the post-Budget 2026 regime (effective April 1, 2026).
+      Drop it into any backtest loop and call it on each round trip to get an honest cost figure rather
+      than a hand-wavy estimate.
+    </p>
+
+<pre><code><span class="pre-lang">python - transaction_costs.py · rates current as of 01-04-2026</span># =============================================================================
+# transaction_costs.py
+#
+# Statutory + exchange transaction cost calculator for Indian markets (NSE).
+# Covers equity cash (delivery &amp; intraday), equity futures, and equity options.
+#
+# Key rate changes since the previous version (04-02-2025):
+#   • STT on futures sell side:   0.02% → 0.05%   [Budget 2026, Apr 1 2026]
+#   • STT on options sell side:   0.10% → 0.15%   [Budget 2026, Apr 1 2026]
+#   • NSE IPFT on options:        ₹0.01/cr → ₹50/cr (0.000001% → 0.000005%)
+#
+# Usage:
+#   buy_ch  = calculate_transaction_charges('buy',  segment, buy_value,  0)
+#   sell_ch = calculate_transaction_charges('sell', segment, 0, sell_value)
+#   total   = sum(buy_ch.values()) + sum(sell_ch.values())
+# =============================================================================
+
+
+def calculate_transaction_charges(trade_type, segment, buy_value, sale_value,
+                                   trade_category='intraday'):
+    """
+    Return a dict of itemised statutory charges for one side of a trade.
+
+    Parameters
+    ----------
+    trade_type     : 'buy' or 'sell'
+    segment        : 'equity', 'futures', or 'options'
+    buy_value      : total buy-side transaction value in ₹ (pass 0 on sell calls)
+    sale_value     : total sell-side transaction value in ₹ (pass 0 on buy calls)
+    trade_category : 'intraday' or 'delivery' - relevant only for equity segment
+
+    Returns
+    -------
+    dict  - keys: exchange_txn_charge, stt, stamp_duty, sebi_charge,
+                  ipf_charge, gst
+    """
+    charges = {}
+
+    # Total turnover for this call - used by charges levied on both sides
+    turnover = buy_value + sale_value
+
+    # ── 1. NSE Exchange Transaction Charge ───────────────────────────────────
+    # Flat uniform rate per NSE circular (Oct 1, 2024 "true-to-label" mandate).
+    #   Equity cash:   ₹2.97  per lakh each side  → 0.00297%
+    #   Futures:       ₹1.73  per lakh each side  → 0.00173%
+    #   Options:       ₹35.03 per lakh of premium → 0.03503%
+    if segment == 'equity':
+        charges['exchange_txn_charge'] = turnover * 0.0000297
+    elif segment == 'futures':
+        charges['exchange_txn_charge'] = turnover * 0.0000173
+    elif segment == 'options':
+        charges['exchange_txn_charge'] = turnover * 0.0003503   # applied on premium value
+
+    # ── 2. Securities Transaction Tax (STT) ──────────────────────────────────
+    # Government levy - no routing around it.
+    #
+    # Equity delivery:  0.1% on BOTH buy and sell  (unchanged)
+    # Equity intraday:  0.025% on sell side only   (unchanged)
+    # Futures sell:     0.05%  ← raised from 0.02% by Budget 2026
+    # Options sell:     0.15% on premium ← raised from 0.10% by Budget 2026
+    if trade_type == 'sell':
+        if segment == 'equity':
+            if trade_category == 'intraday':
+                charges['stt'] = sale_value * 0.00025   # 0.025% sell-side intraday
+            else:
+                charges['stt'] = sale_value * 0.001     # 0.1% sell-side delivery
+        elif segment == 'futures':
+            charges['stt'] = sale_value * 0.0005        # 0.05% - Budget 2026 rate
+        elif segment == 'options':
+            charges['stt'] = sale_value * 0.0015        # 0.15% on premium - Budget 2026
+    elif trade_type == 'buy':
+        if segment == 'equity' and trade_category == 'delivery':
+            charges['stt'] = buy_value * 0.001          # 0.1% buy-side delivery
+        else:
+            charges['stt'] = 0                          # no STT on buy for F&amp;O / intraday
+
+    # ── 3. Stamp Duty ─────────────────────────────────────────────────────────
+    # Charged on buy side only. Uniform rate across all Indian states since 2020.
+    #   Equity:   0.015% on buy value
+    #   Futures:  0.002% on buy value
+    #   Options:  0.003% on buy value (on premium paid)
+    stamp_duty_rates = {'equity': 0.00015, 'futures': 0.00002, 'options': 0.00003}
+    if trade_type == 'buy':
+        charges['stamp_duty'] = buy_value * stamp_duty_rates.get(segment, 0)
+    else:
+        charges['stamp_duty'] = 0
+
+    # ── 4. SEBI Turnover Fee ──────────────────────────────────────────────────
+    # ₹10 per crore of turnover (both sides) → 0.0001%. Unchanged.
+    charges['sebi_charge'] = turnover * 0.000001
+
+    # ── 5. NSE Investor Protection Fund Trust (IPFT) ─────────────────────────
+    # Revised per NSE circular:
+    #   Equity &amp; Futures:  ₹10  per crore → 0.000001 (0.0001%)  - unchanged
+    #   Options:           ₹50  per crore → 0.000005 (0.0005%)  - updated
+    if segment == 'options':
+        charges['ipf_charge'] = turnover * 0.000005
+    else:
+        charges['ipf_charge'] = turnover * 0.000001
+
+    # ── 6. GST at 18% ─────────────────────────────────────────────────────────
+    # Applied on: Exchange Txn Charge + SEBI Charge + IPFT Charge.
+    # Brokerage GST is handled separately by the broker and excluded here.
+    gst_base = (charges['exchange_txn_charge']
+                + charges['sebi_charge']
+                + charges['ipf_charge'])
+    charges['gst'] = gst_base * 0.18
+
+    return charges
+
+
+# =============================================================================
+# Example: ₹500 stock, 1,000 shares, NSE equity intraday round trip
+# =============================================================================
+
+if __name__ == '__main__':
+    buy_price  = 500        # ₹ per share
+    sell_price = 500.30     # ₹ per share - capturing ~6 ticks (₹0.05 tick size)
+    volume     = 1_000      # shares
+    segment    = 'equity'
+    category   = 'intraday'
+
+    buy_value  = buy_price  * volume   # ₹ 5,00,000
+    sell_value = sell_price * volume   # ₹ 5,00,300
+
+    # Calculate buy-side and sell-side charges independently -
+    # this matters because STT and stamp duty apply asymmetrically.
+    buy_charges  = calculate_transaction_charges('buy',  segment, buy_value,  0, category)
+    sell_charges = calculate_transaction_charges('sell', segment, 0, sell_value, category)
+
+    total_charges = sum(buy_charges.values()) + sum(sell_charges.values())
+    gross_pnl     = sell_value - buy_value
+    net_pnl       = gross_pnl - total_charges
+
+    # ── per-share cost breakdown ──────────────────────────────────────────────
+    cost_per_share    = total_charges / volume
+    tick_size         = 0.05
+    break_even_ticks  = cost_per_share / tick_size
+
+    print("=" * 58)
+    print("  TRANSACTION COST SUMMARY - NSE EQUITY INTRADAY")
+    print("=" * 58)
+    print(f"  Gross P&amp;L          : ₹{gross_pnl:,.2f}")
+    print(f"  Total charges       : ₹{total_charges:,.2f}")
+    print(f"  Net P&amp;L             : ₹{net_pnl:,.2f}")
+    print(f"  Cost per share      : ₹{cost_per_share:.4f}")
+    print(f"  Break-even (ticks)  : {break_even_ticks:.2f}")
+    print("-" * 58)
+    print("  Buy-side charges:")
+    for k, v in buy_charges.items():
+        print(f"    {k:<22}: ₹{v:.4f}")
+    print("  Sell-side charges:")
+    for k, v in sell_charges.items():
+        print(f"    {k:<22}: ₹{v:.4f}")
+    print("=" * 58)</code></pre>
+
+    <p>
+      Running the example above at a 6-tick profit target (₹0.30/share on a ₹500 stock) produces a
+      net positive P&amp;L - but only just. Drop to 5 ticks and the trade is net-zero. Drop to 4 ticks
+      and the statutory charges eat you alive. That's the black hole: it's invisible in gross P&amp;L,
+      relentless in net.
+    </p>
+
+  </div><!-- /.post-body -->
+
+</div>
+<script>
+  (function () {
+    var root=document.documentElement;
+    var btn=document.getElementById('theme-toggle');
+    var icon=document.getElementById('toggle-icon');
+    var lbl=document.getElementById('toggle-label');
+    function apply(t) {
+      root.setAttribute('data-theme',t);
+      localStorage.setItem('bb-theme',t);
+      icon.textContent=t==='dark'?'◑':'◐';
+      lbl.textContent=t==='dark'?'Light':'Dark';
+    }
+    apply(root.getAttribute('data-theme')||'light');
+    btn.addEventListener('click',function(){
+      apply(root.getAttribute('data-theme')==='dark'?'light':'dark');
+    });
+  })();
+</script>
+</body>
+</html>
