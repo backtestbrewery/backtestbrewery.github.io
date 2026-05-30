@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Mathematics of Voting Systems · Backtest Brewery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Source+Code+Pro:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script>
+    (function(){
+      var t=localStorage.getItem('bb-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+      document.documentElement.setAttribute('data-theme',t);
+    })();
+  </script>
+  <style>
+    :root {
+      --bg:#FAFAF8; --ink:#111110; --muted:#777770;
+      --rule:#DDDDD8; --red:#B83232; --toggle-bg:#E8E8E4;
+      --surface:#F3F3F0; --green:#3A7D44;
+    }
+    [data-theme="dark"] {
+      --bg:#0C0C0B; --ink:#E8E4DB; --muted:#7A7A72;
+      --rule:#252522; --red:#C94040; --toggle-bg:#222220;
+      --surface:#161614; --green:#5aab64;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { font-size:16px; }
+    body {
+      background:var(--bg); color:var(--ink);
+      font-family:'EB Garamond',Georgia,serif;
+      font-size:1.05rem; line-height:1.75;
+      transition:background 0.2s, color 0.2s;
+    }
+    .page { width:min(92%,760px); margin-inline:auto; padding-bottom:5rem; }
+
+    /* bar */
+    .journal-bar {
+      border-bottom:2px solid var(--ink); padding:0.85rem 0;
+      display:flex; justify-content:space-between; align-items:center;
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.08em;
+    }
+    .back-link { color:var(--muted); text-decoration:none; transition:color 0.15s; }
+    .back-link:hover { color:var(--ink); }
+    .bar-right { display:flex; align-items:center; gap:1.2rem; }
+    .nav-link {
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.09em; text-transform:uppercase;
+      color:var(--muted); text-decoration:none; transition:color 0.15s;
+    }
+    .nav-link:hover { color:var(--ink); }
+    #theme-toggle {
+      background:var(--toggle-bg); border:none; cursor:pointer;
+      font-family:'Source Code Pro',monospace; font-size:0.6rem;
+      letter-spacing:0.08em; color:var(--muted); padding:3px 9px;
+      border-radius:2px; display:flex; align-items:center; gap:5px;
+      transition:color 0.15s;
+    }
+    #theme-toggle:hover { color:var(--ink); }
+
+    /* post header */
+    .post-header { padding:3.5rem 0 2.5rem; border-bottom:1px solid var(--rule); }
+    .post-label {
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.13em; text-transform:uppercase;
+      color:var(--red); margin-bottom:0.9rem;
+    }
+    .post-title {
+      font-size:clamp(1.8rem,4.5vw,2.5rem); font-weight:500;
+      line-height:1.15; letter-spacing:-0.01em; margin-bottom:1.5rem;
+    }
+    .post-meta {
+      font-family:'Source Code Pro',monospace; font-size:0.61rem;
+      letter-spacing:0.07em; color:var(--muted);
+      display:flex; gap:1rem; flex-wrap:wrap; align-items:center;
+    }
+    .meta-dot {
+      width:3px; height:3px; border-radius:50%;
+      background:var(--rule); display:inline-block; vertical-align:middle;
+    }
+    .meta-tag { color:var(--ink); }
+
+    /* prose */
+    .post-body { padding:2.5rem 0; }
+    .post-body p {
+      font-size:0.98rem; color:var(--muted);
+      line-height:1.95; margin-bottom:1.2rem;
+    }
+    .post-body h2 {
+      font-size:1.28rem; font-weight:500; color:var(--ink);
+      margin:2.8rem 0 0.8rem;
+      display:flex; align-items:baseline; gap:0.6rem;
+    }
+    .post-body h2 .sec {
+      font-family:'Source Code Pro',monospace;
+      font-size:0.7rem; color:var(--red); font-weight:400;
+    }
+    .post-body strong { color:var(--ink); font-weight:600; }
+    .post-body em { font-style:italic; }
+    .post-body code {
+      font-family:'Source Code Pro',monospace; font-size:0.8em;
+      background:var(--surface); padding:1px 5px; border-radius:2px;
+      color:var(--ink);
+    }
+
+    /* formula blocks */
+    .formula {
+      border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);
+      padding:1.1rem 1.4rem; margin:1.5rem 0;
+      font-family:'Source Code Pro',monospace; font-size:0.82rem;
+      color:var(--ink); line-height:1.8;
+    }
+    .formula-caption {
+      display:block; font-size:0.6rem; text-transform:uppercase;
+      letter-spacing:0.1em; color:var(--muted); margin-top:0.5rem;
+    }
+    .formula-row { display:block; margin-bottom:0.25rem; }
+    .formula-row:last-child { margin-bottom:0; }
+    .formula-indent { padding-left:1.6rem; display:block; font-size:0.78rem; color:var(--muted); }
+
+    /* tables */
+    .table-wrap { overflow-x:auto; margin:1.5rem 0; }
+    table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+    th {
+      font-family:'Source Code Pro',monospace; font-size:0.58rem;
+      letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);
+      border-bottom:2px solid var(--rule); padding:0.55rem 0.7rem;
+      text-align:left; font-weight:400;
+    }
+    td { padding:0.5rem 0.7rem; border-bottom:1px solid var(--rule); color:var(--muted); font-size:0.9rem; }
+    tr:last-child td { border-bottom:none; }
+    .num { text-align:right; font-family:'Source Code Pro',monospace; font-size:0.82rem; }
+    .best { color:var(--ink); font-weight:500; }
+    .good { color:var(--green); }
+    .bad  { color:var(--red); }
+
+    /* callout */
+    .callout {
+      border-left:2px solid var(--rule);
+      padding:0.8rem 1.2rem; margin:1.8rem 0;
+      background:var(--surface);
+    }
+    .callout p { margin-bottom:0; font-size:0.92rem; }
+    .callout-label {
+      font-family:'Source Code Pro',monospace; font-size:0.58rem;
+      letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
+      margin-bottom:0.4rem;
+    }
+    .callout.highlight { border-left-color:var(--ink); }
+
+    @media (max-width:640px) {
+      .journal-bar { flex-wrap:wrap; gap:0.6rem; }
+      th, td { padding:0.45rem 0.5rem; font-size:0.82rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="journal-bar">
+    <a href="../index.html" class="back-link">&#8592; Backtest Brewery</a>
+    <div class="bar-right">
+      <a href="../about.html" class="nav-link">About</a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span id="toggle-icon">&#9680;</span>
+        <span id="toggle-label">Dark</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="post-header">
+    <p class="post-label">Mathematics</p>
+    <h1 class="post-title">The Mathematics of Voting Systems</h1>
+    <div class="post-meta">
+      <span>2026-05-30</span>
+      <span class="meta-dot"></span>
+      <span class="meta-tag">Arrow's Theorem &middot; Social Choice &middot; FPTP &middot; India</span>
+      <span class="meta-dot"></span>
+      <span>10 min read</span>
+    </div>
+  </div>
+
+  <div class="post-body">
+
+    <p>
+      Democracy runs on a simple-sounding idea: ask everyone, count the answers, follow the majority.
+      The mathematics of social choice theory suggests it is substantially more complicated than that.
+      In 1951, economist Kenneth Arrow proved that no ranked voting system with three or more candidates
+      can simultaneously satisfy a small set of obvious, reasonable fairness conditions. This was not
+      political commentary. It was a theorem, and it earned him the Nobel Prize in Economics in 1972.
+    </p>
+
+    <p>
+      This post works through the argument step by step: from the basic failure modes of plurality
+      voting, through Condorcet's paradox, to the formal proof. Indian electoral data runs as
+      the case study throughout. The conclusion is not that democracy is hopeless. It is that every
+      voting system is an imperfect tool, and some are far worse than others.
+    </p>
+
+    <h2><span class="sec">§ 1</span> The Aggregation Problem</h2>
+
+    <p>
+      An election is, formally, an aggregation mechanism. It takes a profile of individual preference
+      orderings over <em>k</em> candidates and maps them to a single social preference ordering.
+      The branch of mathematics that studies this mapping is <strong>social choice theory</strong>,
+      born in the French Revolution and formalised in the mid-twentieth century.
+    </p>
+
+    <p>
+      The challenge is not any single fairness condition. Each one individually seems obvious.
+      The difficulty is that several of them cannot all hold simultaneously once the candidate count
+      reaches three. That tension is what Arrow formalised, and it is why 200 years of proposed
+      voting methods each kept breaking in a different place.
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">Setup:</span>
+      <span class="formula-indent">V = {v&#x2081;, v&#x2082;, ..., v&#x2099;}  -- set of n voters</span>
+      <span class="formula-indent">A = {a, b, c, ...}          -- set of k candidates, k &ge; 3</span>
+      <span class="formula-indent">f : Profiles &rarr; Orderings -- the social choice function</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-row">A profile is one complete set of individual ranked ballots.</span>
+      <span class="formula-row">f maps every valid profile to a single social preference ordering.</span>
+      <span class="formula-row">The question: what properties can f satisfy simultaneously?</span>
+      <span class="formula-caption">Eq. 1 -- Formal setup of the social choice problem</span>
+    </div>
+
+    <h2><span class="sec">§ 2</span> First Past the Post</h2>
+
+    <p>
+      The simplest social choice function: each voter submits one name; the candidate with the most
+      submissions wins. No majority required. Britain has used this rule since the fourteenth century;
+      India inherited it at independence and applies it to all 543 Lok Sabha seats and most state
+      assembly elections. Around 44 countries still use it today, the majority of them former
+      British colonies.
+    </p>
+
+    <p>
+      The core flaw is that <strong>plurality is not majority</strong>. With <em>k</em> candidates,
+      the theoretical minimum winning share falls as the field grows. In India's Lok Sabha contests,
+      the effective number of serious candidates per constituency is typically three to six. Winners
+      routinely clear 35 to 45 percent in safer seats and as little as 28 percent in fragmented ones.
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">min winning share &asymp; 1/k + &epsilon;   (as k increases)</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-indent">k = 2  &rarr;  min share: ~50%</span>
+      <span class="formula-indent">k = 3  &rarr;  min share: ~34%</span>
+      <span class="formula-indent">k = 5  &rarr;  min share: ~21%</span>
+      <span class="formula-indent">k = 10 &rarr;  min share: ~11%</span>
+      <span class="formula-caption">Eq. 2 -- Theoretical minimum winning vote share under plurality rule</span>
+    </div>
+
+    <p>
+      The second flaw: FPTP has no mechanism to capture second preferences. If your preferred
+      candidate is unlikely to win, voting for them may simply subtract from the candidate you prefer
+      second. This is the strategic voting trap built into the system structurally, not incidentally.
+    </p>
+
+    <h2><span class="sec">§ 3</span> The Indian Evidence</h2>
+
+    <p>
+      India is the world's most important stress test of FPTP: the largest electorate on Earth,
+      a genuine multi-party system, and elections contested across hundreds of constituencies
+      simultaneously. The data is unambiguous on the core pathology: vote share and seat share
+      come severely apart.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Lok Sabha Election</th>
+            <th>Party</th>
+            <th class="num">Vote Share</th>
+            <th class="num">Seats Won</th>
+            <th class="num">Seat Share</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2014</td>
+            <td><strong>BJP</strong></td>
+            <td class="num bad">~31.0%</td>
+            <td class="num best">282</td>
+            <td class="num best">~52%</td>
+            <td class="best">Lowest vote share ever for a single-party Lok Sabha majority</td>
+          </tr>
+          <tr>
+            <td>2014</td>
+            <td>Congress</td>
+            <td class="num">~19.5%</td>
+            <td class="num bad">44</td>
+            <td class="num bad">~8%</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>2014</td>
+            <td>BSP</td>
+            <td class="num">~4.2%</td>
+            <td class="num bad">0</td>
+            <td class="num bad">0%</td>
+            <td class="bad">Third-largest national vote share, zero seats</td>
+          </tr>
+          <tr>
+            <td>2019</td>
+            <td><strong>BJP</strong></td>
+            <td class="num">~37.4%</td>
+            <td class="num best">303</td>
+            <td class="num best">~56%</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>2024</td>
+            <td><strong>BJP</strong></td>
+            <td class="num">~36.5%</td>
+            <td class="num">240</td>
+            <td class="num">~44%</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>2024</td>
+            <td>Congress</td>
+            <td class="num">~21.1%</td>
+            <td class="num">99</td>
+            <td class="num">~18%</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The 2014 result deserves particular attention. The previous record-low vote share for a
+      single-party Lok Sabha majority was 40.78 percent, set by Congress in 1967. The BJP broke
+      that record by nearly ten percentage points. Roughly 69 percent of voters chose someone else,
+      yet one party controlled an outright majority of the lower house. The disproportionality is
+      not a quirk of 2014; it is the structural output of the system across every cycle.
+    </p>
+
+    <div class="callout highlight">
+      <div class="callout-label">The BSP case: 22.8 million votes, zero seats</div>
+      <p>
+        In 2014, the Bahujan Samaj Party secured approximately 4.2 percent of the national vote,
+        making it the third-largest party by vote share in the country. It won not a single one of
+        543 seats. In Uttar Pradesh, where its vote share was roughly 19 to 20 percent, it won
+        zero of the state's 80 constituencies. Every single one of those votes elected nobody.
+        This is not a statistical anomaly. It is the mathematically predictable output of a
+        system that throws away every vote cast for anyone other than the local winner.
+      </p>
+    </div>
+
+    <p>
+      State-level data amplifies the picture further. In the 2017 Uttar Pradesh assembly election,
+      the BJP won approximately 80 percent of the seats on 39.7 percent of the vote. In the 2012
+      Uttar Pradesh assembly election, a three-percentage-point gap between the Samajwadi Party
+      (29.2%) and the BSP (25.9%) produced a 144-seat gap (224 versus 80). In the 2018 Madhya
+      Pradesh assembly election, the Congress actually polled fewer votes than the BJP (40.9%
+      versus 41.0%) and yet won more seats (114 versus 109). The system reversed the vote order
+      entirely.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>State Election</th>
+            <th>Party</th>
+            <th class="num">Vote Share</th>
+            <th class="num">Seats</th>
+            <th class="num">Seat Share</th>
+            <th>Observation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>UP Assembly 2017</td>
+            <td>BJP</td>
+            <td class="num">39.7%</td>
+            <td class="num best">325 / 403</td>
+            <td class="num best good">80.6%</td>
+            <td>Plurality amplified to supermajority</td>
+          </tr>
+          <tr>
+            <td>UP Assembly 2012</td>
+            <td>SP</td>
+            <td class="num">29.2%</td>
+            <td class="num best">224 / 403</td>
+            <td class="num best">55.6%</td>
+            <td>3-point vote gap, 144-seat gap</td>
+          </tr>
+          <tr>
+            <td>UP Assembly 2012</td>
+            <td>BSP</td>
+            <td class="num bad">25.9%</td>
+            <td class="num bad">80 / 403</td>
+            <td class="num bad">19.9%</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>MP Assembly 2018</td>
+            <td>Congress</td>
+            <td class="num">40.9%</td>
+            <td class="num best">114 / 230</td>
+            <td class="num best">49.6%</td>
+            <td class="bad">Fewer votes, more seats than BJP</td>
+          </tr>
+          <tr>
+            <td>MP Assembly 2018</td>
+            <td>BJP</td>
+            <td class="num">41.0%</td>
+            <td class="num bad">109 / 230</td>
+            <td class="num bad">47.4%</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Maharashtra Assembly 2024</td>
+            <td>BJP</td>
+            <td class="num bad">26.8%</td>
+            <td class="num best">132 / 288</td>
+            <td class="num best">45.8%</td>
+            <td>Under 27% of vote, nearly half the seats</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2><span class="sec">§ 4</span> The Spoiler Effect and Duverger's Law</h2>
+
+    <p>
+      When two ideologically similar candidates compete in the same race, they divide a like-minded
+      electorate and can hand victory to a third candidate whom the majority would have defeated in
+      any direct contest. This is the spoiler effect, and it is a structural feature of FPTP, not
+      a coincidence.
+    </p>
+
+    <p>
+      In Uttar Pradesh 2017, the Samajwadi Party (21.8%) and the BSP (22.2%) together outpolled the
+      BJP (39.7%). Their combined 44 percent should, intuitively, have produced more seats than a
+      party with 39.7 percent. Instead the BJP won 81 percent of the seats. The corrective response
+      was mathematical as much as political: for the 2019 Lok Sabha election, the two parties formed
+      an explicit alliance to <em>consolidate</em> the divided vote. This is what game theory predicts
+      FPTP will produce over time: not honest ideological expression, but strategic coordination
+      designed to neutralise the vote-splitting the system itself creates.
+    </p>
+
+    <p>
+      Duverger's Law formalises this logic: FPTP incentivises voters to abandon smaller parties,
+      concentrating support in two front-runners and eventually producing a two-party equilibrium.
+      India is the world's most important partial exception. Duverger's Law operates constituency by
+      constituency, not nationally. Each local contest tends toward two serious candidates, but the
+      two candidates differ from state to state. A national party faces a different dominant regional
+      party in each state, producing a multi-party parliament built out of locally bipolar races.
+      The law holds locally; its national implication does not.
+    </p>
+
+    <h2><span class="sec">§ 5</span> Better Alternatives, Same Problems</h2>
+
+    <p>
+      If FPTP is so defective, what should replace it? Researchers have proposed many alternatives
+      across 200 years of social choice theory. Each one solves some problems and introduces
+      new ones.
+    </p>
+
+    <p>
+      <strong>Instant Runoff Voting (Ranked Choice).</strong> Voters rank candidates by preference.
+      The last-placed candidate is eliminated in each round and their ballots redistributed to the
+      next preference listed. The process continues until one candidate holds an outright majority.
+      IRV reduces the spoiler effect and encourages positive campaigning (candidates want second
+      preferences). But it suffers a serious mathematical defect called non-monotonicity.
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">Non-Monotonicity: a candidate can win by doing worse</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-row">Scenario 1:</span>
+      <span class="formula-indent">Round 1:  A = 25%,  B = 45%,  C = 30%</span>
+      <span class="formula-indent">A is eliminated. A's voters prefer C second.</span>
+      <span class="formula-indent">Round 2:  B = 45%,  C = 55%  &rarr;  Winner: C</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-row">Scenario 2 (B loses 9 points to A):</span>
+      <span class="formula-indent">Round 1:  A = 34%,  B = 36%,  C = 30%</span>
+      <span class="formula-indent">C is eliminated. C's voters split 50/50.</span>
+      <span class="formula-indent">Round 2:  A = 49%,  B = 51%  &rarr;  Winner: B</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-row">B's vote share fell from 45% to 36%. B went from losing to winning.</span>
+      <span class="formula-caption">Eq. 3 -- Non-monotonicity in Instant Runoff Voting</span>
+    </div>
+
+    <p>
+      <strong>The Borda Count.</strong> Proposed by Jean-Charles de Borda in 1784: with <em>n</em>
+      candidates, first place earns <em>n&minus;1</em> points, second earns <em>n&minus;2</em>, and
+      so on. The flaw is explicit dependence on irrelevant alternatives: adding a no-hoper to the
+      ballot changes the points each other candidate receives and can change who wins. Condorcet
+      dismissed Borda's system in 1785 for exactly this reason, writing that it "relies on irrelevant
+      factors for its judgments."
+    </p>
+
+    <p>
+      <strong>Condorcet's Method.</strong> The most intuitive idea: the winner should be whoever
+      beats every other candidate in a direct pairwise comparison. You compute this from ranked
+      ballots, no repeated elections required. The method is clean in theory and was actually
+      discovered 450 years earlier by the monk Ramon Llull, whose work was lost until 2001.
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">Condorcet's Paradox: three voters choosing dinner</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-indent">Voter 1:  Burgers &gt; Pizza &gt; Sushi</span>
+      <span class="formula-indent">Voter 2:  Pizza   &gt; Sushi &gt; Burgers</span>
+      <span class="formula-indent">Voter 3:  Sushi   &gt; Burgers &gt; Pizza</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-row">Pairwise majority results:</span>
+      <span class="formula-indent">Burgers beats Pizza    (Voters 1 and 3: 2 to 1)</span>
+      <span class="formula-indent">Pizza   beats Sushi    (Voters 1 and 2: 2 to 1)</span>
+      <span class="formula-indent">Sushi   beats Burgers  (Voters 2 and 3: 2 to 1)</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-row">Result: Burgers &gt; Pizza &gt; Sushi &gt; Burgers ...</span>
+      <span class="formula-row">A cycle. No Condorcet winner exists.</span>
+      <span class="formula-caption">Eq. 4 -- Condorcet's paradox: rational individuals, irrational group</span>
+    </div>
+
+    <p>
+      Three rational individuals produce an irrational, intransitive group preference. The group
+      simultaneously prefers X to Y, Y to Z, and Z to X. This is not a peculiarity of the dinner
+      example. It is a structural feature of collective preference aggregation, and it is why Arrow's
+      theorem is necessary.
+    </p>
+
+    <h2><span class="sec">§ 6</span> Arrow's Impossibility Theorem</h2>
+
+    <p>
+      Kenneth Arrow formalised this entire landscape in his 1951 PhD thesis. He identified five
+      conditions that any rational ranked voting system should satisfy, then proved that no such
+      system can satisfy all five simultaneously when there are three or more candidates. The proof
+      was so fundamental that Arrow received the Nobel Prize in Economics in 1972.
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">Arrow's Five Conditions:</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-indent">(1) Unanimity:          if every voter prefers X to Y,</span>
+      <span class="formula-indent">                       society must prefer X to Y.</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-indent">(2) Non-dictatorship:   no single voter's preference determines</span>
+      <span class="formula-indent">                       society's preference regardless of others.</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-indent">(3) Unrestricted domain: the system handles every logically valid</span>
+      <span class="formula-indent">                       profile of voter preferences.</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-indent">(4) Transitivity:       if society prefers X to Y and Y to Z,</span>
+      <span class="formula-indent">                       it must prefer X to Z.</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-indent">(5) IIA:                society's ranking of X vs Y depends only</span>
+      <span class="formula-indent">                       on individual X-vs-Y preferences, not on</span>
+      <span class="formula-indent">                       where any third candidate Z sits.</span>
+      <span class="formula-caption">Eq. 5 -- Arrow's five conditions for a rational ranked voting system</span>
+    </div>
+
+    <div class="callout highlight">
+      <div class="callout-label">Arrow's Impossibility Theorem (1951)</div>
+      <p>
+        For any ranked voting system with three or more candidates, there is no social choice
+        function satisfying all five conditions. Any function satisfying conditions (1), (3), (4),
+        and (5) must violate (2): it must be a dictatorship, where one voter's preferences
+        determine the group outcome regardless of what everyone else votes.
+      </p>
+    </div>
+
+    <p>
+      The proof uses a construction called the pivotal voter argument, presented in its cleanest
+      form by John Geanakoplos in 2005. It proceeds in three steps.
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">Proof Sketch (Geanakoplos 2005):</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-row">Step 1 -- Extremal Lemma:</span>
+      <span class="formula-indent">If every voter ranks candidate B at top or bottom,</span>
+      <span class="formula-indent">society must also rank B at top or bottom.</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-indent">Proof by contradiction:</span>
+      <span class="formula-indent">Suppose society places B in the middle: A &gt; B &gt; C.</span>
+      <span class="formula-indent">Have all voters move C above A, leaving B position unchanged.</span>
+      <span class="formula-indent">By (1) Unanimity:     society now has C &gt; A.</span>
+      <span class="formula-indent">By (5) IIA:           A-vs-B unchanged &rarr; society still A &gt; B.</span>
+      <span class="formula-indent">                      B-vs-C unchanged &rarr; society still B &gt; C.</span>
+      <span class="formula-indent">By (4) Transitivity:  A &gt; B and B &gt; C forces A &gt; C.</span>
+      <span class="formula-indent">Contradiction: C &gt; A and A &gt; C cannot both hold. QED Step 1.</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-row">Step 2 -- Pivotal Voter:</span>
+      <span class="formula-indent">Start: all voters rank B last &rarr; society ranks B last (unanimity).</span>
+      <span class="formula-indent">Move voters one at a time from B-last to B-first.</span>
+      <span class="formula-indent">By Step 1, society's B is always extremal after each switch.</span>
+      <span class="formula-indent">At voter n*, society's B flips from bottom to top.</span>
+      <span class="formula-indent">n* is the pivotal voter.</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-row">Step 3 -- Dictator:</span>
+      <span class="formula-indent">Construct a profile where n* places A above B.</span>
+      <span class="formula-indent">Using (5) IIA and (4) transitivity: society ranks A &gt; C</span>
+      <span class="formula-indent">regardless of every other voter's preference over A vs C.</span>
+      <span class="formula-indent">n* dictates A vs C for all possible other-voter profiles.</span>
+      <span class="formula-indent">Symmetric argument &rarr; n* dictates all pairwise comparisons.</span>
+      <span class="formula-indent">n* is a complete dictator, violating (2). QED.</span>
+      <span class="formula-caption">Eq. 6 -- Pivotal voter proof of Arrow's Impossibility Theorem</span>
+    </div>
+
+    <p>
+      The pivotal voter is not a real person. It is a mathematical construct that the proof shows
+      must exist as a logical consequence of the other four conditions. The conclusion is sharp:
+      every ranked voting system must abandon at least one of the five conditions. FPTP quietly
+      violates transitivity and IIA through its seat distortions. IRV violates monotonicity. Borda
+      violates IIA explicitly. Condorcet's method fails to produce an output whenever preferences
+      cycle. The failures are not bugs in specific designs. They are theorems.
+    </p>
+
+    <h2><span class="sec">§ 7</span> The Escape Routes</h2>
+
+    <p>
+      Arrow's theorem is a constraint on ordinal (ranked) systems. There are two partial exits,
+      each relevant to India's own institutional design.
+    </p>
+
+    <p>
+      <strong>Black's Median Voter Theorem.</strong> Arrow assumed unrestricted domain: voters
+      can hold any preferences. Duncan Black showed that relaxing this assumption partially rescues
+      the situation. If all voter preferences are <em>single-peaked</em> along a single dimension
+      (a left-right policy spectrum, say), majority rule is transitive, no Condorcet cycles arise,
+      and the median voter's ideal point is always the majority winner. No dictator required.
+    </p>
+
+    <p>
+      The Indian caveat is significant. Indian political preferences do not sit on a single axis.
+      They run simultaneously along caste and sub-caste, religion, region and language, class, and
+      urban-rural divides. When preferences are multi-dimensional, single-peakedness fails, cycles
+      reappear, and Black's optimistic result no longer holds. The theorem requires a world cleaner
+      than Indian politics actually is.
+    </p>
+
+    <p>
+      <strong>Rated (Cardinal) Voting.</strong> Arrow's theorem governs ordinal systems, where
+      voters rank candidates relative to each other. It says nothing about cardinal systems, where
+      voters assign absolute scores. The simplest version is <strong>approval voting</strong>: each
+      voter ticks every candidate they find acceptable, and the candidate with the highest approval
+      percentage wins. More expressive is score voting, where voters rate candidates on a numerical
+      scale.
+    </p>
+
+    <p>
+      Approval voting eliminates the spoiler effect entirely (you can approve of your true favourite
+      and a front-runner simultaneously), discourages negative campaigning (attacking a rival does
+      not gain you their approvals), and is straightforward to count. It is not a new idea: the
+      Vatican used it to elect Popes from 1294 to 1621, and the United Nations uses it to select
+      its Secretary-General today. Arrow himself, sceptical of rated systems for most of his career,
+      came to regard approval voting as likely the best practical option toward the end of his life.
+    </p>
+
+    <p>
+      The honest caveat: the Gibbard-Satterthwaite theorem shows that all non-trivial voting systems,
+      including rated ones, remain vulnerable to strategic voting. There is no free lunch. The choice
+      is between different trade-offs, not between an imperfect system and a perfect one.
+    </p>
+
+    <div class="callout highlight">
+      <div class="callout-label">India already runs non-FPTP elections</div>
+      <p>
+        The President and Vice-President of India are elected by the single transferable vote (STV),
+        a ranked-and-proportional system using a quota. Rajya Sabha seats are filled by proportional
+        representation via STV in state legislatures. India therefore runs sophisticated preferential
+        and proportional systems for its own indirect elections at the national level, demonstrating
+        that more complex alternatives are entirely feasible at scale. The use of FPTP for the Lok
+        Sabha is a choice, not a logistical necessity.
+      </p>
+    </div>
+
+    <p>
+      <strong>NOTA in India.</strong> The Supreme Court's 2013 ruling in PUCL v Union of India
+      added a None of the Above (NOTA) option to Indian EVMs, allowing voters to formally reject
+      all candidates on the ballot. It is, however, mathematically inert: even if NOTA outpolls
+      every candidate, the leading candidate wins regardless. NOTA records dissatisfaction without
+      changing outcomes. It is a pressure-release valve, not a structural reform.
+    </p>
+
+    <h2><span class="sec">§ 8</span> Full System Comparison</h2>
+
+    <p>
+      Across the five dimensions that matter most in practice:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>System</th>
+            <th>Spoiler Effect</th>
+            <th>Monotonic</th>
+            <th>Resolves Cycles</th>
+            <th>Proportional</th>
+            <th>IIA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>FPTP (India, Lok Sabha)</strong></td>
+            <td class="bad">Severe</td>
+            <td class="good">Yes</td>
+            <td class="good">Yes</td>
+            <td class="bad">No</td>
+            <td class="bad">No</td>
+          </tr>
+          <tr>
+            <td>Instant Runoff / Ranked Choice</td>
+            <td class="good">Reduced</td>
+            <td class="bad">No</td>
+            <td class="good">Yes</td>
+            <td class="bad">No</td>
+            <td class="bad">No</td>
+          </tr>
+          <tr>
+            <td>Borda Count</td>
+            <td class="good">Reduced</td>
+            <td class="good">Yes</td>
+            <td class="good">Yes</td>
+            <td class="bad">No</td>
+            <td class="bad">No</td>
+          </tr>
+          <tr>
+            <td>Condorcet Method</td>
+            <td class="best good">None</td>
+            <td class="good">Yes</td>
+            <td class="bad">No (cycles)</td>
+            <td class="bad">No</td>
+            <td class="best good">Yes</td>
+          </tr>
+          <tr>
+            <td>Approval Voting</td>
+            <td class="best good">None</td>
+            <td class="good">Yes</td>
+            <td class="good">Yes</td>
+            <td class="bad">No</td>
+            <td class="best good">N/A (cardinal)</td>
+          </tr>
+          <tr>
+            <td><strong>Proportional Representation</strong></td>
+            <td class="best good">None</td>
+            <td class="good">Yes</td>
+            <td class="good">Yes</td>
+            <td class="best good">Yes</td>
+            <td class="best good">N/A (cardinal)</td>
+          </tr>
+          <tr>
+            <td>STV (India: President, Rajya Sabha)</td>
+            <td class="good">Reduced</td>
+            <td class="good">Yes</td>
+            <td class="good">Yes</td>
+            <td class="best good">Yes</td>
+            <td>Partial</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      FPTP scores badly on four of the five columns. The one column where it performs well
+      (monotonicity) is the least consequential: a system that is monotonic but produces severely
+      disproportionate outcomes, a structural spoiler effect, and eliminated parties despite
+      significant vote shares is not a system that is working well by any reasonable definition.
+    </p>
+
+    <p>
+      Arrow did not prove that democracy is hopeless. He proved that the idealist's wish list for a
+      voting system is self-contradictory: no ranked method can satisfy all five reasonable conditions
+      at once. We must choose which imperfection to accept. First Past the Post, which India applies
+      to its most powerful institution, happens to score worst on almost every metric in that table.
+      Three consecutive Lok Sabha elections make the case without requiring any mathematics at all.
+      The mathematics simply explains why fixing it is not straightforward, and why replacing it with
+      a better-chosen alternative would be an improvement over a system that is provably, structurally
+      broken.
+    </p>
+
+  </div>
+
+</div>
+<script>
+  (function () {
+    var root=document.documentElement;
+    var btn=document.getElementById('theme-toggle');
+    var icon=document.getElementById('toggle-icon');
+    var lbl=document.getElementById('toggle-label');
+    function apply(t) {
+      root.setAttribute('data-theme',t);
+      localStorage.setItem('bb-theme',t);
+      icon.textContent=t==='dark'?'\u25D1':'\u25D0';
+      lbl.textContent=t==='dark'?'Light':'Dark';
+    }
+    apply(root.getAttribute('data-theme')||'light');
+    btn.addEventListener('click',function(){
+      apply(root.getAttribute('data-theme')==='dark'?'light':'dark');
+    });
+  })();
+</script>
+</body>
+</html>
