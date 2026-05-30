@@ -1,3 +1,6 @@
+
+raw
+Index · HTML
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
@@ -30,10 +33,10 @@
       --tag-active-bg: #E8E4DB;
       --tag-active-ink: #0C0C0B;
     }
-
+ 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html { font-size: 16px; }
-
+ 
     body {
       background: var(--bg);
       color: var(--ink);
@@ -42,13 +45,13 @@
       line-height: 1.75;
       transition: background 0.2s, color 0.2s;
     }
-
+ 
     .page {
       width: min(92%, 760px);
       margin-inline: auto;
       padding-bottom: 5rem;
     }
-
+ 
     /* Journal bar */
     .journal-bar {
       border-bottom: 2px solid var(--ink);
@@ -62,15 +65,15 @@
       opacity: 0;
       animation: fadeUp 0.45s ease forwards;
     }
-
+ 
     .bar-left strong { color: var(--ink); font-weight: 500; }
-
+ 
     .bar-right {
       display: flex;
       align-items: center;
       gap: 1.2rem;
     }
-
+ 
     .nav-link {
       font-family: 'Source Code Pro', monospace;
       font-size: 0.62rem;
@@ -81,7 +84,7 @@
       transition: color 0.15s;
     }
     .nav-link:hover { color: var(--ink); }
-
+ 
     #theme-toggle {
       background: var(--toggle-bg);
       border: none;
@@ -98,7 +101,7 @@
       gap: 5px;
     }
     #theme-toggle:hover { color: var(--ink); }
-
+ 
     /* Title block */
     .title-block {
       padding: 3.5rem 0 2.8rem;
@@ -107,21 +110,21 @@
       opacity: 0;
       animation: fadeUp 0.45s 0.08s ease forwards;
     }
-
+ 
     .paper-title {
       font-size: clamp(2rem, 5vw, 2.9rem);
       font-weight: 500;
       line-height: 1.15;
       letter-spacing: -0.01em;
     }
-
+ 
     /* Papers section */
     .papers-section {
       padding: 2.8rem 0 0;
       opacity: 0;
       animation: fadeUp 0.45s 0.16s ease forwards;
     }
-
+ 
     .section-header {
       display: flex;
       justify-content: space-between;
@@ -130,7 +133,7 @@
       gap: 0.8rem;
       margin-bottom: 0.2rem;
     }
-
+ 
     .section-heading {
       font-size: 1.3rem;
       font-weight: 500;
@@ -138,14 +141,14 @@
       align-items: baseline;
       gap: 0.75rem;
     }
-
+ 
     .sec-num {
       font-family: 'Source Code Pro', monospace;
       font-size: 0.72rem;
       color: var(--red);
       font-weight: 400;
     }
-
+ 
     /* Tag filters */
     .tag-filters {
       display: flex;
@@ -153,7 +156,7 @@
       flex-wrap: wrap;
       align-items: center;
     }
-
+ 
     .filter-label {
       font-family: 'Source Code Pro', monospace;
       font-size: 0.58rem;
@@ -162,7 +165,7 @@
       text-transform: uppercase;
       margin-right: 0.15rem;
     }
-
+ 
     .tag-btn {
       font-family: 'Source Code Pro', monospace;
       font-size: 0.58rem;
@@ -185,13 +188,13 @@
       color: var(--tag-active-ink);
       border-color: var(--tag-active-bg);
     }
-
+ 
     .section-divider {
       border: none;
       border-top: 1px solid var(--rule);
       margin: 0.7rem 0 0;
     }
-
+ 
     /* No results state */
     .no-results {
       display: none;
@@ -212,7 +215,7 @@
       font-style: italic;
       color: var(--muted);
     }
-
+ 
     /* Paper entry */
     .paper-entry {
       padding: 1.8rem 0;
@@ -225,14 +228,14 @@
     .paper-entry.hidden {
       display: none;
     }
-
+ 
     .entry-index {
       font-family: 'Source Code Pro', monospace;
       font-size: 0.65rem;
       color: var(--muted);
       padding-top: 0.3rem;
     }
-
+ 
     .entry-title {
       font-size: 1.08rem;
       font-weight: 500;
@@ -244,7 +247,7 @@
       transition: color 0.15s;
     }
     .entry-title:hover { color: var(--red); }
-
+ 
     .entry-abstract {
       font-size: 0.87rem;
       color: var(--muted);
@@ -252,7 +255,7 @@
       margin-bottom: 0.65rem;
       font-style: italic;
     }
-
+ 
     .entry-meta {
       font-family: 'Source Code Pro', monospace;
       font-size: 0.61rem;
@@ -263,7 +266,7 @@
       flex-wrap: wrap;
       align-items: center;
     }
-
+ 
     .meta-dot {
       width: 3px; height: 3px;
       border-radius: 50%;
@@ -271,7 +274,7 @@
       display: inline-block;
       vertical-align: middle;
     }
-
+ 
     /* Inline tag pill inside entry meta */
     .entry-tag {
       font-family: 'Source Code Pro', monospace;
@@ -291,7 +294,7 @@
       color: var(--ink);
       border-color: var(--muted);
     }
-
+ 
     /* Result counter */
     .result-count {
       font-family: 'Source Code Pro', monospace;
@@ -301,12 +304,12 @@
       margin-top: 0.6rem;
       min-height: 1rem;
     }
-
+ 
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
+ 
     @media (max-width: 640px) {
       .paper-entry { grid-template-columns: 1fr; gap: 0.3rem; }
       .entry-index { display: none; }
@@ -317,7 +320,7 @@
 </head>
 <body>
 <div class="page">
-
+ 
   <div class="journal-bar">
     <span class="bar-left"><strong>Backtest Brewery</strong></span>
     <div class="bar-right">
@@ -329,11 +332,11 @@
       </button>
     </div>
   </div>
-
+ 
   <div class="title-block">
     <h1 class="paper-title">Backtest Brewery</h1>
   </div>
-
+ 
   <section class="papers-section">
     <div class="section-header">
       <h2 class="section-heading">
@@ -342,15 +345,35 @@
       <div class="tag-filters">
         <span class="filter-label">Filter:</span>
         <button class="tag-btn active" data-filter="all">All</button>
+        <button class="tag-btn" data-filter="Society">Society</button>
         <button class="tag-btn" data-filter="Sports Analytics">Sports Analytics</button>
         <button class="tag-btn" data-filter="Markets">Markets</button>
       </div>
     </div>
     <hr class="section-divider" />
     <p class="result-count" id="result-count"></p>
-
-    <div class="paper-entry" data-tag="Markets">
+ 
+    <div class="paper-entry" data-tag="Society">
       <span class="entry-index">[1]</span>
+      <div>
+        <a href="posts/mathematics-of-voting-systems.html" class="entry-title">
+          The Mathematics of Voting Systems
+        </a>
+        <p class="entry-abstract">
+          Democracy is mathematically not possible
+        </p>
+        <div class="entry-meta">
+          <span>2026-05-30</span>
+          <span class="meta-dot"></span>
+          <button class="entry-tag" data-filter="Society">Society</button>
+          <span class="meta-dot"></span>
+          <span>10 min read</span>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="paper-entry" data-tag="Markets">
+      <span class="entry-index">[2]</span>
       <div>
         <a href="posts/transaction-costs-microstructure.html" class="entry-title">
           Transaction Costs Are a Black Hole
@@ -367,9 +390,9 @@
         </div>
       </div>
     </div>
-
+ 
     <div class="paper-entry" data-tag="Markets">
-      <span class="entry-index">[2]</span>
+      <span class="entry-index">[3]</span>
       <div>
         <a href="posts/alpha-decay-trading.html" class="entry-title">
           Alpha Decay
@@ -386,9 +409,9 @@
         </div>
       </div>
     </div>
-
+ 
     <div class="paper-entry" data-tag="Sports Analytics">
-      <span class="entry-index">[3]</span>
+      <span class="entry-index">[4]</span>
       <div>
         <a href="posts/apex40-tournament-format.html" class="entry-title">
           Optimising the FIFA World Cup
@@ -405,9 +428,9 @@
         </div>
       </div>
     </div>
-
+ 
     <div class="paper-entry" data-tag="Markets">
-      <span class="entry-index">[4]</span>
+      <span class="entry-index">[5]</span>
       <div>
         <a href="posts/benfords-law-anomaly-detector.html" class="entry-title">
           Benford's Law as a Market Anomaly Detector
@@ -424,16 +447,16 @@
         </div>
       </div>
     </div>
-
+ 
     <div class="no-results" id="no-results">
       <p>No posts found</p>
       <span>Nothing here yet for this tag.</span>
     </div>
-
+ 
   </section>
-
+ 
 </div>
-
+ 
 <script>
   /* -- Theme toggle -- */
   (function () {
@@ -453,7 +476,7 @@
       apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
   })();
-
+ 
   /* -- Tag filtering -- */
   (function () {
     var filterBtns   = document.querySelectorAll('[data-filter]');
@@ -461,7 +484,7 @@
     var noResults    = document.getElementById('no-results');
     var resultCount  = document.getElementById('result-count');
     var active       = 'all';
-
+ 
     function updateIndices() {
       var visible = Array.from(entries).filter(function(e) { return !e.classList.contains('hidden'); });
       visible.forEach(function(entry, i) {
@@ -469,40 +492,40 @@
         if (idx) idx.textContent = '[' + (i + 1) + ']';
       });
     }
-
+ 
     function filter(tag) {
       active = tag;
       var count = 0;
-
+ 
       entries.forEach(function (entry) {
         var entryTag = entry.getAttribute('data-tag');
         var show = tag === 'all' || entryTag === tag;
         entry.classList.toggle('hidden', !show);
         if (show) count++;
       });
-
+ 
       noResults.style.display = count === 0 ? 'block' : 'none';
-
+ 
       if (tag === 'all') {
         resultCount.textContent = '';
       } else {
         resultCount.textContent = count + ' post' + (count !== 1 ? 's' : '') + ' tagged "' + tag + '"';
       }
-
+ 
       filterBtns.forEach(function (btn) {
         btn.classList.toggle('active', btn.getAttribute('data-filter') === tag);
       });
-
+ 
       updateIndices();
     }
-
+ 
     /* Top filter bar buttons */
     filterBtns.forEach(function (btn) {
       btn.addEventListener('click', function () {
         filter(btn.getAttribute('data-filter'));
       });
     });
-
+ 
     /* Inline entry-tag pills */
     document.querySelectorAll('.entry-tag').forEach(function (pill) {
       pill.addEventListener('click', function (e) {
@@ -510,7 +533,7 @@
         filter(pill.getAttribute('data-filter'));
       });
     });
-
+ 
     filter('all');
   })();
 </script>
