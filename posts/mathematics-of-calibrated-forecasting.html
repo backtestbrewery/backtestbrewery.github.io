@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Mathematics of Calibrated Forecasting · Backtest Brewery</title>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-94T1HV61JS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-94T1HV61JS');
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7626712205540161"
+     crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Source+Code+Pro:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script>
+    (function(){
+      var t=localStorage.getItem('bb-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+      document.documentElement.setAttribute('data-theme',t);
+    })();
+  </script>
+  <style>
+    :root {
+      --bg:#FAFAF8; --ink:#111110; --muted:#777770;
+      --rule:#DDDDD8; --red:#B83232; --toggle-bg:#E8E8E4;
+      --surface:#F3F3F0; --green:#3A7D44;
+    }
+    [data-theme="dark"] {
+      --bg:#0C0C0B; --ink:#E8E4DB; --muted:#7A7A72;
+      --rule:#252522; --red:#C94040; --toggle-bg:#222220;
+      --surface:#161614; --green:#5aab64;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { font-size:16px; }
+    body {
+      background:var(--bg); color:var(--ink);
+      font-family:'EB Garamond',Georgia,serif;
+      font-size:1.05rem; line-height:1.75;
+      transition:background 0.2s, color 0.2s;
+    }
+    .page { width:min(92%,760px); margin-inline:auto; padding-bottom:5rem; }
+
+    /* bar */
+    .journal-bar {
+      border-bottom:2px solid var(--ink); padding:0.85rem 0;
+      display:flex; justify-content:space-between; align-items:center;
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.08em;
+    }
+    .back-link { color:var(--muted); text-decoration:none; transition:color 0.15s; }
+    .back-link:hover { color:var(--ink); }
+    .bar-right { display:flex; align-items:center; gap:1.2rem; }
+    .nav-link {
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.09em; text-transform:uppercase;
+      color:var(--muted); text-decoration:none; transition:color 0.15s;
+    }
+    .nav-link:hover { color:var(--ink); }
+    #theme-toggle {
+      background:var(--toggle-bg); border:none; cursor:pointer;
+      font-family:'Source Code Pro',monospace; font-size:0.6rem;
+      letter-spacing:0.08em; color:var(--muted); padding:3px 9px;
+      border-radius:2px; display:flex; align-items:center; gap:5px;
+      transition:color 0.15s;
+    }
+    #theme-toggle:hover { color:var(--ink); }
+
+    /* post header */
+    .post-header { padding:3.5rem 0 2.5rem; border-bottom:1px solid var(--rule); }
+    .post-label {
+      font-family:'Source Code Pro',monospace; font-size:0.62rem;
+      letter-spacing:0.13em; text-transform:uppercase;
+      color:var(--red); margin-bottom:0.9rem;
+    }
+    .post-title {
+      font-size:clamp(1.8rem,4.5vw,2.5rem); font-weight:500;
+      line-height:1.15; letter-spacing:-0.01em; margin-bottom:1.5rem;
+    }
+    .post-meta {
+      font-family:'Source Code Pro',monospace; font-size:0.61rem;
+      letter-spacing:0.07em; color:var(--muted);
+      display:flex; gap:1rem; flex-wrap:wrap; align-items:center;
+    }
+    .meta-dot {
+      width:3px; height:3px; border-radius:50%;
+      background:var(--rule); display:inline-block; vertical-align:middle;
+    }
+    .meta-tag { color:var(--ink); }
+
+    /* prose */
+    .post-body { padding:2.5rem 0; }
+    .post-body p {
+      font-size:0.98rem; color:var(--muted);
+      line-height:1.95; margin-bottom:1.2rem;
+    }
+    .post-body h2 {
+      font-size:1.28rem; font-weight:500; color:var(--ink);
+      margin:2.8rem 0 0.8rem;
+      display:flex; align-items:baseline; gap:0.6rem;
+    }
+    .post-body h2 .sec {
+      font-family:'Source Code Pro',monospace;
+      font-size:0.7rem; color:var(--red); font-weight:400;
+    }
+    .post-body strong { color:var(--ink); font-weight:600; }
+    .post-body em { font-style:italic; }
+    .post-body code {
+      font-family:'Source Code Pro',monospace; font-size:0.8em;
+      background:var(--surface); padding:1px 5px; border-radius:2px;
+      color:var(--ink);
+    }
+
+    /* formula blocks */
+    .formula {
+      border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);
+      padding:1.1rem 1.4rem; margin:1.5rem 0;
+      font-family:'Source Code Pro',monospace; font-size:0.82rem;
+      color:var(--ink); line-height:1.8;
+    }
+    .formula-caption {
+      display:block; font-size:0.6rem; text-transform:uppercase;
+      letter-spacing:0.1em; color:var(--muted); margin-top:0.5rem;
+    }
+    .formula-row { display:block; margin-bottom:0.25rem; }
+    .formula-row:last-child { margin-bottom:0; }
+    .formula-indent { padding-left:1.6rem; display:block; font-size:0.78rem; color:var(--muted); }
+
+    /* tables */
+    .table-wrap { overflow-x:auto; margin:1.5rem 0; }
+    table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+    th {
+      font-family:'Source Code Pro',monospace; font-size:0.58rem;
+      letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);
+      border-bottom:2px solid var(--rule); padding:0.55rem 0.7rem;
+      text-align:left; font-weight:400;
+    }
+    td { padding:0.5rem 0.7rem; border-bottom:1px solid var(--rule); color:var(--muted); font-size:0.9rem; }
+    tr:last-child td { border-bottom:none; }
+    .num { text-align:right; font-family:'Source Code Pro',monospace; font-size:0.82rem; }
+    .best { color:var(--ink); font-weight:500; }
+    .good { color:var(--green); }
+    .bad  { color:var(--red); }
+
+    /* callout */
+    .callout {
+      border-left:2px solid var(--rule);
+      padding:0.8rem 1.2rem; margin:1.8rem 0;
+      background:var(--surface);
+    }
+    .callout p { margin-bottom:0; font-size:0.92rem; }
+    .callout-label {
+      font-family:'Source Code Pro',monospace; font-size:0.58rem;
+      letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
+      margin-bottom:0.4rem;
+    }
+    .callout.highlight { border-left-color:var(--ink); }
+
+    /* chart */
+    .chart-wrap { margin:1.8rem 0; }
+    .chart-wrap svg { width:100%; height:auto; display:block; }
+    .chart-caption {
+      display:block; font-family:'Source Code Pro',monospace; font-size:0.6rem;
+      text-transform:uppercase; letter-spacing:0.1em; color:var(--muted);
+      margin-top:0.6rem;
+    }
+
+    @media (max-width:640px) {
+      .journal-bar { flex-wrap:wrap; gap:0.6rem; }
+      th, td { padding:0.45rem 0.5rem; font-size:0.82rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="journal-bar">
+    <a href="../index.html" class="back-link">&#8592; Backtest Brewery</a>
+    <div class="bar-right">
+      <a href="../about.html" class="nav-link">About</a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span id="toggle-icon">&#9680;</span>
+        <span id="toggle-label">Dark</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="post-header">
+    <p class="post-label">Forecasting</p>
+    <h1 class="post-title">The Mathematics of Calibrated Forecasting</h1>
+    <div class="post-meta">
+      <span>2026-07-13</span>
+      <span class="meta-dot"></span>
+      <span class="meta-tag">Calibration &middot; Discrimination &middot; Football &middot; Prediction Markets</span>
+      <span class="meta-dot"></span>
+      <span>9 min read</span>
+    </div>
+  </div>
+
+  <div class="post-body">
+
+    <p>
+      A probabilistic forecast is judged, correctly, by a property that most casual readers,
+      and a fair share of professional bettors, never actually check: whether stated probabilities
+      match how often things go on to happen. This property is called <strong>calibration</strong>,
+      and it is measurable at scale wherever forecasts are issued repeatedly, football fixtures,
+      election contests, prediction-market contracts. A large-scale audit of more than a decade of
+      published forecasts across sports and politics found that calibration holds up remarkably well
+      in aggregate, and that the interesting story lives in the exceptions.
+    </p>
+
+    <p>
+      This post works through the underlying mathematics: what calibration formally requires, why it
+      is a necessary but not sufficient condition for a useful forecast, and where research has found
+      real, structural deviations, specifically among heavy favourites in one-sided matches, and among
+      the correlated, multi-leg markets that dominate prediction-market design. Football fixtures
+      provide the running example throughout. The conclusion is not that forecasting is broken. It is
+      that being right on average and being useful are two different claims, and conflating them is
+      the single most common error made by people who bet or trade on outcomes.
+    </p>
+
+    <h2><span class="sec">&sect; 1</span> Defining Calibration Formally</h2>
+
+    <p>
+      Consider a large set of events, each assigned a stated probability <em>p</em> by some
+      forecasting process, football match outcomes, election results, prediction-market settlement
+      conditions. Group events into buckets by their stated probability, rounding to the nearest
+      convenient interval. Within each bucket, let <code>n_p</code> denote the number of events
+      forecast at probability <em>p</em>, and <code>k_p</code> the number of those events that
+      actually occurred.
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">Setup:</span>
+      <span class="formula-indent">p &isin; [0,1]  -- the stated probability for a bucket of events</span>
+      <span class="formula-indent">n_p            -- number of events forecast at probability p</span>
+      <span class="formula-indent">k_p             -- number of those events that occurred</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-row">Calibration condition:  k_p / n_p &rarr; p  as n_p grows large</span>
+      <span class="formula-row">Overconfident at p  if  k_p / n_p &lt; p</span>
+      <span class="formula-row">Underconfident at p  if  k_p / n_p &gt; p</span>
+      <span class="formula-caption">Eq. 1 &mdash; Formal definition of calibration</span>
+    </div>
+
+    <p>
+      Calibration is, by construction, a large-sample property. With a small <code>n_p</code>,
+      the ratio <code>k_p/n_p</code> will wander around <em>p</em> from binomial variance alone,
+      not from any defect in the model. The relevant yardstick is the standard error of an observed
+      frequency under the assumption that the forecast is correctly calibrated.
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">SE(k_p/n_p)  =  &radic;( p(1-p) / n_p )</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-indent">p = 0.70, n = 5,589  &rarr;  SE &asymp; 0.6 percentage points</span>
+      <span class="formula-indent">p = 0.85, n = 383    &rarr;  SE &asymp; 1.8 percentage points</span>
+      <span class="formula-caption">Eq. 2 &mdash; Standard error of an observed frequency under correct calibration</span>
+    </div>
+
+    <p>
+      A one-point gap against a standard error of 0.6 points is unremarkable. A six-point gap against
+      a standard error of 1.8 points is not. The same nominal-looking deviation can be noise in one
+      bucket and a real signal in another, purely as a function of sample size. This is the first
+      thing any rigorous audit of a forecasting record has to establish before drawing conclusions
+      from a calibration chart.
+    </p>
+
+    <h2><span class="sec">&sect; 2</span> Empirical Calibration at Scale</h2>
+
+    <p>
+      One useful benchmark, an audit covering sports and political forecasts issued over more than a
+      decade, is instructive mainly because of its scale. Of 5,589 events assigned roughly a 70
+      percent chance, the outcome occurred in 71 percent of cases, a one-point gap that Equation 2
+      shows is well inside a single standard error, indistinguishable from noise. At the other end of
+      the scale, of 55,853 events assigned roughly a 5 percent chance, the outcome occurred about 4
+      percent of the time. Across the full range of stated probabilities, a plot of predicted
+      probability against observed frequency sits close to the 45-degree line that defines perfect
+      calibration.
+    </p>
+
+    <div class="chart-wrap">
+      <svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg">
+        <style>
+          .axis   { stroke:var(--rule); stroke-width:1; }
+          .diag   { stroke:var(--muted); stroke-width:1; stroke-dasharray:4 4; }
+          .pt     { fill:var(--muted); }
+          .pt-bad { fill:var(--red); }
+          .pt-good{ fill:var(--green); }
+          .lbl    { font-family:'Source Code Pro',monospace; font-size:9px; fill:var(--muted); }
+          .lbl-ax { font-family:'Source Code Pro',monospace; font-size:9px; fill:var(--muted); letter-spacing:0.05em; }
+        </style>
+
+        <!-- axes -->
+        <line class="axis" x1="60" y1="20" x2="60" y2="360" />
+        <line class="axis" x1="60" y1="360" x2="440" y2="360" />
+        <!-- diagonal reference -->
+        <line class="diag" x1="60" y1="360" x2="440" y2="20" />
+
+        <!-- tick labels x -->
+        <text class="lbl-ax" x="55" y="378" text-anchor="middle">0</text>
+        <text class="lbl-ax" x="150" y="378" text-anchor="middle">25</text>
+        <text class="lbl-ax" x="250" y="378" text-anchor="middle">50</text>
+        <text class="lbl-ax" x="345" y="378" text-anchor="middle">75</text>
+        <text class="lbl-ax" x="438" y="378" text-anchor="middle">100</text>
+        <text class="lbl-ax" x="250" y="394" text-anchor="middle">PREDICTED PROBABILITY (%)</text>
+
+        <!-- tick labels y -->
+        <text class="lbl-ax" x="45" y="363" text-anchor="end">0</text>
+        <text class="lbl-ax" x="45" y="278" text-anchor="end">25</text>
+        <text class="lbl-ax" x="45" y="193" text-anchor="end">50</text>
+        <text class="lbl-ax" x="45" y="108" text-anchor="end">75</text>
+        <text class="lbl-ax" x="45" y="26" text-anchor="end">100</text>
+        <text class="lbl-ax" transform="translate(18,240) rotate(-90)" text-anchor="middle">OBSERVED FREQUENCY (%)</text>
+
+        <!-- well-calibrated points, near diagonal -->
+        <circle class="pt" cx="98"  cy="326" r="4" />
+        <circle class="pt" cx="136" cy="286" r="4" />
+        <circle class="pt" cx="174" cy="250" r="4" />
+        <circle class="pt" cx="212" cy="212" r="4" />
+        <circle class="pt" cx="250" cy="192" r="4" />
+        <circle class="pt" cx="288" cy="156" r="4" />
+        <circle class="pt" cx="326" cy="120" r="4" />
+        <circle class="pt" cx="402" cy="46"  r="4" />
+
+        <!-- heavy favourites bucket: predicted 85, observed 79 (overconfidence) -->
+        <circle class="pt-bad" cx="383" cy="80" r="6" />
+        <text class="lbl" x="383" y="66" text-anchor="middle">Heavy favourites (&sect;4)</text>
+
+        <!-- correlated markets bucket: predicted 75, observed 83 (underconfidence) -->
+        <circle class="pt-good" cx="345" cy="94" r="6" />
+        <text class="lbl" x="345" y="130" text-anchor="middle">Correlated markets (&sect;5)</text>
+      </svg>
+      <span class="chart-caption">Fig. 1 &mdash; Predicted probability vs. observed frequency. Points on the dashed
+        diagonal are well calibrated. The two highlighted points illustrate the systematic deviations
+        discussed in &sect;4 and &sect;5.</span>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">Reading the curve</div>
+      <p>
+        A calibration curve does not tell you whether a forecast is skilful, only whether it is
+        honest about its own uncertainty. A curve sitting on the diagonal is a necessary condition
+        for a good forecaster. It is not sufficient, which is the subject of &sect;3.
+      </p>
+    </div>
+
+    <h2><span class="sec">&sect; 3</span> Calibration Is Not the Same as Skill</h2>
+
+    <p>
+      A forecaster who assigns every one of the 64 teams in a knockout football competition an equal
+      1-in-64 chance of lifting the trophy is, by definition, perfectly calibrated. Across many such
+      tournaments, a team given a 1.6 percent chance would indeed win about 1.6 percent of the time.
+      But such a forecast has no <strong>resolution</strong>: it does not separate the genuine
+      contenders from the makeweights, and it is exactly as accurate as a forecast built from the
+      tournament bracket alone, with no football knowledge at all. Calibration without resolution has
+      no value to anyone pricing outcomes.
+    </p>
+
+    <p>
+      The standard formal tool for separating these two properties is the decomposition of the Brier
+      score, the mean squared error between stated probabilities and outcomes.
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">BS  =  (1/N) &sum; (p_i &minus; o_i)&sup2;</span>
+      <span class="formula-row">&nbsp;</span>
+      <span class="formula-row">BS  =  Reliability &minus; Resolution + Uncertainty</span>
+      <span class="formula-indent">Reliability -- calibration error; want this small</span>
+      <span class="formula-indent">Resolution  -- how much predictions vary from the base rate, correctly; want this large</span>
+      <span class="formula-indent">Uncertainty -- inherent variance of the outcome; fixed, not under the forecaster's control</span>
+      <span class="formula-caption">Eq. 3 &mdash; Murphy's decomposition of the Brier score</span>
+    </div>
+
+    <p>
+      A market-priced forecast that simply reproduces the market's own implied probabilities will
+      score well on reliability and contribute nothing on resolution beyond what the market already
+      knew. An edge, in the sense a bettor or a market maker actually cares about, requires resolution
+      that the market does not already have, delivered without sacrificing reliability. Chasing
+      calibration alone, without ever asking whether a forecast's probabilities differ meaningfully
+      from consensus, is a way of confirming honesty while learning nothing about skill.
+    </p>
+
+    <h2><span class="sec">&sect; 4</span> Where Real Forecasts Drift: Heavy Favourites in One-Sided Matches</h2>
+
+    <p>
+      Team-sport forecasting research has repeatedly turned up the same soft spot: models tend to run
+      a little hot specifically on heavy favourites in one-sided matches. Probability buckets in the
+      80 to 90 percent range often resolve a few points lower than stated. The mechanism is not
+      mysterious: a dominant scoreline compounds a string of small, real edges into something that
+      looks inevitable after the fact, but was never as fully locked in beforehand as the final margin
+      suggests.
+    </p>
+
+    <p>
+      As an illustrative worked example, applying the same statistical logic to a football setting:
+      suppose a sample of 383 fixtures in which the model-favourite was given an 85 percent chance of
+      victory, drawn from research on this exact pattern in team-sport forecasting. If those favourites
+      actually won only 79 percent of the time, the gap is 6 percentage points against a standard error
+      of 1.8 points (Equation 2), a deviation of more than three standard errors. That is a real,
+      structural signal, not sampling noise, and it is precisely the kind of gap that should prompt a
+      forecaster to revisit how a model handles blowout-prone fixtures.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Bucket (illustrative)</th>
+            <th class="num">Predicted</th>
+            <th class="num">Observed</th>
+            <th class="num">n</th>
+            <th class="num">SE</th>
+            <th class="num">Gap / SE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Broad forecast average</td>
+            <td class="num">70%</td>
+            <td class="num">71%</td>
+            <td class="num">5,589</td>
+            <td class="num">0.6 pts</td>
+            <td class="num good">1.6</td>
+          </tr>
+          <tr>
+            <td>Heavy favourites, one-sided fixtures</td>
+            <td class="num">85%</td>
+            <td class="num bad">79%</td>
+            <td class="num">383</td>
+            <td class="num">1.8 pts</td>
+            <td class="num bad best">3.3</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      For anyone pricing markets around heavy favourites, the practical reading is straightforward:
+      the shortest prices on the board are exactly where a model, and public sentiment alongside it,
+      are most likely to be overstating certainty.
+    </p>
+
+    <h2><span class="sec">&sect; 5</span> Correlation and the Mispricing of Linked Markets</h2>
+
+    <p>
+      A second, opposite pattern shows up wherever outcomes are correlated rather than independent.
+      Election forecasting is the clean example: candidates given a 75 percent chance have, in past
+      studies, gone on to win closer to 83 percent of the time, underconfidence rather than
+      overconfidence. The mechanism is correlation between linked contests, many state or regional
+      races moving together, which a model that treats them as independent will systematically
+      misjudge.
+    </p>
+
+    <div class="formula">
+      <span class="formula-row">Var(&sum; X_i)  =  &sum; Var(X_i)  +  2 &sum;_{i&lt;j} Cov(X_i, X_j)</span>
+      <span class="formula-caption">Eq. 4 &mdash; Variance of a sum of correlated binary outcomes</span>
+    </div>
+
+    <p>
+      When outcomes are positively correlated, the covariance terms are positive, and the true
+      variance of the joint outcome is larger than a model assuming independence would compute. That
+      inflated variance fattens both tails at once: the front-runner sweeping every linked contest
+      becomes more likely than the independent case implies, and so does a clean upset across the
+      board. Prediction markets built on multi-leg or accumulator-style products carry exactly this
+      exposure. A market can look properly priced leg by leg and still be structurally mispriced on
+      the joint outcome, precisely because each leg was evaluated as if the others did not exist.
+    </p>
+
+    <h2><span class="sec">&sect; 6</span> Full Comparison</h2>
+
+    <p>
+      Across the market structures most relevant to a bettor or a market maker:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Market Type</th>
+            <th>Typical Bias</th>
+            <th>Root Cause</th>
+            <th>Sample Needed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Broad, single-event forecasts</strong></td>
+            <td class="good">Close to calibrated</td>
+            <td>Large, independent sample</td>
+            <td class="num">Thousands</td>
+          </tr>
+          <tr>
+            <td>Heavy favourites, one-sided fixtures</td>
+            <td class="bad">Overconfident</td>
+            <td>Blowouts compound small edges</td>
+            <td class="num">Hundreds</td>
+          </tr>
+          <tr>
+            <td>Correlated multi-leg / accumulator markets</td>
+            <td class="bad">Underconfident on joint outcome</td>
+            <td>Correlation treated as independence</td>
+            <td class="num">Depends on &rho;</td>
+          </tr>
+          <tr>
+            <td>Rounded probability buckets near 0% or 100%</td>
+            <td>Apparent bias may be a labelling artefact</td>
+            <td>Asymmetric truncation at the bounds</td>
+            <td class="num">&mdash;</td>
+          </tr>
+          <tr>
+            <td><strong>Uniform, zero-information forecasts</strong></td>
+            <td class="best good">Perfectly calibrated</td>
+            <td>No resolution, no value</td>
+            <td class="num">Any</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The uniform forecast at the bottom of the table is the reminder worth keeping closest at hand.
+      It scores well on the one column, calibration, that is easiest to measure and hardest to fake
+      badly. It scores at zero on the column, resolution, that actually determines whether a forecast
+      is worth anything to a bettor or a market maker.
+    </p>
+
+    <h2><span class="sec">&sect; 7</span> Practical Safeguards</h2>
+
+    <p>
+      Two disciplines follow directly from the mathematics above, and both are cheap to apply.
+    </p>
+
+    <p>
+      <strong>Check the standard error before trusting a gap.</strong> A deviation is only meaningful
+      relative to the sample size it was measured on. Equation 2 takes seconds to apply and prevents
+      the common error of treating a small-sample wobble as a structural finding, or dismissing a
+      large-sample deviation as noise because the percentage gap looks small in isolation.
+    </p>
+
+    <p>
+      <strong>Be wary of rounded bucket labels near the boundaries.</strong> A bucket labelled "5
+      percent" near the edge of the scale can only draw from probabilities between roughly 2.5 and
+      7.5, and if the true forecasts inside it skew low, which they often do near 0 and 100 since the
+      distribution has nowhere to go but up, the honest average of that bucket can sit below the
+      rounded label even with zero model error. Reading a rounded label as exact ground truth can
+      manufacture the appearance of miscalibration that is not really there.
+    </p>
+
+    <div class="callout highlight">
+      <div class="callout-label">A substitute for scale</div>
+      <p>
+        Individual bettors will rarely accumulate the thousands of same-probability outcomes this kind
+        of audit requires. The practical substitute is closing line value: the market's closing price
+        already aggregates the calibration of every other participant, at a scale no individual record
+        can match. Consistently beating the close does, for one person, much of the statistical work
+        that a large-sample audit does for an entire forecasting operation.
+      </p>
+    </div>
+
+    <p>
+      None of this is an argument against building or trusting probabilistic models. It is an
+      argument for asking two separate questions rather than one: is this forecast honest about its
+      own uncertainty, and does it know something the market does not. A forecast can pass the first
+      test completely and fail the second one entirely, and it is the second question, not the first,
+      that determines whether a probability is worth acting on.
+    </p>
+
+    <h2>References</h2>
+    <p>
+      Silver, Nate. &ldquo;When We Say 70 Percent, It Really Means 70 Percent.&rdquo; FiveThirtyEight,
+      April 4, 2019.
+    </p>
+    <p>
+      Murphy, Allan H. &ldquo;A New Vector Partition of the Probability Score.&rdquo; Journal of
+      Applied Meteorology, vol. 12, no. 4, 1973.
+    </p>
+
+  </div>
+
+</div>
+<script>
+  (function () {
+    var root=document.documentElement;
+    var btn=document.getElementById('theme-toggle');
+    var icon=document.getElementById('toggle-icon');
+    var lbl=document.getElementById('toggle-label');
+    function apply(t) {
+      root.setAttribute('data-theme',t);
+      localStorage.setItem('bb-theme',t);
+      icon.textContent=t==='dark'?'\u25D1':'\u25D0';
+      lbl.textContent=t==='dark'?'Light':'Dark';
+    }
+    apply(root.getAttribute('data-theme')||'light');
+    btn.addEventListener('click',function(){
+      apply(root.getAttribute('data-theme')==='dark'?'light':'dark');
+    });
+  })();
+</script>
+</body>
+</html>
