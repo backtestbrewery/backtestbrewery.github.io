@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taking a Slot Machine Apart · Backtest Brewery</title>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-94T1HV61JS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-94T1HV61JS');
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Source+Code+Pro:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script>
+    (function(){
+      var t;
+      try { t = localStorage.getItem('bb-theme'); } catch (e) {}
+      if (!t) { t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html { font-size:19px; }
+    body {
+      background:#fbfaf7; color:#34322e;
+      font-family:'EB Garamond', Georgia, 'Times New Roman', serif;
+      line-height:1.7; -webkit-font-smoothing:antialiased;
+      transition:background 0.2s ease, color 0.2s ease;
+    }
+    .page { max-width:760px; margin:0 auto; padding:2.2rem 1.4rem 5rem; }
+    /* top bar */
+    .journal-bar {
+      display:flex; justify-content:space-between; align-items:center;
+      padding-bottom:1rem; border-bottom:1px solid #dcd8cf; margin-bottom:3rem;
+      font-family:'Source Code Pro', monospace; font-size:0.66rem; letter-spacing:0.06em;
+    }
+    .back-link, .nav-link { color:#77736b; text-decoration:none; }
+    .back-link:hover, .nav-link:hover { color:#1b1a18; }
+    .bar-right { display:flex; align-items:center; gap:1.2rem; }
+    #theme-toggle {
+      background:none; border:1px solid #dcd8cf; color:#77736b;
+      font-family:'Source Code Pro', monospace; font-size:0.62rem; letter-spacing:0.06em;
+      padding:0.25rem 0.6rem; cursor:pointer; display:flex; gap:0.4rem; align-items:center;
+    }
+    #theme-toggle:hover { color:#1b1a18; border-color:#1b1a18; }
+    #theme-toggle:focus-visible, a:focus-visible { outline:2px solid #a3322b; outline-offset:2px; }
+    /* header */
+    .post-header { margin-bottom:2.6rem; }
+
+    /* hero image */
+    .post-hero { margin:0 0 2.8rem; }
+    .post-hero img {
+      display:block; width:100%; height:auto; aspect-ratio:16 / 9; object-fit:cover;
+      border:1px solid #dcd8cf; background:#f2f0ea;
+    }
+    .post-label {
+      font-family:'Source Code Pro', monospace; font-size:0.62rem; letter-spacing:0.12em;
+      text-transform:uppercase; color:#a3322b; margin-bottom:0.8rem;
+    }
+    .post-title {
+      font-size:2.5rem; line-height:1.15; font-weight:500; color:#1b1a18;
+      letter-spacing:-0.01em; margin-bottom:1rem;
+    }
+    .post-meta {
+      display:flex; flex-wrap:wrap; align-items:center; gap:0.6rem;
+      font-family:'Source Code Pro', monospace; font-size:0.62rem; color:#77736b;
+      letter-spacing:0.04em;
+    }
+    .meta-dot { width:3px; height:3px; border-radius:50%; background:#77736b; display:inline-block; }
+    /* body */
+    .post-body p { margin-bottom:1.25rem; }
+    .post-body h2 {
+      font-size:1.45rem; font-weight:500; color:#1b1a18; line-height:1.3;
+      margin:3rem 0 1.1rem;
+    }
+    .post-body h2 .sec {
+      font-family:'Source Code Pro', monospace; font-size:0.7rem; color:#a3322b;
+      letter-spacing:0.08em; margin-right:0.7rem; vertical-align:middle;
+    }
+    .post-body strong { color:#1b1a18; font-weight:600; }
+    .post-body em { font-style:italic; }
+    .post-body sub, .post-body sup { font-size:0.7em; line-height:0; }
+    .post-body code {
+      font-family:'Source Code Pro', monospace; font-size:0.78rem;
+      background:#f2f0ea; padding:0.05rem 0.3rem;
+    }
+    /* formula blocks */
+    .formula {
+      margin:1.6rem 0 1.8rem; padding:0.9rem 1.2rem;
+      border-top:1px solid #dcd8cf; border-bottom:1px solid #dcd8cf;
+      overflow-x:auto;
+    }
+    .f-row {
+      display:flex; justify-content:space-between; align-items:baseline; gap:1rem;
+      font-size:1.08rem; color:#1b1a18; padding:0.2rem 0 0.2rem 1rem; white-space:nowrap;
+    }
+    .f-num { font-family:'Source Code Pro', monospace; font-size:0.66rem; color:#77736b; }
+    .f-cap {
+      font-size:0.86rem; color:#77736b; margin-top:0.5rem; padding-left:1rem;
+      white-space:normal;
+    }
+    /* tables */
+    .table-wrap { overflow-x:auto; margin:1.6rem 0 1.9rem; }
+    table { width:100%; border-collapse:collapse; font-size:0.92rem; }
+    th {
+      font-family:'Source Code Pro', monospace; font-size:0.6rem; font-weight:500;
+      letter-spacing:0.08em; text-transform:uppercase; color:#77736b;
+      text-align:left; padding:0.55rem 0.7rem; border-bottom:1px solid #1b1a18;
+    }
+    td { padding:0.5rem 0.7rem; border-bottom:1px solid #dcd8cf; color:#34322e; }
+    td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+    tr.total td { border-top:1px solid #1b1a18; border-bottom:none; color:#1b1a18; font-weight:600; }
+    tr.sub td { color:#77736b; font-style:italic; }
+    .good { color:#2f6b3a; }
+    .bad { color:#a3322b; }
+    .best { color:#1b1a18; font-weight:600; }
+    /* callout */
+    .callout {
+      border-left:2px solid #dcd8cf;
+      padding:0.8rem 1.2rem; margin:1.8rem 0;
+      background:#f2f0ea;
+    }
+    .callout p { margin-bottom:0; font-size:0.92rem; }
+    .callout-label {
+      font-family:'Source Code Pro', monospace; font-size:0.58rem;
+      letter-spacing:0.12em; text-transform:uppercase; color:#77736b;
+      margin-bottom:0.4rem;
+    }
+    .callout.highlight { border-left-color:#1b1a18; }
+    /* code */
+    pre.code {
+      background:#f2f0ea; border:1px solid #dcd8cf;
+      padding:1rem 1.1rem; margin:1.4rem 0 1.8rem; overflow-x:auto;
+      font-family:'Source Code Pro', monospace; font-size:0.66rem; line-height:1.6;
+      color:#1b1a18; tab-size:4;
+    }
+    pre.code .c { color:#77736b; font-style:italic; }
+    .appendix-head { margin-top:4rem; padding-top:1.4rem; border-top:1px solid #dcd8cf; }
+
+    .post-body pre.code code { background:none; padding:0; font-size:inherit; }
+
+
+    /* charts */
+    .chart { margin:2.2rem 0 2.4rem; }
+    .chart svg { display:block; width:100%; height:auto; overflow:visible; }
+    .chart figcaption { font-size:0.86rem; color:#77736b; margin-top:0.9rem; line-height:1.55; }
+    .chart .fig-num {
+      font-family:'Source Code Pro', monospace; font-size:0.6rem; letter-spacing:0.08em;
+      text-transform:uppercase; color:#a3322b; margin-right:0.45rem;
+    }
+    .ch-t { fill:#77736b; } .ch-t-ink { fill:#1b1a18; } .ch-t-red { fill:#a3322b; } .ch-t-gold { fill:#946a1c; }
+    .ch-f-ink { fill:#1b1a18; } .ch-f-red { fill:#a3322b; } .ch-f-gold { fill:#c4922f; }
+    .ch-on-ink { fill:#fbfaf7; } .ch-on-red { fill:#fbfaf7; } .ch-on-gold { fill:#1b1a18; }
+    .ch-s-ink { stroke:#1b1a18; } .ch-s-red { stroke:#a3322b; } .ch-s-muted { stroke:#77736b; }
+    .ch-grid { stroke:#e6e2da; stroke-width:1; } .ch-axis { stroke:#77736b; stroke-width:1; }
+    .ch-band { fill:#a3322b; fill-opacity:0.1; }
+
+    /* dark theme */
+    html[data-theme="dark"] body { background:#141413; color:#cfccc4; }
+    html[data-theme="dark"] .journal-bar { border-bottom:1px solid #34322e; }
+    html[data-theme="dark"] .back-link, html[data-theme="dark"] .nav-link { color:#8f8b82; }
+    html[data-theme="dark"] .back-link:hover, html[data-theme="dark"] .nav-link:hover { color:#ecebe6; }
+    html[data-theme="dark"] #theme-toggle { border:1px solid #34322e; color:#8f8b82; }
+    html[data-theme="dark"] #theme-toggle:hover { color:#ecebe6; border-color:#ecebe6; }
+    html[data-theme="dark"] #theme-toggle:focus-visible, html[data-theme="dark"] a:focus-visible { outline:2px solid #d86b62; }
+    html[data-theme="dark"] .post-label { color:#d86b62; }
+    html[data-theme="dark"] .post-title { color:#ecebe6; }
+    html[data-theme="dark"] .post-meta { color:#8f8b82; }
+    html[data-theme="dark"] .meta-dot { background:#8f8b82; }
+    html[data-theme="dark"] .post-body h2 { color:#ecebe6; }
+    html[data-theme="dark"] .post-body h2 .sec { color:#d86b62; }
+    html[data-theme="dark"] .post-body strong { color:#ecebe6; }
+    html[data-theme="dark"] .post-body code { background:#1d1c1a; }
+    html[data-theme="dark"] .formula { border-top:1px solid #34322e; border-bottom:1px solid #34322e; }
+    html[data-theme="dark"] .f-row { color:#ecebe6; }
+    html[data-theme="dark"] .f-num { color:#8f8b82; }
+    html[data-theme="dark"] .f-cap { color:#8f8b82; }
+    html[data-theme="dark"] th { color:#8f8b82; border-bottom:1px solid #ecebe6; }
+    html[data-theme="dark"] td { border-bottom:1px solid #34322e; color:#cfccc4; }
+    html[data-theme="dark"] tr.total td { border-top:1px solid #ecebe6; border-bottom:none; color:#ecebe6; }
+    html[data-theme="dark"] tr.sub td { color:#8f8b82; }
+    html[data-theme="dark"] .good { color:#79b585; }
+    html[data-theme="dark"] .bad { color:#d86b62; }
+    html[data-theme="dark"] .best { color:#ecebe6; }
+    html[data-theme="dark"] .callout { border-left:2px solid #34322e; background:#1d1c1a; }
+    html[data-theme="dark"] .callout-label { color:#8f8b82; }
+    html[data-theme="dark"] .callout.highlight { border-left-color:#ecebe6; }
+    html[data-theme="dark"] pre.code { background:#1b1a18; border:1px solid #34322e; color:#ecebe6; }
+    html[data-theme="dark"] pre.code .c { color:#8f8b82; }
+    html[data-theme="dark"] .appendix-head { border-top:1px solid #34322e; }
+    html[data-theme="dark"] .post-hero img { border-color:#34322e; background:#1d1c1a; }
+    html[data-theme="dark"] .post-body pre.code code { background:none; }
+
+    html[data-theme="dark"] .chart figcaption { color:#8f8b82; }
+    html[data-theme="dark"] .chart .fig-num { color:#d86b62; }
+    html[data-theme="dark"] .ch-t { fill:#8f8b82; }
+    html[data-theme="dark"] .ch-t-ink, html[data-theme="dark"] .ch-f-ink { fill:#ecebe6; }
+    html[data-theme="dark"] .ch-t-red, html[data-theme="dark"] .ch-f-red { fill:#d86b62; }
+    html[data-theme="dark"] .ch-t-gold, html[data-theme="dark"] .ch-f-gold { fill:#d4a24c; }
+    html[data-theme="dark"] .ch-on-ink, html[data-theme="dark"] .ch-on-red, html[data-theme="dark"] .ch-on-gold { fill:#141413; }
+    html[data-theme="dark"] .ch-s-ink { stroke:#ecebe6; }
+    html[data-theme="dark"] .ch-s-red { stroke:#d86b62; }
+    html[data-theme="dark"] .ch-s-muted, html[data-theme="dark"] .ch-axis { stroke:#8f8b82; }
+    html[data-theme="dark"] .ch-grid { stroke:#2a2926; }
+    html[data-theme="dark"] .ch-band { fill:#d86b62; }
+
+    @media (max-width:640px) {
+      html { font-size:17px; }
+      .journal-bar { flex-wrap:wrap; gap:0.6rem; }
+      .post-title { font-size:2rem; }
+      th, td { padding:0.45rem 0.5rem; font-size:0.82rem; }
+      .f-row { font-size:0.98rem; padding-left:0.2rem; }
+      .formula { padding:0.8rem 0.6rem; }
+      .f-row { white-space:normal; }
+    }
+  
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="journal-bar">
+    <a href="../index.html" class="back-link">&#8592; Backtest Brewery</a>
+    <div class="bar-right">
+      <a href="../about.html" class="nav-link">About</a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span id="toggle-icon">&#9680;</span>
+        <span id="toggle-label">Dark</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="post-header">
+    <p class="post-label">Game Mathematics</p>
+    <h1 class="post-title">Taking a Slot Machine Apart</h1>
+    <div class="post-meta">
+      <span>2026-09-18</span>
+      <span class="meta-dot"></span>
+      <span class="meta-tag">RTP &middot; Monte Carlo &middot; Free Games &middot; Hold and Spin</span>
+      <span class="meta-dot"></span>
+      <span>15 min read</span>
+    </div>
+  </div>
+
+  <figure class="post-hero">
+    <img src="../assets/images/slot-machine.jpg" alt="A slot machine" decoding="async" />
+  </figure>
+
+  <div class="post-body">
+    <p>
+      Somewhere in the help screens of every slot machine, usually three taps deep, there's a line
+      that says something like <em>RTP 94.60%</em>. Most people read that as "put in 100, get back
+      94.60." That's true in roughly the same way that the average family has 2.3 kids. Nobody has
+      ever walked away from a machine with exactly 94.60.
+    </p>
+
+    <p>
+      I wanted to know where that number comes from. Not the definition, which fits on one line, but
+      the construction. A modern video slot isn't really one game. It's a base game with a couple of
+      smaller games bolted onto it, and each of those pieces quietly pays its own share of the 94.60.
+      So I built a toy slot from scratch: a base game, free games with retriggers, and a hold and spin
+      bonus. I worked out its RTP by hand wherever the maths let me, then ran 20 million simulated
+      spins to check I hadn't fooled myself.
+    </p>
+
+    <p>
+      Short version: the RTP turned out to be the easy part. The more interesting number is the one
+      they don't print.
+    </p>
+
+    <h2><span class="sec">§ 1</span> RTP Is Just an Expected Value</h2>
+
+    <p>
+      Take one paid spin. You stake <em>B</em>, and the machine pays back some random amount
+      <em>W</em>, which is zero most of the time. RTP is the ratio of what you expect back to what you
+      put in:
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span>RTP = E[<em>W</em>] / <em>B</em> = (1/<em>B</em>) &Sigma;<sub>&omega;</sub> P(&omega;) &middot; <em>W</em>(&omega;)</span><span class="f-num">(1)</span></div>
+      <p class="f-cap">&omega; runs over every possible outcome of a spin: the reel stops, any feature it triggers, and everything that happens inside that feature.</p>
+    </div>
+
+    <p>
+      To keep things clean I'll measure every win as a multiple of the total bet, so <em>B</em> = 1
+      and RTP is simply E[<em>W</em>]. The house edge is 1 &minus; RTP.
+    </p>
+
+    <p>
+      So how can a casino print that number with a straight face when no single player ever gets it?
+      The law of large numbers. Over <em>N</em> spins the average payback converges to the RTP, and
+      the central limit theorem tells you how quickly:
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span><em>W&#772;</em><sub>N</sub> &asymp; Normal( RTP, &sigma;<sup>2</sup> / <em>N</em> )</span><span class="f-num">(2)</span></div>
+      <p class="f-cap">&sigma; is the standard deviation of the win on a single spin.</p>
+    </div>
+
+    <p>
+      Hold on to that &sigma;. Two games can both return 94.6% and feel nothing alike. One pays you a
+      little, often. The other pays you nothing for forty minutes and then drops 300x on you. RTP can't
+      tell those two apart. &sigma;, which the industry calls volatility, can. The other number you'll
+      see quoted is <strong>hit frequency</strong>, P(<em>W</em> &gt; 0), which is just how often a
+      spin pays anything at all.
+    </p>
+
+    <h2><span class="sec">§ 2</span> The Toy Game</h2>
+
+    <p>
+      I wanted something small enough to reason about but close enough to a real cabinet that the
+      lessons carry over. Five reels, three rows, and <strong>243 ways</strong> instead of paylines.
+    </p>
+
+    <p>
+      In a ways game, a win is any run of the same symbol on adjacent reels starting from reel 1, and
+      the symbol can sit in any row. If it shows up more than once on a reel, the combinations
+      multiply: the number of ways is the product of the counts on each reel. So if reel 1 shows one A,
+      reel 2 shows two, and reel 3 shows one A plus a wild, that's three As paying on
+      1 &times; 2 &times; 2 = 4 ways. Five reels each showing three matches gives
+      3<sup>5</sup> = 243, which is where the name comes from.
+    </p>
+
+    <p>
+      There are two picture symbols (P1 and P2), four royals (A, K, Q, J), a wild <strong>W</strong>
+      that appears only on reels 2 to 4 and stands in for anything that pays on ways, a scatter
+      <strong>S</strong> that lives on reels 1, 3 and 5, and a coin <strong>C</strong> that can land
+      anywhere. Here's the paytable, per way, in multiples of total bet. The last column jumps ahead a
+      little: it's how much of the base game RTP each symbol ends up paying, which we'll work out in
+      § 4.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Symbol</th><th class="num">3 of a kind</th><th class="num">4 of a kind</th><th class="num">5 of a kind</th><th class="num">Share of RTP</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>P1</td><td class="num">1.00</td><td class="num">2.50</td><td class="num">8.00</td><td class="num">5.89%</td></tr>
+          <tr><td>P2</td><td class="num">0.60</td><td class="num">1.60</td><td class="num">5.00</td><td class="num">8.54%</td></tr>
+          <tr><td>A</td><td class="num">0.30</td><td class="num">0.70</td><td class="num">1.60</td><td class="num">12.03%</td></tr>
+          <tr><td>K</td><td class="num">0.20</td><td class="num">0.60</td><td class="num">1.40</td><td class="num">9.97%</td></tr>
+          <tr><td>Q</td><td class="num">0.20</td><td class="num">0.40</td><td class="num">1.00</td><td class="num">12.70%</td></tr>
+          <tr><td>J</td><td class="num">0.15</td><td class="num">0.30</td><td class="num">0.90</td><td class="num">10.36%</td></tr>
+          <tr class="total"><td>Base game</td><td></td><td></td><td></td><td class="num">59.48%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Funny detail already: the humble Q pays more of the RTP than the top picture symbol. Royals are
+      all over the reels, so they hit constantly. P1 is the one that looks exciting on the
+      paytable, but it's rare, and rare things don't carry much expected value unless they pay a lot.
+    </p>
+
+    <p>Then the two features.</p>
+
+    <p>
+      <strong>Free games.</strong> Scatters on reels 1, 3 and 5 at the same time award 8 free games.
+      These are played on a different set of reel strips with more pictures and three wilds on each
+      middle reel, and every win is multiplied by 3. Land the three scatters again during free games
+      and you get another 8.
+    </p>
+
+    <p>
+      <strong>Hold and spin.</strong> Six or more coins anywhere on screen start the bonus. The coins
+      lock in place and you get 3 respins. On each respin every empty cell has a 7% chance of landing
+      a new coin, and any new coin resets the counter to 3. When the respins run out, you're paid the
+      sum of all the coin values. Fill all 15 cells and you also win the Grand, worth 1,000x. The coin
+      values are drawn from this table, which has a mean of 4.05x:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Coin value</th><th class="num">1x</th><th class="num">2x</th><th class="num">3x</th><th class="num">5x</th><th class="num">10x</th><th class="num">20x Minor</th><th class="num">100x Major</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Weight</td><td class="num">40</td><td class="num">25</td><td class="num">15</td><td class="num">10</td><td class="num">6</td><td class="num">3</td><td class="num">1</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The base reels are 40 to 43 symbols long and the free game reels 36 to 38. Full strip layouts
+      are in the appendix code.
+    </p>
+
+    <h2><span class="sec">§ 3</span> The One Equation That Runs the Whole Job</h2>
+
+    <p>
+      Every spin's win splits cleanly into three parts,
+      <em>W</em> = <em>W</em><sub>base</sub> + <em>W</em><sub>FG</sub> + <em>W</em><sub>HS</sub>.
+      Expectation is linear, so the RTP splits the same way:
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span>RTP = RTP<sub>base</sub> + RTP<sub>FG</sub> + RTP<sub>HS</sub></span><span class="f-num">(3)</span></div>
+    </div>
+
+    <p>And each feature's share is its trigger rate times its average award:</p>
+
+    <div class="formula">
+      <div class="f-row"><span>RTP<sub>feature</sub> = P(trigger) &times; E[ feature win | trigger ]</span><span class="f-num">(4)</span></div>
+    </div>
+
+    <p>
+      This looks almost too obvious to write down, but it's the backbone of how these games get
+      built. Linearity doesn't care that the features are rare, or correlated with each other, or that
+      both could trigger on the same spin. You can design and tune each bucket on its own and add them
+      up at the end. If the free games are paying too much, you fix the free games. The base game
+      doesn't need to know.
+    </p>
+
+    <figure class="chart">
+      <svg viewBox="0 0 560 130" role="img" aria-label="Stacked bar: base game 59.48%, free games 19.14%, hold and spin 15.99%, house edge 5.40%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="f1hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" class="ch-s-muted" stroke-width="1.4"/></pattern></defs><rect x="8.0" y="44.0" width="323.5" height="50.0" class="ch-f-ink" /><text x="169.8" y="76.0" class="ch-on-ink" text-anchor="middle" style="font-family:'EB Garamond',Georgia,serif;font-size:21px">59.48%</text><text x="8.0" y="116.0" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px;letter-spacing:0.04em">BASE GAME</text><rect x="331.5" y="44.0" width="104.1" height="50.0" class="ch-f-red" /><text x="383.6" y="76.0" class="ch-on-red" text-anchor="middle" style="font-family:'EB Garamond',Georgia,serif;font-size:21px">19.14%</text><text x="331.5" y="116.0" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px;letter-spacing:0.04em">FREE GAMES</text><rect x="435.7" y="44.0" width="87.0" height="50.0" class="ch-f-gold" /><text x="479.1" y="76.0" class="ch-on-gold" text-anchor="middle" style="font-family:'EB Garamond',Georgia,serif;font-size:21px">15.99%</text><text x="435.7" y="116.0" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px;letter-spacing:0.04em">HOLD &amp; SPIN</text><rect x="522.6" y="44.0" width="29.4" height="50.0" class="" fill="url(#f1hatch)"/><rect x="522.6" y="44.0" width="29.4" height="50.0" class="ch-s-muted" fill="none" stroke-width="1"/><text x="552.0" y="32.0" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:12px;letter-spacing:0.04em">HOUSE EDGE 5.40%</text><line x1="537.3" y1="37.0" x2="537.3" y2="43.0" class="ch-s-muted" /><text x="8.0" y="32.0" class="ch-t" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px;letter-spacing:0.04em">WHERE 100 STAKED GOES</text></svg>
+      <figcaption><span class="fig-num">Figure 1</span>Where every 100 staked ends up, on average. The base game carries most of it, the two features split about a third, and 5.40 stays with the house.</figcaption>
+    </figure>
+
+    <h2><span class="sec">§ 4</span> The Base Game, Computed Exactly</h2>
+
+    <p>
+      Here's the thing that makes ways games pleasant to work with: the five reels stop independently
+      of each other.
+    </p>
+
+    <p>
+      Fix a symbol X and let <em>c<sub>i</sub></em> be the number of X-or-wild symbols showing on
+      reel <em>i</em>. A run of exactly <em>k</em> pays pay<sub>X</sub>(<em>k</em>) &times;
+      <em>c</em><sub>1</sub><em>c</em><sub>2</sub>&hellip;<em>c<sub>k</sub></em>, and it needs reel
+      <em>k</em>+1 to show none, otherwise it would be a longer run. Because the reels are
+      independent, the expectation of that product breaks into a product of expectations:
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span>E[ win<sub>X,k</sub> ] = pay<sub>X</sub>(<em>k</em>) &middot; E[<em>c</em><sub>1</sub>] &middot; E[<em>c</em><sub>2</sub>] &hellip; E[<em>c<sub>k</sub></em>] &middot; P(<em>c</em><sub><em>k</em>+1</sub> = 0)</span><span class="f-num">(5)</span></div>
+      <p class="f-cap">For <em>k</em> = 5 there's no sixth reel, so the last factor drops out.</p>
+    </div>
+
+    <p>
+      E[<em>c<sub>i</sub></em>] is easy. Each of the three visible positions shows X-or-wild with
+      probability (<em>n</em><sub>X</sub> + <em>n</em><sub>W</sub>) / <em>L<sub>i</sub></em>, so
+      E[<em>c<sub>i</sub></em>] = 3(<em>n</em><sub>X</sub> + <em>n</em><sub>W</sub>) / <em>L<sub>i</sub></em>
+      no matter how the strip is arranged. P(<em>c</em><sub><em>k</em>+1</sub> = 0) is different,
+      because it depends on how the symbols are stacked, so I just count it by walking every stop.
+      Reel 1 has no wilds, which means a pure run of wilds can never happen and I don't need a special
+      rule for it.
+    </p>
+
+    <p>
+      A worked example. P1 appears 3 times on reels 1 and 5 (length 40). On reels 2 and 4
+      (length 41) the 2 wilds bring the X-or-wild count to 5, and the same on reel 3 (length 43). So:
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span>E[ P1 five of a kind ] = 8 &times; 0.2250 &times; 0.3659 &times; 0.3488 &times; 0.3659 &times; 0.2250</span></div>
+      <div class="f-row"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 0.0189</span></div>
+    </div>
+
+    <p>
+      That one line of the paytable is worth 1.89% RTP. Do the same for six symbols and three run
+      lengths, add it all up, and you get <strong>RTP<sub>base</sub> = 59.48%</strong>.
+    </p>
+
+    <p>
+      The brute force alternative is a full cycle: every combination of stops, which here is
+      40 &times; 41 &times; 43 &times; 41 &times; 40 = 115,652,800 screens. A computer can grind
+      through that, but it's 115 million screens to get a number that equation (5) gets from about
+      sixty averages. Here's the code:
+    </p>
+
+<pre class="code"><code>def reel_stats(strip, sym):
+    &quot;&quot;&quot;Average number of sym-or-wild in the window, and P(none at all).&quot;&quot;&quot;
+    L = len(strip)
+    counts = [sum(x in (sym, &quot;W&quot;) for x in window(strip, s)) for s in range(L)]
+    return sum(counts) / L, sum(c == 0 for c in counts) / L
+
+
+def exact_ways_ev(reels, mult=1.0):
+    &quot;&quot;&quot;Expected ways win per spin.
+    E[win for sym, exactly k] = pay * E[c1]...E[ck] * P(c_{k+1} = 0).&quot;&quot;&quot;
+    total = 0.0
+    for sym, pay in PAYS.items():
+        stats = [reel_stats(r, sym) for r in reels]
+        for k in (3, 4, 5):
+            ev = math.prod(stats[i][0] for i in range(k))
+            if k &lt; 5:
+                ev *= stats[k][1]     <span class="c"># the run has to stop at reel k</span>
+            total += pay[k] * ev
+    return total * mult</code></pre>
+
+    <h2><span class="sec">§ 5</span> Free Games, and a Geometric Series Hiding in the Retrigger</h2>
+
+    <p>
+      Start with the trigger. On each scatter reel, the scatters are spaced out so two of them can
+      never show in the same window. That makes the chance of seeing one simply 3<em>s</em>/<em>L</em>,
+      where <em>s</em> is the number of scatters on the strip:
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span>P(trigger) = (3&middot;2 / 40) &times; (3&middot;3 / 43) &times; (3&middot;2 / 40)</span><span class="f-num">(6)</span></div>
+      <div class="f-row"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 0.15 &times; 0.2093 &times; 0.15 = 1 / 212.3</span></div>
+    </div>
+
+    <p>
+      The retrigger is where it gets fun. On the free game reels, the three scatters show up together
+      with probability <em>q</em> = 0.25 &times; 0.1579 &times; 0.25 = 0.00987. Every free spin has
+      that chance of adding 8 more. So how many free spins do you actually get on average?
+    </p>
+
+    <p>
+      Let <em>S</em> be the total number of spins in one feature, and <em>n</em> = 8. Each of the
+      first <em>n</em> spins retriggers with probability <em>q</em>, and a retrigger kicks off what is
+      basically a fresh feature with the same expected length. So:
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span>E[<em>S</em>] = <em>n</em> + <em>n q</em> &middot; E[<em>S</em>] &nbsp;&rArr;&nbsp; E[<em>S</em>] = <em>n</em> / (1 &minus; <em>nq</em>)</span><span class="f-num">(7)</span></div>
+      <p class="f-cap">Written as a series it's <em>n</em>(1 + <em>nq</em> + (<em>nq</em>)<sup>2</sup> + &hellip;), which only converges if <em>nq</em> &lt; 1.</p>
+    </div>
+
+    <p>
+      Plugging in, E[<em>S</em>] = 8 / (1 &minus; 0.0789) = 8.686. Retriggers add about two thirds of
+      a spin on average. Small, but that <em>nq</em> &lt; 1 condition is exactly why real games cap
+      retriggers. Push the retrigger rate high enough and the expected length of the feature is
+      infinite, which is not a sentence any regulator wants to read.
+    </p>
+
+    <figure class="chart">
+      <svg viewBox="0 0 560 300" role="img" aria-label="Expected free spins n over 1 minus n q, rising to infinity as q approaches one eighth" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="f2clip"><rect x="58" y="26" width="472" height="224"/></clipPath></defs><line x1="58.0" y1="250.0" x2="530.0" y2="250.0" class="ch-grid" /><text x="48.0" y="254.0" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:12px">0</text><line x1="58.0" y1="194.0" x2="530.0" y2="194.0" class="ch-grid" /><text x="48.0" y="198.0" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:12px">16</text><line x1="58.0" y1="138.0" x2="530.0" y2="138.0" class="ch-grid" /><text x="48.0" y="142.0" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:12px">32</text><line x1="58.0" y1="82.0" x2="530.0" y2="82.0" class="ch-grid" /><text x="48.0" y="86.0" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:12px">48</text><line x1="58.0" y1="26.0" x2="530.0" y2="26.0" class="ch-grid" /><text x="48.0" y="30.0" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:12px">64</text><text x="58.0" y="270.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">0%</text><text x="152.4" y="270.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">2.5%</text><text x="246.8" y="270.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">5%</text><text x="341.2" y="270.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">7.5%</text><text x="435.6" y="270.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">10%</text><text x="530.0" y="270.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">12.5%</text><line x1="58.0" y1="250.0" x2="530.0" y2="250.0" class="ch-axis" /><line x1="58.0" y1="222.0" x2="530.0" y2="222.0" class="ch-s-muted" stroke-dasharray="3 4"/><text x="520.0" y="239.0" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:11px;letter-spacing:0.04em">8 AWARDED</text><line x1="530.0" y1="26.0" x2="530.0" y2="250.0" class="ch-s-red" stroke-dasharray="5 4" stroke-width="1.3"/><text x="522.0" y="42.0" class="ch-t-red" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:12px">nq = 1</text><g clip-path="url(#f2clip)"><polyline points="58.0,222.0 59.9,221.9 61.8,221.8 63.7,221.7 65.6,221.5 67.4,221.4 69.3,221.3 71.2,221.2 73.1,221.1 75.0,221.0 76.9,220.8 78.8,220.7 80.7,220.6 82.5,220.5 84.4,220.3 86.3,220.2 88.2,220.1 90.1,220.0 92.0,219.8 93.9,219.7 95.8,219.6 97.6,219.4 99.5,219.3 101.4,219.2 103.3,219.0 105.2,218.9 107.1,218.8 109.0,218.6 110.9,218.5 112.8,218.3 114.6,218.2 116.5,218.0 118.4,217.9 120.3,217.7 122.2,217.6 124.1,217.4 126.0,217.3 127.9,217.1 129.7,217.0 131.6,216.8 133.5,216.7 135.4,216.5 137.3,216.3 139.2,216.2 141.1,216.0 143.0,215.9 144.8,215.7 146.7,215.5 148.6,215.3 150.5,215.2 152.4,215.0 154.3,214.8 156.2,214.6 158.1,214.5 160.0,214.3 161.8,214.1 163.7,213.9 165.6,213.7 167.5,213.5 169.4,213.4 171.3,213.2 173.2,213.0 175.1,212.8 176.9,212.6 178.8,212.4 180.7,212.2 182.6,212.0 184.5,211.7 186.4,211.5 188.3,211.3 190.2,211.1 192.0,210.9 193.9,210.7 195.8,210.5 197.7,210.2 199.6,210.0 201.5,209.8 203.4,209.5 205.3,209.3 207.2,209.1 209.0,208.8 210.9,208.6 212.8,208.3 214.7,208.1 216.6,207.8 218.5,207.6 220.4,207.3 222.3,207.1 224.1,206.8 226.0,206.5 227.9,206.2 229.8,206.0 231.7,205.7 233.6,205.4 235.5,205.1 237.4,204.8 239.2,204.5 241.1,204.2 243.0,203.9 244.9,203.6 246.8,203.3 248.7,203.0 250.6,202.7 252.5,202.4 254.4,202.1 256.2,201.7 258.1,201.4 260.0,201.0 261.9,200.7 263.8,200.4 265.7,200.0 267.6,199.6 269.5,199.3 271.3,198.9 273.2,198.5 275.1,198.1 277.0,197.8 278.9,197.4 280.8,197.0 282.7,196.6 284.6,196.2 286.4,195.7 288.3,195.3 290.2,194.9 292.1,194.4 294.0,194.0 295.9,193.5 297.8,193.1 299.7,192.6 301.6,192.1 303.4,191.7 305.3,191.2 307.2,190.7 309.1,190.2 311.0,189.7 312.9,189.1 314.8,188.6 316.7,188.1 318.5,187.5 320.4,186.9 322.3,186.4 324.2,185.8 326.1,185.2 328.0,184.6 329.9,184.0 331.8,183.3 333.6,182.7 335.5,182.0 337.4,181.4 339.3,180.7 341.2,180.0 343.1,179.3 345.0,178.6 346.9,177.8 348.8,177.1 350.6,176.3 352.5,175.5 354.4,174.7 356.3,173.9 358.2,173.1 360.1,172.2 362.0,171.3 363.9,170.5 365.7,169.5 367.6,168.6 369.5,167.6 371.4,166.7 373.3,165.7 375.2,164.6 377.1,163.6 379.0,162.5 380.8,161.4 382.7,160.3 384.6,159.1 386.5,157.9 388.4,156.7 390.3,155.4 392.2,154.1 394.1,152.8 396.0,151.4 397.8,150.0 399.7,148.6 401.6,147.1 403.5,145.5 405.4,143.9 407.3,142.3 409.2,140.6 411.1,138.9 412.9,137.1 414.8,135.2 416.7,133.3 418.6,131.4 420.5,129.3 422.4,127.2 424.3,125.0 426.2,122.7 428.0,120.4 429.9,117.9 431.8,115.4 433.7,112.7 435.6,110.0 437.5,107.1 439.4,104.2 441.3,101.1 443.2,97.8 445.0,94.4 446.9,90.9 448.8,87.2 450.7,83.3 452.6,79.3 454.5,75.0 456.4,70.5 458.3,65.8 460.1,60.8 462.0,55.6 463.9,50.0 465.8,44.1 467.7,37.9 469.6,31.2 471.5,24.2 473.4,16.7 475.2,8.6 477.1,-0.0 479.0,-9.3 480.9,-19.2 482.8,-30.0 484.7,-41.7 486.6,-54.3 488.5,-68.2 490.4,-83.3 492.2,-100.0 494.1,-118.4 496.0,-138.9 497.9,-161.8 499.8,-187.5 501.7,-216.7 503.6,-250.0 505.5,-288.5 507.3,-333.3 509.2,-386.4 511.1,-450.0 513.0,-527.8 514.9,-625.0 516.8,-750.0 518.7,-916.7 520.6,-1150.0 522.4,-1500.0" class="ch-s-ink" fill="none" stroke-width="2"/></g><circle cx="95.3" cy="219.6" r="4.5" class="ch-f-red"/><line x1="101.3" y1="213.6" x2="129.3" y2="179.6" class="ch-s-muted" /><text x="133.3" y="169.6" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:11px;letter-spacing:0.04em">THIS GAME</text><text x="133.3" y="184.6" class="ch-t" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px">q = 0.99%, E[S] = 8.69</text><circle cx="294.0" cy="194.0" r="3.5" class="ch-f-ink"/><text x="304.0" y="212.0" class="ch-t" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px">q = 6.25% doubles it</text><text x="58.0" y="16.0" class="ch-t" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:11px;letter-spacing:0.04em">EXPECTED FREE SPINS, E[S]</text><text x="530.0" y="290.0" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:11px;letter-spacing:0.04em">RETRIGGER CHANCE PER FREE SPIN, q</text></svg>
+      <figcaption><span class="fig-num">Figure 2</span>Expected free spins against the retrigger chance per spin, straight from equation (7). Our game sits way down in the flat part. As <em>q</em> closes in on 1/8 the curve runs off to infinity, which is why real games cap retriggers.</figcaption>
+    </figure>
+
+    <p>
+      Next, the average win per free spin. That's just equation (5) again, run on the free game
+      reels and multiplied by 3, which gives 4.679x. And since the number of spins is decided by what
+      happens on the spins themselves (a stopping time, in probability language), Wald's identity
+      lets us multiply the two expectations directly:
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span>E[ FG win ] = E[<em>S</em>] &times; E[ win per free spin ] = 8.686 &times; 4.679 = 40.64x</span><span class="f-num">(8)</span></div>
+      <div class="f-row"><span>RTP<sub>FG</sub> = 40.64 / 212.3 = 19.14%</span></div>
+    </div>
+
+<pre class="code"><code>p_fg = p_free_trigger(BASE_REELS)            <span class="c"># 1 in 212.3</span>
+q = p_free_trigger(FREE_REELS)               <span class="c"># retrigger chance per free spin</span>
+exp_spins = FREE_GAMES_AWARD / (1 - FREE_GAMES_AWARD * q)   <span class="c"># equation (7)</span>
+per_spin = exact_ways_ev(FREE_REELS, FREE_GAMES_MULT)       <span class="c"># equation (5), x3</span>
+fg_rtp = p_fg * exp_spins * per_spin         <span class="c"># equations (4) and (8)</span></code></pre>
+
+    <div class="callout highlight">
+      <p class="callout-label">Worth a pause</p>
+      <p>
+        A feature the player sees on less than half a percent of spins pays out a fifth of everything
+        the game returns. That ratio is a design choice, and it has more to do with how a game feels
+        than the headline RTP does.
+      </p>
+    </div>
+
+    <h2><span class="sec">§ 6</span> Hold and Spin, Where I Started Reaching for the Simulator</h2>
+
+    <p>
+      The trigger still gives in to exact maths. Coins can stack, so a reel might show 0, 1 or 2 of
+      them. I counted that distribution for each reel by walking the strip, then convolved the five
+      distributions to get the distribution of the total number of coins on screen. That gives
+      P(6 or more) = 1 / 305.5. Given a trigger, you start with exactly 6 coins 92.2% of the time,
+      7 coins 7.6% of the time, and 8 coins the rest.
+    </p>
+
+    <p>
+      The feature itself is a Markov chain. The state is (<em>n</em>, <em>r</em>): <em>n</em> cells
+      filled, <em>r</em> respins left. With <em>e</em> = 15 &minus; <em>n</em> empty cells, each
+      landing a coin with probability <em>p</em> = 0.07, the expected number of coins at the end
+      satisfies
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span><em>V</em>(<em>n</em>, <em>r</em>) = (1 &minus; <em>p</em>)<sup><em>e</em></sup> <em>V</em>(<em>n</em>, <em>r</em> &minus; 1)</span><span class="f-num">(9)</span></div>
+      <div class="f-row"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ &Sigma;<sub><em>j</em>=1..<em>e</em></sub> C(<em>e</em>, <em>j</em>) <em>p<sup>j</sup></em> (1 &minus; <em>p</em>)<sup><em>e</em> &minus; <em>j</em></sup> <em>V</em>(<em>n</em> + <em>j</em>, 3)</span></div>
+      <p class="f-cap">Boundary conditions: <em>V</em>(<em>n</em>, 0) = <em>n</em> when the respins run out, and <em>V</em>(15, <em>r</em>) = 15 when the screen is full. The first term is "nothing landed, lose a respin", the sum is "<em>j</em> coins landed, counter back to 3".</p>
+    </div>
+
+    <p>
+      Counting coins is enough here, because each coin's value is drawn independently of how the
+      board fills up. So the average award is
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span>E[ HS win ] = E[ final coins ] &times; E[ coin value ] + 1000 &times; P( full screen )</span><span class="f-num">(10)</span></div>
+    </div>
+
+    <p>
+      Starting from 6 coins, the chain gives 9.45 coins on average and a 1.03% chance of filling the
+      screen. With a mean coin value of 4.05x that's 48.6x. Averaging over the possible starting
+      counts, E[HS win] = 48.84x, and <strong>RTP<sub>HS</sub> = 48.84 / 305.5 = 15.99%</strong>.
+    </p>
+
+    <p>
+      Now, to be honest, I only solved the chain as a check on the simulator. Real hold and spin games
+      have collector symbols, multipliers, extra rows that unlock, coins that upgrade other coins.
+      Each of those breaks the independence that made equation (10) work, and the state space blows
+      up fast. What you do then is write the feature as a plain function, run it a few hundred
+      thousand times on its own, and plug the average into equation (4). That's what
+      <code>play_hold_and_spin</code> in the appendix does. 400,000 isolated features gave 48.91x,
+      comfortably inside the noise around the exact 48.84x.
+    </p>
+
+    <div class="callout">
+      <p class="callout-label">Simulate features on their own</p>
+      <p>
+        In a full-game run of 20 million spins, hold and spin only triggers about 65,000 times, and
+        its estimated RTP also carries the randomness of whether it triggered at all. Running the
+        feature by itself 400,000 times costs a small fraction of the compute and pins its RTP down
+        about 2.7 times more tightly.
+      </p>
+    </div>
+
+    <h2><span class="sec">§ 7</span> Simulating the Whole Thing</h2>
+
+    <p>
+      The full-game simulator is almost boring, which is kind of the point. One paid spin: stop the
+      base reels, pay the ways, check for scatters, check for coins, play whatever triggered. Keep
+      running sums of the win and the squared win so you get &sigma; for free.
+    </p>
+
+<pre class="code"><code>def play_one(rng):
+    &quot;&quot;&quot;One paid spin. Returns wins split by where they came from.&quot;&quot;&quot;
+    grid = spin_grid(BASE_REELS, rng)
+    base = ways_win(grid)
+    fg = play_free_games(rng)[0] if scatters(grid) == 3 else 0.0
+    n = coins(grid)
+    hs = play_hold_and_spin(n, rng) if n &gt;= HS_TRIGGER else 0.0
+    return base, fg, hs
+
+
+def simulate(n_spins, seed=7):
+    rng = random.Random(seed)
+    tot = {&quot;base&quot;: 0.0, &quot;free&quot;: 0.0, &quot;hs&quot;: 0.0}
+    s1 = s2 = 0.0          <span class="c"># running sum and sum of squares of total win</span>
+    hits = 0
+    big = 0
+    for _ in range(n_spins):
+        b, f, h = play_one(rng)
+        w = b + f + h
+        tot[&quot;base&quot;] += b; tot[&quot;free&quot;] += f; tot[&quot;hs&quot;] += h
+        s1 += w; s2 += w * w
+        hits += w &gt; 0
+        big += w &gt;= 100
+    mean = s1 / n_spins
+    sd = math.sqrt(s2 / n_spins - mean ** 2)
+    return {
+        &quot;rtp&quot;: mean,
+        &quot;parts&quot;: {k: v / n_spins for k, v in tot.items()},
+        &quot;sd&quot;: sd,
+        &quot;ci95&quot;: 1.96 * sd / math.sqrt(n_spins),
+        &quot;hit_freq&quot;: hits / n_spins,
+        &quot;p_100x&quot;: big / n_spins,
+    }</code></pre>
+
+    <p>I ran 20 million paid spins. Here's how they line up against the exact numbers:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Component</th><th class="num">Exact</th><th class="num">Simulated (20M)</th><th class="num">Trigger rate</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Base game</td><td class="num">59.48%</td><td class="num">59.44%</td><td class="num">every spin</td></tr>
+          <tr><td>Free games</td><td class="num">19.14%</td><td class="num">19.14%</td><td class="num">1 in 212.3</td></tr>
+          <tr><td>Hold and spin</td><td class="num">15.99%</td><td class="num">15.98%</td><td class="num">1 in 305.5</td></tr>
+          <tr class="total"><td>Total</td><td class="num">94.60%</td><td class="num">94.56%</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Close. But is it close enough? Equation (2) answers that. The simulated standard deviation per
+      spin came out at &sigma; = 7.87, so the 95% band around a 20 million spin average is
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span>&plusmn; 1.96 &times; 7.87 / &radic;(2 &times; 10<sup>7</sup>) = &plusmn; 0.34%</span><span class="f-num">(11)</span></div>
+    </div>
+
+    <p>
+      The simulated 94.56% sits 0.04 points away from the exact 94.60%, well inside the band. The code
+      and the maths agree, which is really all a full-game run is for.
+    </p>
+
+    <figure class="chart">
+      <svg viewBox="0 0 560 330" role="img" aria-label="Four running RTP paths converging inside a shrinking 95 percent band around 94.60 percent" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="f3clip"><rect x="58" y="28" width="486" height="242"/></clipPath></defs><line x1="58.0" y1="239.8" x2="544.0" y2="239.8" class="ch-grid" /><text x="48.0" y="243.8" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:12px">80%</text><line x1="58.0" y1="179.2" x2="544.0" y2="179.2" class="ch-grid" /><text x="48.0" y="183.2" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:12px">90%</text><line x1="58.0" y1="118.8" x2="544.0" y2="118.8" class="ch-grid" /><text x="48.0" y="122.8" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:12px">100%</text><line x1="58.0" y1="58.2" x2="544.0" y2="58.2" class="ch-grid" /><text x="48.0" y="62.2" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:12px">110%</text><text x="58.0" y="290.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">1K</text><line x1="58.0" y1="270.0" x2="58.0" y2="275.0" class="ch-axis" /><text x="189.4" y="290.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">10K</text><line x1="189.4" y1="270.0" x2="189.4" y2="275.0" class="ch-axis" /><text x="320.8" y="290.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">100K</text><line x1="320.8" y1="270.0" x2="320.8" y2="275.0" class="ch-axis" /><text x="452.2" y="290.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">1M</text><line x1="452.2" y1="270.0" x2="452.2" y2="275.0" class="ch-axis" /><text x="544.0" y="290.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">5M</text><line x1="544.0" y1="270.0" x2="544.0" y2="275.0" class="ch-axis" /><line x1="58.0" y1="270.0" x2="544.0" y2="270.0" class="ch-axis" /><g clip-path="url(#f3clip)"><polygon points="58.0,-143.7 60.4,-137.5 62.9,-131.4 65.3,-125.4 67.7,-119.6 70.1,-113.9 72.6,-108.3 75.0,-102.8 77.4,-97.5 79.9,-92.2 82.3,-87.1 84.7,-82.1 87.2,-77.2 89.6,-72.3 92.0,-67.6 94.5,-63.0 96.9,-58.5 99.3,-54.1 101.7,-49.7 104.2,-45.5 106.6,-41.4 109.0,-37.3 111.5,-33.3 113.9,-29.4 116.3,-25.6 118.8,-21.9 121.2,-18.2 123.6,-14.7 126.0,-11.2 128.5,-7.7 130.9,-4.4 133.3,-1.1 135.8,2.1 138.2,5.3 140.6,8.3 143.0,11.4 145.5,14.3 147.9,17.2 150.3,20.0 152.8,22.8 155.2,25.5 157.6,28.1 160.1,30.7 162.5,33.3 164.9,35.8 167.4,38.2 169.8,40.6 172.2,42.9 174.6,45.2 177.1,47.5 179.5,49.6 181.9,51.8 184.4,53.9 186.8,55.9 189.2,58.0 191.7,59.9 194.1,61.9 196.5,63.7 198.9,65.6 201.4,67.4 203.8,69.2 206.2,70.9 208.7,72.6 211.1,74.3 213.5,75.9 216.0,77.5 218.4,79.0 220.8,80.6 223.2,82.0 225.7,83.5 228.1,84.9 230.5,86.3 233.0,87.7 235.4,89.1 237.8,90.4 240.2,91.7 242.7,92.9 245.1,94.1 247.5,95.3 250.0,96.5 252.4,97.7 254.8,98.8 257.3,99.9 259.7,101.0 262.1,102.1 264.5,103.1 267.0,104.1 269.4,105.1 271.8,106.1 274.3,107.1 276.7,108.0 279.1,108.9 281.6,109.8 284.0,110.7 286.4,111.5 288.8,112.4 291.3,113.2 293.7,114.0 296.1,114.8 298.6,115.6 301.0,116.3 303.4,117.1 305.9,117.8 308.3,118.5 310.7,119.2 313.2,119.9 315.6,120.5 318.0,121.2 320.4,121.8 322.9,122.4 325.3,123.1 327.7,123.6 330.2,124.2 332.6,124.8 335.0,125.4 337.4,125.9 339.9,126.5 342.3,127.0 344.7,127.5 347.2,128.0 349.6,128.5 352.0,129.0 354.5,129.4 356.9,129.9 359.3,130.4 361.8,130.8 364.2,131.2 366.6,131.7 369.0,132.1 371.5,132.5 373.9,132.9 376.3,133.3 378.8,133.7 381.2,134.0 383.6,134.4 386.0,134.8 388.5,135.1 390.9,135.5 393.3,135.8 395.8,136.1 398.2,136.4 400.6,136.8 403.1,137.1 405.5,137.4 407.9,137.7 410.3,138.0 412.8,138.2 415.2,138.5 417.6,138.8 420.1,139.1 422.5,139.3 424.9,139.6 427.4,139.8 429.8,140.1 432.2,140.3 434.7,140.5 437.1,140.8 439.5,141.0 441.9,141.2 444.4,141.4 446.8,141.6 449.2,141.8 451.7,142.0 454.1,142.2 456.5,142.4 458.9,142.6 461.4,142.8 463.8,143.0 466.2,143.2 468.7,143.3 471.1,143.5 473.5,143.7 476.0,143.8 478.4,144.0 480.8,144.2 483.2,144.3 485.7,144.5 488.1,144.6 490.5,144.7 493.0,144.9 495.4,145.0 497.8,145.2 500.3,145.3 502.7,145.4 505.1,145.5 507.6,145.7 510.0,145.8 512.4,145.9 514.8,146.0 517.3,146.1 519.7,146.3 522.1,146.4 524.6,146.5 527.0,146.6 529.4,146.7 531.8,146.8 534.3,146.9 536.7,147.0 539.1,147.1 541.6,147.2 544.0,147.2 544.0,155.6 541.6,155.7 539.1,155.8 536.7,155.9 534.3,156.0 531.8,156.1 529.4,156.2 527.0,156.3 524.6,156.4 522.1,156.5 519.7,156.6 517.3,156.7 514.8,156.8 512.4,156.9 510.0,157.0 507.6,157.2 505.1,157.3 502.7,157.4 500.3,157.5 497.8,157.7 495.4,157.8 493.0,157.9 490.5,158.1 488.1,158.2 485.7,158.4 483.2,158.5 480.8,158.7 478.4,158.8 476.0,159.0 473.5,159.2 471.1,159.3 468.7,159.5 466.2,159.7 463.8,159.8 461.4,160.0 458.9,160.2 456.5,160.4 454.1,160.6 451.7,160.8 449.2,161.0 446.8,161.2 444.4,161.4 441.9,161.6 439.5,161.8 437.1,162.1 434.7,162.3 432.2,162.5 429.8,162.8 427.4,163.0 424.9,163.3 422.5,163.5 420.1,163.8 417.6,164.0 415.2,164.3 412.8,164.6 410.3,164.9 407.9,165.2 405.5,165.5 403.1,165.8 400.6,166.1 398.2,166.4 395.8,166.7 393.3,167.0 390.9,167.4 388.5,167.7 386.0,168.1 383.6,168.4 381.2,168.8 378.8,169.2 376.3,169.6 373.9,169.9 371.5,170.3 369.0,170.7 366.6,171.2 364.2,171.6 361.8,172.0 359.3,172.5 356.9,172.9 354.5,173.4 352.0,173.9 349.6,174.3 347.2,174.8 344.7,175.3 342.3,175.9 339.9,176.4 337.4,176.9 335.0,177.5 332.6,178.0 330.2,178.6 327.7,179.2 325.3,179.8 322.9,180.4 320.4,181.0 318.0,181.6 315.6,182.3 313.2,183.0 310.7,183.6 308.3,184.3 305.9,185.0 303.4,185.8 301.0,186.5 298.6,187.3 296.1,188.0 293.7,188.8 291.3,189.6 288.8,190.5 286.4,191.3 284.0,192.1 281.6,193.0 279.1,193.9 276.7,194.8 274.3,195.8 271.8,196.7 269.4,197.7 267.0,198.7 264.5,199.7 262.1,200.8 259.7,201.8 257.3,202.9 254.8,204.0 252.4,205.1 250.0,206.3 247.5,207.5 245.1,208.7 242.7,209.9 240.2,211.2 237.8,212.5 235.4,213.8 233.0,215.1 230.5,216.5 228.1,217.9 225.7,219.3 223.2,220.8 220.8,222.3 218.4,223.8 216.0,225.4 213.5,226.9 211.1,228.6 208.7,230.2 206.2,231.9 203.8,233.7 201.4,235.4 198.9,237.2 196.5,239.1 194.1,241.0 191.7,242.9 189.2,244.9 186.8,246.9 184.4,248.9 181.9,251.0 179.5,253.2 177.1,255.4 174.6,257.6 172.2,259.9 169.8,262.2 167.4,264.6 164.9,267.1 162.5,269.5 160.1,272.1 157.6,274.7 155.2,277.3 152.8,280.0 150.3,282.8 147.9,285.6 145.5,288.5 143.0,291.5 140.6,294.5 138.2,297.6 135.8,300.7 133.3,303.9 130.9,307.2 128.5,310.6 126.0,314.0 123.6,317.5 121.2,321.1 118.8,324.7 116.3,328.4 113.9,332.3 111.5,336.1 109.0,340.1 106.6,344.2 104.2,348.3 101.7,352.6 99.3,356.9 96.9,361.3 94.5,365.8 92.0,370.5 89.6,375.2 87.2,380.0 84.7,384.9 82.3,389.9 79.9,395.1 77.4,400.3 75.0,405.7 72.6,411.1 70.1,416.7 67.7,422.4 65.3,428.3 62.9,434.2 60.4,440.3 58.0,446.5" class="ch-band"/><line x1="58.0" y1="151.4" x2="544.0" y2="151.4" class="ch-s-red" stroke-width="1.3" stroke-dasharray="6 4"/><polyline points="58.0,121.5 61.3,120.9 64.6,137.1 67.9,142.2 71.1,130.1 74.4,145.4 77.7,136.3 81.0,155.2 84.3,162.5 87.6,176.2 90.8,190.2 94.1,195.2 97.4,199.7 100.7,213.7 104.0,217.8 107.3,215.5 110.6,211.9 113.8,219.0 117.1,223.8 120.4,224.4 123.7,227.3 127.0,224.9 130.3,234.8 133.5,234.6 136.8,238.9 140.1,243.9 143.4,213.4 146.7,213.6 150.0,214.1 153.3,223.4 156.5,231.3 159.8,205.3 163.1,208.1 166.4,202.5 169.7,204.9 173.0,206.9 176.2,197.7 179.5,191.7 182.8,195.3 186.1,193.4 189.4,190.1 192.7,188.2 196.0,179.4 199.2,127.3 202.5,138.8 205.8,139.0 209.1,133.5 212.4,132.1 215.7,123.7 219.0,130.5 222.2,138.2 225.5,137.2 228.8,139.7 232.1,144.9 235.4,152.4 238.7,143.9 241.9,152.9 245.2,163.1 248.5,169.4 251.8,164.5 255.1,170.9 258.4,168.6 261.7,165.9 264.9,156.4 268.2,156.3 271.5,159.1 274.8,161.6 278.1,159.7 281.4,155.0 284.6,162.2 287.9,159.1 291.2,158.3 294.5,148.8 297.8,154.1 301.1,141.3 304.4,135.3 307.6,139.7 310.9,143.8 314.2,147.6 317.5,140.8 320.8,144.6 324.1,148.6 327.3,148.8 330.6,150.1 333.9,153.4 337.2,154.3 340.5,155.2 343.8,155.1 347.1,154.1 350.3,151.4 353.6,151.6 356.9,150.8 360.2,145.1 363.5,142.7 366.8,140.6 370.0,141.5 373.3,145.6 376.6,146.8 379.9,149.2 383.2,147.6 386.5,149.8 389.8,151.3 393.0,154.2 396.3,153.3 399.6,151.3 402.9,152.4 406.2,152.3 409.5,151.0 412.7,152.5 416.0,153.5 419.3,150.6 422.6,148.2 425.9,150.5 429.2,150.4 432.5,149.5 435.7,150.9 439.0,152.5 442.3,152.2 445.6,153.5 448.9,154.0 452.2,153.0 455.4,153.8 458.7,152.8 462.0,152.2 465.3,152.9 468.6,154.5 471.9,154.0 475.2,154.2 478.4,154.7 481.7,154.4 485.0,153.3 488.3,153.0 491.6,154.0 494.9,153.6 498.1,153.6 501.4,154.3 504.7,154.2 508.0,154.6 511.3,155.1 514.6,155.5 517.9,155.3 521.1,155.5 524.4,155.2 527.7,154.9 531.0,155.4 534.3,155.6 537.6,154.4 540.9,153.9 544.0,154.0" class="ch-s-ink" fill="none" stroke-width="1.3" stroke-opacity="0.90"/><polyline points="58.0,195.5 61.3,207.3 64.6,220.9 67.9,232.8 71.1,225.7 74.4,235.8 77.7,243.3 81.0,253.4 84.3,211.7 87.6,201.8 90.8,191.0 94.1,179.0 97.4,183.5 100.7,191.8 104.0,202.3 107.3,207.9 110.6,200.4 113.8,174.7 117.1,172.6 120.4,167.2 123.7,171.2 127.0,151.3 130.3,160.7 133.5,166.9 136.8,177.2 140.1,179.2 143.4,175.1 146.7,172.4 150.0,179.9 153.3,188.6 156.5,196.3 159.8,195.9 163.1,192.0 166.4,189.3 169.7,101.0 173.0,94.7 176.2,95.0 179.5,110.6 182.8,94.5 186.1,94.5 189.4,98.5 192.7,104.7 196.0,113.9 199.2,119.3 202.5,130.2 205.8,125.9 209.1,121.5 212.4,123.0 215.7,132.3 219.0,135.1 222.2,138.3 225.5,137.4 228.8,134.0 232.1,135.4 235.4,125.4 238.7,128.5 241.9,131.0 245.2,138.2 248.5,137.1 251.8,139.7 255.1,129.4 258.4,135.2 261.7,137.7 264.9,137.2 268.2,143.5 271.5,145.7 274.8,147.0 278.1,147.5 281.4,147.5 284.6,148.3 287.9,152.3 291.2,155.9 294.5,156.7 297.8,161.6 301.1,155.0 304.4,153.5 307.6,156.3 310.9,156.7 314.2,156.1 317.5,156.5 320.8,155.9 324.1,157.6 327.3,158.6 330.6,148.6 333.9,147.7 337.2,145.9 340.5,143.5 343.8,140.6 347.1,142.2 350.3,145.2 353.6,149.8 356.9,152.4 360.2,155.4 363.5,156.0 366.8,159.5 370.0,159.0 373.3,165.5 376.6,163.4 379.9,160.4 383.2,160.4 386.5,159.4 389.8,158.5 393.0,158.7 396.3,154.3 399.6,156.1 402.9,157.5 406.2,158.3 409.5,159.0 412.7,159.8 416.0,160.7 419.3,159.9 422.6,159.0 425.9,157.1 429.2,157.7 432.5,158.7 435.7,158.3 439.0,158.1 442.3,159.2 445.6,158.7 448.9,158.1 452.2,159.1 455.4,158.1 458.7,158.0 462.0,157.1 465.3,155.1 468.6,155.6 471.9,154.2 475.2,154.5 478.4,154.0 481.7,154.2 485.0,154.0 488.3,153.9 491.6,153.6 494.9,154.7 498.1,154.7 501.4,154.2 504.7,153.1 508.0,153.5 511.3,152.6 514.6,153.5 517.9,154.4 521.1,153.9 524.4,153.2 527.7,153.3 531.0,153.7 534.3,153.7 537.6,153.6 540.9,153.3 544.0,153.7" class="ch-s-ink" fill="none" stroke-width="1.3" stroke-opacity="0.75"/><polyline points="58.0,194.9 61.3,211.0 64.6,223.4 67.9,219.3 71.1,216.2 74.4,227.9 77.7,240.4 81.0,245.3 84.3,251.5 87.6,237.0 90.8,246.8 94.1,252.4 97.4,260.3 100.7,240.1 104.0,246.2 107.3,259.7 110.6,250.9 113.8,256.9 117.1,213.2 120.4,220.7 123.7,205.9 127.0,212.2 130.3,210.9 133.5,213.6 136.8,228.5 140.1,215.5 143.4,202.3 146.7,200.8 150.0,192.1 153.3,189.7 156.5,200.0 159.8,199.9 163.1,203.0 166.4,209.0 169.7,195.1 173.0,194.7 176.2,193.9 179.5,202.4 182.8,214.8 186.1,210.6 189.4,212.5 192.7,215.7 196.0,219.9 199.2,202.0 202.5,205.4 205.8,204.4 209.1,209.1 212.4,206.2 215.7,199.4 219.0,206.4 222.2,169.5 225.5,172.8 228.8,180.0 232.1,181.0 235.4,182.1 238.7,174.9 241.9,180.2 245.2,180.1 248.5,178.3 251.8,170.6 255.1,162.8 258.4,165.7 261.7,167.9 264.9,163.4 268.2,166.3 271.5,168.0 274.8,168.3 278.1,170.6 281.4,177.1 284.6,179.2 287.9,171.0 291.2,174.7 294.5,171.0 297.8,163.2 301.1,163.7 304.4,166.2 307.6,152.4 310.9,154.1 314.2,156.2 317.5,154.0 320.8,155.8 324.1,153.6 327.3,153.9 330.6,150.4 333.9,145.4 337.2,146.1 340.5,143.2 343.8,142.3 347.1,146.4 350.3,148.3 353.6,151.4 356.9,148.2 360.2,145.8 363.5,143.4 366.8,148.1 370.0,151.0 373.3,150.3 376.6,149.9 379.9,149.3 383.2,148.2 386.5,145.8 389.8,146.0 393.0,147.3 396.3,148.3 399.6,148.9 402.9,150.0 406.2,149.9 409.5,150.2 412.7,149.2 416.0,149.3 419.3,150.7 422.6,152.8 425.9,151.6 429.2,153.1 432.5,153.1 435.7,150.8 439.0,151.1 442.3,150.7 445.6,147.6 448.9,147.9 452.2,149.2 455.4,149.2 458.7,149.2 462.0,149.7 465.3,149.9 468.6,149.0 471.9,149.4 475.2,148.4 478.4,147.9 481.7,147.9 485.0,147.4 488.3,147.7 491.6,146.4 494.9,147.5 498.1,145.9 501.4,145.9 504.7,147.0 508.0,147.6 511.3,148.3 514.6,147.6 517.9,146.3 521.1,147.6 524.4,147.4 527.7,148.4 531.0,148.4 534.3,149.2 537.6,149.0 540.9,149.1 544.0,149.1" class="ch-s-ink" fill="none" stroke-width="1.3" stroke-opacity="0.60"/><polyline points="58.0,240.3 61.3,229.6 64.6,238.1 67.9,228.3 71.1,243.5 74.4,192.0 77.7,201.5 81.0,197.4 84.3,207.8 87.6,190.7 90.8,204.4 94.1,187.4 97.4,177.6 100.7,172.9 104.0,183.7 107.3,172.5 110.6,178.0 113.8,185.1 117.1,195.6 120.4,191.6 123.7,182.6 127.0,191.4 130.3,192.7 133.5,180.4 136.8,182.3 140.1,181.3 143.4,182.2 146.7,186.9 150.0,181.3 153.3,188.8 156.5,192.2 159.8,198.0 163.1,200.8 166.4,197.0 169.7,197.1 173.0,203.9 176.2,211.6 179.5,212.6 182.8,211.9 186.1,207.6 189.4,199.3 192.7,181.4 196.0,188.2 199.2,182.7 202.5,173.3 205.8,169.2 209.1,163.3 212.4,167.8 215.7,175.2 219.0,162.2 222.2,168.4 225.5,161.5 228.8,154.0 232.1,158.5 235.4,164.1 238.7,166.8 241.9,174.0 245.2,177.9 248.5,180.0 251.8,176.8 255.1,171.1 258.4,169.9 261.7,167.5 264.9,149.1 268.2,138.3 271.5,140.0 274.8,121.7 278.1,122.4 281.4,129.5 284.6,135.9 287.9,142.5 291.2,120.7 294.5,124.8 297.8,125.8 301.1,128.8 304.4,132.7 307.6,138.7 310.9,138.7 314.2,136.5 317.5,132.6 320.8,125.6 324.1,120.4 327.3,127.2 330.6,127.0 333.9,129.4 337.2,131.3 340.5,133.8 343.8,135.1 347.1,133.3 350.3,135.8 353.6,139.7 356.9,135.4 360.2,137.0 363.5,141.0 366.8,142.9 370.0,137.4 373.3,136.8 376.6,139.6 379.9,140.7 383.2,142.8 386.5,143.4 389.8,143.1 393.0,145.4 396.3,143.5 399.6,141.9 402.9,143.7 406.2,144.1 409.5,143.6 412.7,144.4 416.0,141.6 419.3,141.2 422.6,143.1 425.9,141.5 429.2,141.5 432.5,140.7 435.7,141.1 439.0,143.1 442.3,146.6 445.6,145.9 448.9,148.5 452.2,147.4 455.4,148.1 458.7,148.2 462.0,148.8 465.3,149.9 468.6,149.1 471.9,148.2 475.2,146.8 478.4,146.9 481.7,147.2 485.0,147.9 488.3,147.7 491.6,148.2 494.9,148.3 498.1,147.8 501.4,147.6 504.7,148.3 508.0,150.2 511.3,151.3 514.6,150.5 517.9,151.0 521.1,150.6 524.4,151.4 527.7,151.0 531.0,151.1 534.3,149.8 537.6,149.9 540.9,150.7 544.0,151.4" class="ch-s-ink" fill="none" stroke-width="1.3" stroke-opacity="0.45"/></g><text x="542.0" y="169.6" class="ch-t-red" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:11px;letter-spacing:0.04em">EXACT 94.60%</text><text x="84.8" y="46.2" class="ch-t" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:11px;letter-spacing:0.04em">95% BAND, &#177;1.96&#963;/&#8730;N</text><text x="58.0" y="18.0" class="ch-t" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:11px;letter-spacing:0.04em">RUNNING RTP</text><text x="544.0" y="310.0" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:11px;letter-spacing:0.04em">SPINS PLAYED (LOG SCALE)</text></svg>
+      <figcaption><span class="fig-num">Figure 3</span>Running RTP for four independent sessions of 5 million spins each. The shaded funnel is the 95% band from equation (2). Early on, anything goes. From a million spins onwards all four paths stay inside a band about three points wide, and it keeps shrinking like 1/&#8730;<em>N</em>.</figcaption>
+    </figure>
+
+    <p>
+      Flip equation (11) around and you get the question every game studio runs into sooner or later:
+      how many spins do I need to pin the RTP down to within &epsilon;?
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span><em>N</em> = ( 1.96 &sigma; / &epsilon; )<sup>2</sup></span><span class="f-num">(12)</span></div>
+    </div>
+
+    <p>
+      For &epsilon; = 0.1% that's (1.96 &times; 7.87 / 0.001)<sup>2</sup> &asymp; 238 million spins.
+      For 0.01% it's about 24 billion. And this is a fairly tame game. A high volatility game with
+      &sigma; = 20 needs about six and a half times as many. That's the practical reason you compute
+      RTP exactly wherever you can, and use simulation to confirm the code matches the maths rather
+      than to discover the RTP in the first place.
+    </p>
+
+    <h2><span class="sec">§ 8</span> The Number That Isn't on the Glass</h2>
+
+    <p>
+      A standard deviation of 7.87 on a game whose average win is under 1x. Where does all that spread
+      come from?
+    </p>
+
+    <p>
+      For a rare feature that triggers with probability <em>p</em> and pays <em>X</em> when it does,
+      its contribution to the second moment of a spin is roughly
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span>contribution to E[<em>W</em><sup>2</sup>] &asymp; <em>p</em> &middot; E[<em>X</em><sup>2</sup>] = <em>p</em> ( &mu;<sup>2</sup> + &sigma;<sub>X</sub><sup>2</sup> )</span><span class="f-num">(13)</span></div>
+      <p class="f-cap">&mu; and &sigma;<sub>X</sub> are the mean and standard deviation of the feature award. Features rarely overlap, so the pieces roughly add up to the whole.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Piece</th><th class="num">Share of RTP</th><th class="num">Adds to E[W&sup2;]</th><th class="num">Share of E[W&sup2;]</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Base game</td><td class="num">59.5%</td><td class="num">2.7</td><td class="num">4%</td></tr>
+          <tr><td>Free games</td><td class="num">19.1%</td><td class="num">13.6</td><td class="num">22%</td></tr>
+          <tr><td>Hold and spin</td><td class="num">16.0%</td><td class="num">46.9</td><td class="num">74%</td></tr>
+          <tr class="sub"><td>of which the Grand</td><td class="num">3.4%</td><td class="num">&asymp; 38.5</td><td class="num">&asymp; 61%</td></tr>
+          <tr class="total"><td>Total</td><td class="num">94.6%</td><td class="num">63.2</td><td class="num">sim: 62.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The base game pays out almost 60% of the money and causes 4% of the variance. The Grand pays
+      3.4% of the money, lands about once every 29,300 spins, and is responsible for around 60% of it.
+      That table is basically the personality of the game.
+    </p>
+
+    <figure class="chart">
+      <svg viewBox="0 0 560 294" role="img" aria-label="Paired bars comparing each piece's share of payout with its share of variance" xmlns="http://www.w3.org/2000/svg"><rect x="8.0" y="12.0" width="11.0" height="11.0" class="ch-f-ink" /><text x="26.0" y="22.0" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:11px;letter-spacing:0.04em">SHARE OF MONEY RETURNED</text><rect x="250.0" y="12.0" width="11.0" height="11.0" class="ch-f-red" /><text x="268.0" y="22.0" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:11px;letter-spacing:0.04em">SHARE OF VARIANCE, E[W&#178;]</text><line x1="8.0" y1="42.0" x2="552.0" y2="42.0" class="ch-grid" /><text x="8.0" y="64.0" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px;letter-spacing:0.04em">BASE GAME</text><rect x="150.0" y="50.0" width="316.1" height="17.0" class="ch-f-ink" /><text x="472.1" y="63.0" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px">62.9%</text><rect x="150.0" y="71.0" width="21.5" height="17.0" class="ch-f-red" /><text x="177.5" y="84.0" class="ch-t-red" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px">4.3%</text><line x1="8.0" y1="104.0" x2="552.0" y2="104.0" class="ch-grid" /><text x="8.0" y="126.0" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px;letter-spacing:0.04em">FREE GAMES</text><rect x="150.0" y="112.0" width="101.7" height="17.0" class="ch-f-ink" /><text x="257.7" y="125.0" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px">20.2%</text><rect x="150.0" y="133.0" width="108.2" height="17.0" class="ch-f-red" /><text x="264.2" y="146.0" class="ch-t-red" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px">21.5%</text><line x1="8.0" y1="166.0" x2="552.0" y2="166.0" class="ch-grid" /><text x="8.0" y="188.0" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px;letter-spacing:0.04em">HOLD &amp; SPIN</text><text x="8.0" y="204.0" class="ch-t" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:11px">without the Grand</text><rect x="150.0" y="174.0" width="66.8" height="17.0" class="ch-f-ink" /><text x="222.8" y="187.0" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px">13.3%</text><rect x="150.0" y="195.0" width="66.0" height="17.0" class="ch-f-red" /><text x="222.0" y="208.0" class="ch-t-red" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px">13.1%</text><line x1="8.0" y1="228.0" x2="552.0" y2="228.0" class="ch-grid" /><text x="8.0" y="250.0" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px;letter-spacing:0.04em">THE GRAND</text><text x="8.0" y="266.0" class="ch-t" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:11px">full screen, 1,000x</text><rect x="150.0" y="236.0" width="18.1" height="17.0" class="ch-f-ink" /><text x="174.1" y="249.0" class="ch-t-ink" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px">3.6%</text><rect x="150.0" y="257.0" width="307.2" height="17.0" class="ch-f-red" /><text x="463.2" y="270.0" class="ch-t-red" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px">61.1%</text></svg>
+      <figcaption><span class="fig-num">Figure 4</span>Each piece's share of the money returned next to its share of the variance. The Grand is the extreme case: under 4% of the payout, over 60% of the variance.</figcaption>
+    </figure>
+
+    <p>
+      You can see the skew inside the features too. The average hold and spin pays 48.8x, but more
+      than half of them pay under 30x. The mean is being dragged up by the rare full screens. Free
+      games are gentler: about 11% pay under 10x and about 6% pay 100x or more.
+    </p>
+
+    <figure class="chart">
+      <svg viewBox="0 0 560 342" role="img" aria-label="Histograms of free game and hold and spin awards with mean and median marked" xmlns="http://www.w3.org/2000/svg"><rect x="59.0" y="135.9" width="20.1" height="2.1" class="ch-f-red" /><rect x="81.1" y="136.9" width="20.1" height="1.1" class="ch-f-red" /><rect x="103.2" y="136.0" width="20.1" height="2.0" class="ch-f-red" /><rect x="125.3" y="134.0" width="20.1" height="4.0" class="ch-f-red" /><rect x="147.4" y="131.1" width="20.1" height="6.9" class="ch-f-red" /><rect x="169.5" y="124.9" width="20.1" height="13.1" class="ch-f-red" /><rect x="191.5" y="115.9" width="20.1" height="22.1" class="ch-f-red" /><rect x="213.6" y="101.6" width="20.1" height="36.4" class="ch-f-red" /><rect x="235.7" y="87.0" width="20.1" height="51.0" class="ch-f-red" /><rect x="257.8" y="74.1" width="20.1" height="63.9" class="ch-f-red" /><rect x="279.9" y="73.0" width="20.1" height="65.0" class="ch-f-red" /><rect x="302.0" y="83.4" width="20.1" height="54.6" class="ch-f-red" /><rect x="324.1" y="99.2" width="20.1" height="38.8" class="ch-f-red" /><rect x="346.2" y="118.3" width="20.1" height="19.7" class="ch-f-red" /><rect x="368.3" y="129.5" width="20.1" height="8.5" class="ch-f-red" /><rect x="390.4" y="135.6" width="20.1" height="2.4" class="ch-f-red" /><rect x="412.5" y="137.5" width="20.1" height="0.5" class="ch-f-red" /><rect x="434.5" y="137.9" width="20.1" height="0.1" class="ch-f-red" /><rect x="456.6" y="138.0" width="20.1" height="0.0" class="ch-f-red" /><rect x="478.7" y="138.0" width="20.1" height="0.0" class="ch-f-red" /><line x1="58.0" y1="138.0" x2="544.0" y2="138.0" class="ch-axis" /><line x1="58.0" y1="98.8" x2="544.0" y2="98.8" class="ch-grid" /><text x="50.0" y="102.8" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:11px">10%</text><line x1="58.0" y1="59.6" x2="544.0" y2="59.6" class="ch-grid" /><text x="50.0" y="63.6" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:11px">20%</text><line x1="294.1" y1="32.0" x2="294.1" y2="138.0" class="ch-s-ink" stroke-width="1.5"/><line x1="276.7" y1="44.0" x2="276.7" y2="138.0" class="ch-s-ink" stroke-width="1.3" stroke-dasharray="4 3"/><text x="58.0" y="22.0" class="ch-t-red" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px;letter-spacing:0.04em">FREE GAMES</text><text x="544.0" y="22.0" class="ch-t-ink" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:11px;letter-spacing:0.03em">MEDIAN 30.9x  &#183;  MEAN 40.6x</text><rect x="169.5" y="292.9" width="20.1" height="1.1" class="ch-f-gold" /><rect x="191.5" y="277.1" width="20.1" height="16.9" class="ch-f-gold" /><rect x="213.6" y="258.6" width="20.1" height="35.4" class="ch-f-gold" /><rect x="235.7" y="214.0" width="20.1" height="80.0" class="ch-f-gold" /><rect x="257.8" y="203.5" width="20.1" height="90.5" class="ch-f-gold" /><rect x="279.9" y="206.8" width="20.1" height="87.2" class="ch-f-gold" /><rect x="302.0" y="258.5" width="20.1" height="35.5" class="ch-f-gold" /><rect x="324.1" y="288.0" width="20.1" height="6.0" class="ch-f-gold" /><rect x="346.2" y="274.8" width="20.1" height="19.2" class="ch-f-gold" /><rect x="368.3" y="279.5" width="20.1" height="14.5" class="ch-f-gold" /><rect x="390.4" y="292.5" width="20.1" height="1.5" class="ch-f-gold" /><rect x="412.5" y="293.9" width="20.1" height="0.1" class="ch-f-gold" /><rect x="434.5" y="294.0" width="20.1" height="0.0" class="ch-f-gold" /><rect x="478.7" y="294.0" width="20.1" height="0.0" class="ch-f-gold" /><rect x="500.8" y="289.9" width="20.1" height="4.1" class="ch-f-gold" /><line x1="58.0" y1="294.0" x2="544.0" y2="294.0" class="ch-axis" /><line x1="58.0" y1="254.8" x2="544.0" y2="254.8" class="ch-grid" /><text x="50.0" y="258.8" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:11px">10%</text><line x1="58.0" y1="215.6" x2="544.0" y2="215.6" class="ch-grid" /><text x="50.0" y="219.6" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:11px">20%</text><line x1="306.0" y1="188.0" x2="306.0" y2="294.0" class="ch-s-ink" stroke-width="1.5"/><line x1="270.4" y1="200.0" x2="270.4" y2="294.0" class="ch-s-ink" stroke-width="1.3" stroke-dasharray="4 3"/><text x="58.0" y="178.0" class="ch-t-gold" text-anchor="start" style="font-family:'Source Code Pro',monospace;font-size:12px;letter-spacing:0.04em">HOLD &amp; SPIN</text><text x="544.0" y="178.0" class="ch-t-ink" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:11px;letter-spacing:0.03em">MEDIAN 28.0x  &#183;  MEAN 48.9x</text><text x="502.0" y="273.9" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:11px">GRAND</text><text x="58.0" y="314.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">1x</text><text x="204.8" y="314.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">10x</text><text x="351.5" y="314.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">100x</text><text x="498.3" y="314.0" class="ch-t" text-anchor="middle" style="font-family:'Source Code Pro',monospace;font-size:12px">1,000x</text><text x="544.0" y="334.0" class="ch-t" text-anchor="end" style="font-family:'Source Code Pro',monospace;font-size:11px;letter-spacing:0.04em">FEATURE AWARD, MULTIPLES OF BET (LOG SCALE)</text></svg>
+      <figcaption><span class="fig-num">Figure 5</span>Feature awards from 400,000 simulated features of each type, on a log scale. The solid line is the mean and the dashed line is the median. That little bar out near 1,000x is the Grand, and it's why hold and spin's mean sits so far to the right of its median.</figcaption>
+    </figure>
+
+    <p>
+      Equation (13) also shows the dial designers actually turn. Halve a feature's trigger rate and
+      double its award. <em>p</em>&mu; stays the same, so the RTP doesn't move at all. But
+      <em>p</em>&middot;E[<em>X</em><sup>2</sup>] becomes (<em>p</em>/2) &middot; 4E[<em>X</em><sup>2</sup>]
+      = 2<em>p</em>&middot;E[<em>X</em><sup>2</sup>]. Same RTP, twice the variance from that bucket.
+      RTP and volatility are separate knobs, and the features are where the second one lives.
+    </p>
+
+    <p>
+      A couple of other numbers from the run. Hit frequency was 42.8%, so a spin pays something a bit
+      less than half the time, but 58% of those "wins" pay back less than the bet. That's the classic
+      slot win that's actually a loss. And a spin paid 100x or more about once every 1,600 spins.
+    </p>
+
+    <h2><span class="sec">§ 9</span> What I'm Taking Away</h2>
+
+    <p>
+      Three things stuck with me. First, RTP is a sum, and nearly every piece of the work maps onto
+      one of its terms. Second, independence is a gift. Ways pays, scatter triggers and coin counts
+      all break down into per-reel calculations, and those are exact and basically instant. Third,
+      the simulator isn't there to find the RTP. It's there to prove the code does what the maths
+      says, and to answer the questions an expected value can't: how often a feature pays under 20x,
+      how long a player might wait between big hits, what share of sessions go completely dry.
+    </p>
+
+    <p>
+      The RTP on the glass is a promise about averages. The &sigma; nobody prints is what the player
+      actually feels.
+    </p>
+
+    <h2 class="appendix-head"><span class="sec">Appendix</span> The Full Code</h2>
+
+    <p>
+      Everything above comes out of this one file. It uses only the Python standard library. Running
+      it prints the exact breakdown and then a 2 million spin check, which takes about 20 seconds on
+      a laptop. I ran 20 million for the post. Change <code>BASE_COUNTS</code>, the paytable or the
+      feature settings and both the exact numbers and the simulation update together, which makes it
+      a nice little sandbox for tuning.
+    </p>
+
+<pre class="code"><code>&quot;&quot;&quot;
+A toy 5x3, 243-ways video slot with three pieces:
+  1. base game (ways pays, wild on reels 2 to 4)
+  2. free games (3 scatters on reels 1, 3, 5 -&gt; 8 free games at 3x, retriggerable)
+  3. hold and spin (6+ coins anywhere -&gt; respin feature, 3 respins that reset)
+
+Everything is measured in multiples of the total bet, so a win of 2.0 means
+twice what you staked on that spin.
+&quot;&quot;&quot;
+import math
+import random
+
+ROWS = 3
+N_CELLS = 15
+
+<span class="c"># Pays per way, for 3, 4 and 5 of a kind, in multiples of total bet.</span>
+PAYS = {
+    &quot;P1&quot;: {3: 1.00, 4: 2.50, 5: 8.00},
+    &quot;P2&quot;: {3: 0.60, 4: 1.60, 5: 5.00},
+    &quot;A&quot;:  {3: 0.30, 4: 0.70, 5: 1.60},
+    &quot;K&quot;:  {3: 0.20, 4: 0.60, 5: 1.40},
+    &quot;Q&quot;:  {3: 0.20, 4: 0.40, 5: 1.00},
+    &quot;J&quot;:  {3: 0.15, 4: 0.30, 5: 0.90},
+}
+
+<span class="c"># How many of each symbol sit on each reel strip.</span>
+BASE_COUNTS = [
+    dict(P1=3, P2=4, A=6, K=6, Q=7, J=7, S=2, C=5),
+    dict(P1=3, P2=4, A=6, K=6, Q=7, J=7, W=2, C=6),
+    dict(P1=3, P2=4, A=6, K=6, Q=7, J=7, W=2, S=3, C=5),
+    dict(P1=3, P2=4, A=6, K=6, Q=7, J=7, W=2, C=6),
+    dict(P1=3, P2=4, A=6, K=6, Q=7, J=7, S=2, C=5),
+]
+FREE_COUNTS = [
+    dict(P1=4, P2=5, A=6, K=6, Q=6, J=6, S=3),
+    dict(P1=4, P2=5, A=6, K=6, Q=6, J=6, W=3),
+    dict(P1=4, P2=5, A=6, K=6, Q=6, J=6, W=3, S=2),
+    dict(P1=4, P2=5, A=6, K=6, Q=6, J=6, W=3),
+    dict(P1=4, P2=5, A=6, K=6, Q=6, J=6, S=3),
+]
+
+FREE_GAMES_AWARD = 8
+FREE_GAMES_MULT = 3.0
+
+HS_TRIGGER = 6          <span class="c"># coins needed to start hold and spin</span>
+HS_RESPINS = 3          <span class="c"># respins, reset whenever a new coin lands</span>
+HS_P_COIN = 0.07        <span class="c"># chance an empty cell lands a coin on a respin</span>
+HS_GRAND = 1000.0       <span class="c"># extra prize for filling all 15 cells</span>
+<span class="c"># Coin values (x bet) and their weights. 20 and 100 are the Minor and Major.</span>
+COIN_VALUES = [1, 2, 3, 5, 10, 20, 100]
+COIN_WEIGHTS = [40, 25, 15, 10, 6, 3, 1]
+
+
+def build_strip(counts, seed):
+    &quot;&quot;&quot;Shuffle the symbols into a strip, retrying until no two scatters
+    are close enough to show up in the same 3-row window.&quot;&quot;&quot;
+    rng = random.Random(seed)
+    strip = [sym for sym, n in counts.items() for _ in range(n)]
+    L = len(strip)
+    while True:
+        rng.shuffle(strip)
+        pos = [i for i, s in enumerate(strip) if s == &quot;S&quot;]
+        if all(min((a - b) % L, (b - a) % L) &gt;= ROWS
+               for a in pos for b in pos if a != b):
+            return strip
+
+
+BASE_REELS = [build_strip(c, 100 + i) for i, c in enumerate(BASE_COUNTS)]
+FREE_REELS = [build_strip(c, 200 + i) for i, c in enumerate(FREE_COUNTS)]
+
+
+def window(strip, stop):
+    &quot;&quot;&quot;The 3 symbols you see on one reel when it stops at position `stop`.&quot;&quot;&quot;
+    L = len(strip)
+    return [strip[(stop + r) % L] for r in range(ROWS)]
+
+
+<span class="c"># ==================================================================</span>
+<span class="c"># Part 1: exact maths. Reels stop independently, which is the whole trick.</span>
+<span class="c"># ==================================================================</span>
+
+def reel_stats(strip, sym):
+    &quot;&quot;&quot;Average number of sym-or-wild in the window, and P(none at all).&quot;&quot;&quot;
+    L = len(strip)
+    counts = [sum(x in (sym, &quot;W&quot;) for x in window(strip, s)) for s in range(L)]
+    return sum(counts) / L, sum(c == 0 for c in counts) / L
+
+
+def exact_ways_ev(reels, mult=1.0):
+    &quot;&quot;&quot;Expected ways win per spin.
+    E[win for sym, exactly k] = pay * E[c1]...E[ck] * P(c_{k+1} = 0).&quot;&quot;&quot;
+    total = 0.0
+    for sym, pay in PAYS.items():
+        stats = [reel_stats(r, sym) for r in reels]
+        for k in (3, 4, 5):
+            ev = math.prod(stats[i][0] for i in range(k))
+            if k &lt; 5:
+                ev *= stats[k][1]     <span class="c"># the run has to stop at reel k</span>
+            total += pay[k] * ev
+    return total * mult
+
+
+def p_scatter(strip):
+    L = len(strip)
+    return sum(&quot;S&quot; in window(strip, s) for s in range(L)) / L
+
+
+def p_free_trigger(reels):
+    &quot;&quot;&quot;Scatters live on reels 1, 3, 5 and we need all three.&quot;&quot;&quot;
+    return p_scatter(reels[0]) * p_scatter(reels[2]) * p_scatter(reels[4])
+
+
+def coin_count_dist(reels):
+    &quot;&quot;&quot;Exact distribution of total coins on screen, by convolving reels.&quot;&quot;&quot;
+    dist = [1.0]
+    for strip in reels:
+        L = len(strip)
+        per_reel = [0.0] * (ROWS + 1)
+        for s in range(L):
+            per_reel[sum(x == &quot;C&quot; for x in window(strip, s))] += 1 / L
+        new = [0.0] * (len(dist) + ROWS)
+        for i, a in enumerate(dist):
+            for j, b in enumerate(per_reel):
+                new[i + j] += a * b
+        dist = new
+    return dist
+
+
+def hs_exact(start, p=HS_P_COIN):
+    &quot;&quot;&quot;Solve hold and spin as a Markov chain on (cells filled, respins left).
+    Returns E[coins at the end] and P(all 15 filled). Works only because
+    coin values are drawn independently of how the board fills up.&quot;&quot;&quot;
+    R = HS_RESPINS
+    Ec, Pf = {}, {}
+    for n in range(N_CELLS, start - 1, -1):
+        for r in range(R + 1):
+            if n == N_CELLS:
+                Ec[n, r], Pf[n, r] = N_CELLS, 1.0
+                continue
+            if r == 0:
+                Ec[n, r], Pf[n, r] = n, 0.0
+                continue
+            e = N_CELLS - n
+            stay = (1 - p) ** e                 <span class="c"># nothing lands this respin</span>
+            ec, pf = stay * Ec[n, r - 1], stay * Pf[n, r - 1]
+            for j in range(1, e + 1):           <span class="c"># j new coins, counter resets</span>
+                pj = math.comb(e, j) * p ** j * (1 - p) ** (e - j)
+                ec += pj * Ec[n + j, R]
+                pf += pj * Pf[n + j, R]
+            Ec[n, r], Pf[n, r] = ec, pf
+    return Ec[start, R], Pf[start, R]
+
+
+<span class="c"># ==================================================================</span>
+<span class="c"># Part 2: one spin of each piece of the game.</span>
+<span class="c"># ==================================================================</span>
+
+def spin_grid(reels, rng):
+    return [window(r, rng.randrange(len(r))) for r in reels]
+
+
+def ways_win(grid, mult=1.0):
+    &quot;&quot;&quot;Walk left to right; ways = product of matching counts per reel.&quot;&quot;&quot;
+    win = 0.0
+    for sym, pay in PAYS.items():
+        ways, k = 1, 0
+        for col in grid:
+            c = sum(x in (sym, &quot;W&quot;) for x in col)
+            if c == 0:
+                break
+            ways *= c
+            k += 1
+        if k &gt;= 3:
+            win += pay[k] * ways
+    return win * mult
+
+
+def scatters(grid):
+    return sum(&quot;S&quot; in grid[i] for i in (0, 2, 4))
+
+
+def coins(grid):
+    return sum(x == &quot;C&quot; for col in grid for x in col)
+
+
+def coin_value(rng):
+    return rng.choices(COIN_VALUES, COIN_WEIGHTS)[0]
+
+
+def play_free_games(rng):
+    &quot;&quot;&quot;Returns (total win, number of free spins played).&quot;&quot;&quot;
+    left, played, win = FREE_GAMES_AWARD, 0, 0.0
+    while left &gt; 0:
+        grid = spin_grid(FREE_REELS, rng)
+        win += ways_win(grid, FREE_GAMES_MULT)
+        if scatters(grid) == 3:
+            left += FREE_GAMES_AWARD       <span class="c"># retrigger</span>
+        left -= 1
+        played += 1
+    return win, played
+
+
+def play_hold_and_spin(start_coins, rng):
+    &quot;&quot;&quot;Held coins stay put. Each respin, every empty cell has HS_P_COIN
+    to land a coin. Any new coin resets the respin counter.&quot;&quot;&quot;
+    values = [coin_value(rng) for _ in range(start_coins)]
+    respins = HS_RESPINS
+    while respins &gt; 0 and len(values) &lt; N_CELLS:
+        respins -= 1
+        empty = N_CELLS - len(values)
+        new = sum(rng.random() &lt; HS_P_COIN for _ in range(empty))
+        if new:
+            values += [coin_value(rng) for _ in range(new)]
+            respins = HS_RESPINS
+    win = sum(values)
+    if len(values) == N_CELLS:
+        win += HS_GRAND
+    return win
+
+
+def play_one(rng):
+    &quot;&quot;&quot;One paid spin. Returns wins split by where they came from.&quot;&quot;&quot;
+    grid = spin_grid(BASE_REELS, rng)
+    base = ways_win(grid)
+    fg = play_free_games(rng)[0] if scatters(grid) == 3 else 0.0
+    n = coins(grid)
+    hs = play_hold_and_spin(n, rng) if n &gt;= HS_TRIGGER else 0.0
+    return base, fg, hs
+
+
+<span class="c"># ==================================================================</span>
+<span class="c"># Part 3: run it.</span>
+<span class="c"># ==================================================================</span>
+
+def simulate(n_spins, seed=7):
+    rng = random.Random(seed)
+    tot = {&quot;base&quot;: 0.0, &quot;free&quot;: 0.0, &quot;hs&quot;: 0.0}
+    s1 = s2 = 0.0          <span class="c"># running sum and sum of squares of total win</span>
+    hits = 0
+    big = 0
+    for _ in range(n_spins):
+        b, f, h = play_one(rng)
+        w = b + f + h
+        tot[&quot;base&quot;] += b; tot[&quot;free&quot;] += f; tot[&quot;hs&quot;] += h
+        s1 += w; s2 += w * w
+        hits += w &gt; 0
+        big += w &gt;= 100
+    mean = s1 / n_spins
+    sd = math.sqrt(s2 / n_spins - mean ** 2)
+    return {
+        &quot;rtp&quot;: mean,
+        &quot;parts&quot;: {k: v / n_spins for k, v in tot.items()},
+        &quot;sd&quot;: sd,
+        &quot;ci95&quot;: 1.96 * sd / math.sqrt(n_spins),
+        &quot;hit_freq&quot;: hits / n_spins,
+        &quot;p_100x&quot;: big / n_spins,
+    }
+
+
+if __name__ == &quot;__main__&quot;:
+    <span class="c"># Exact pieces</span>
+    base = exact_ways_ev(BASE_REELS)
+
+    p_fg = p_free_trigger(BASE_REELS)
+    q = p_free_trigger(FREE_REELS)
+    exp_spins = FREE_GAMES_AWARD / (1 - FREE_GAMES_AWARD * q)
+    per_spin = exact_ways_ev(FREE_REELS, FREE_GAMES_MULT)
+    fg = p_fg * exp_spins * per_spin            <span class="c"># Wald: E[S] * E[win per spin]</span>
+
+    dist = coin_count_dist(BASE_REELS)
+    p_hs = sum(dist[HS_TRIGGER:])
+    mean_coin = sum(v * w for v, w in zip(COIN_VALUES, COIN_WEIGHTS)) / sum(COIN_WEIGHTS)
+    hs_award = 0.0
+    for k in range(HS_TRIGGER, len(dist)):
+        if dist[k] &gt; 0:
+            e_coins, p_full = hs_exact(k)
+            hs_award += dist[k] / p_hs * (e_coins * mean_coin + p_full * HS_GRAND)
+    hs = p_hs * hs_award
+
+    print(&quot;EXACT&quot;)
+    print(f&quot;  base game       {base:8.4%}&quot;)
+    print(f&quot;  free games      {fg:8.4%}   1 in {1/p_fg:.1f}, &quot;
+          f&quot;E[spins] {exp_spins:.3f}, E[award] {exp_spins*per_spin:.2f}x&quot;)
+    print(f&quot;  hold and spin   {hs:8.4%}   1 in {1/p_hs:.1f}, E[award] {hs_award:.2f}x&quot;)
+    print(f&quot;  total           {base+fg+hs:8.4%}&quot;)
+
+    <span class="c"># Monte Carlo check (I ran 20 million for the post; 2 million takes ~20s)</span>
+    r = simulate(2_000_000)
+    print(&quot;SIMULATED&quot;)
+    for k, v in r[&quot;parts&quot;].items():
+        print(f&quot;  {k:&lt;14}  {v:8.4%}&quot;)
+    print(f&quot;  total           {r[&#x27;rtp&#x27;]:8.4%}  +/- {r[&#x27;ci95&#x27;]:.4%} (95%)&quot;)
+    print(f&quot;  sd per spin {r[&#x27;sd&#x27;]:.3f}, hit freq {r[&#x27;hit_freq&#x27;]:.4f}, &quot;
+          f&quot;P(win &gt;= 100x) {r[&#x27;p_100x&#x27;]:.6f}&quot;)</code></pre>
+
+  </div>
+
+</div>
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('theme-toggle');
+    var icon = document.getElementById('toggle-icon');
+    var lbl = document.getElementById('toggle-label');
+    function apply(t) {
+      root.setAttribute('data-theme', t);
+      try { localStorage.setItem('bb-theme', t); } catch (e) {}
+      icon.textContent = t === 'dark' ? '\u25D1' : '\u25D0';
+      lbl.textContent = t === 'dark' ? 'Light' : 'Dark';
+    }
+    apply(root.getAttribute('data-theme') || 'light');
+    btn.addEventListener('click', function () {
+      apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+  })();
+</script>
+</body>
+</html>
