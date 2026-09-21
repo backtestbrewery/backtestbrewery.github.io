@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Professional Trader · Backtest Brewery</title>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-94T1HV61JS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-94T1HV61JS');
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7626712205540161"
+     crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Source+Code+Pro:wght@300;400;500&amp;display=swap" rel="stylesheet" />
+  <script>
+    (function(){
+      var t;
+      try { t = localStorage.getItem('bb-theme'); } catch (e) {}
+      if (!t) { t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html { font-size:19px; }
+    body {
+  background:#fbfaf7; color:#34322e;
+  font-family:'EB Garamond', Georgia, 'Times New Roman', serif;
+  line-height:1.7; -webkit-font-smoothing:antialiased;
+  transition:background 0.2s ease, color 0.2s ease;
+}
+    .page { max-width:760px; margin:0 auto; padding:2.2rem 1.4rem 5rem; }
+
+    /* top bar */
+    .journal-bar {
+  display:flex; justify-content:space-between; align-items:center;
+  padding-bottom:1rem; border-bottom:1px solid #dcd8cf; margin-bottom:3rem;
+  font-family:'Source Code Pro', monospace; font-size:0.66rem; letter-spacing:0.06em;
+}
+    .back-link, .nav-link { color:#77736b; text-decoration:none; }
+    .back-link:hover, .nav-link:hover { color:#1b1a18; }
+    .bar-right { display:flex; align-items:center; gap:1.2rem; }
+    #theme-toggle {
+  background:none; border:1px solid #dcd8cf; color:#77736b;
+  font-family:'Source Code Pro', monospace; font-size:0.62rem; letter-spacing:0.06em;
+  padding:0.25rem 0.6rem; cursor:pointer; display:flex; gap:0.4rem; align-items:center;
+}
+    #theme-toggle:hover { color:#1b1a18; border-color:#1b1a18; }
+    #theme-toggle:focus-visible, a:focus-visible { outline:2px solid #a3322b; outline-offset:2px; }
+
+    /* header */
+    .post-header { margin-bottom:2.6rem; }
+    .post-label {
+  font-family:'Source Code Pro', monospace; font-size:0.62rem; letter-spacing:0.12em;
+  text-transform:uppercase; color:#a3322b; margin-bottom:0.8rem;
+}
+    .post-title {
+  font-size:2.5rem; line-height:1.15; font-weight:500; color:#1b1a18;
+  letter-spacing:-0.01em; margin-bottom:1rem;
+}
+    .post-meta {
+  display:flex; flex-wrap:wrap; align-items:center; gap:0.6rem;
+  font-family:'Source Code Pro', monospace; font-size:0.62rem; color:#77736b;
+  letter-spacing:0.04em;
+}
+    .meta-dot { width:3px; height:3px; border-radius:50%; background:#77736b; display:inline-block; }
+
+    /* hero image */
+    .post-hero { margin:0 0 2.8rem; }
+    .post-hero img {
+  display:block; width:100%; height:auto; aspect-ratio:16 / 9; object-fit:cover;
+  border:1px solid #dcd8cf; background:#f2f0ea;
+}
+
+    /* body */
+    .post-body p { margin-bottom:1.25rem; }
+    .post-body h2 {
+  font-size:1.45rem; font-weight:500; color:#1b1a18; line-height:1.3;
+  margin:3rem 0 1.1rem;
+}
+    .post-body h2 .sec {
+  font-family:'Source Code Pro', monospace; font-size:0.7rem; color:#a3322b;
+  letter-spacing:0.08em; margin-right:0.7rem; vertical-align:middle;
+}
+    .post-body strong { color:#1b1a18; font-weight:600; }
+    .post-body em { font-style:italic; }
+    .post-body sub, .post-body sup { font-size:0.7em; line-height:0; }
+    .post-body a { color:#a3322b; text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:0.15em; }
+    .post-body a:hover { color:#1b1a18; }
+    .post-body ul { list-style:disc; padding-left:1.2rem; margin-bottom:1.25rem; }
+    .post-body li { margin-bottom:0.3rem; }
+    .post-body code {
+  font-family:'Source Code Pro', monospace; font-size:0.78rem;
+  background:#f2f0ea; padding:0.05rem 0.3rem;
+}
+
+    /* formula blocks */
+    .formula {
+  margin:1.6rem 0 1.8rem; padding:0.9rem 1.2rem;
+  border-top:1px solid #dcd8cf; border-bottom:1px solid #dcd8cf;
+  overflow-x:auto;
+}
+    .f-row {
+  display:flex; justify-content:space-between; align-items:baseline; gap:1rem;
+  font-size:1.08rem; color:#1b1a18; padding:0.2rem 0 0.2rem 1rem; white-space:nowrap;
+}
+    .f-num { font-family:'Source Code Pro', monospace; font-size:0.66rem; color:#77736b; }
+    .f-cap {
+  font-size:0.86rem; color:#77736b; margin-top:0.5rem; padding-left:1rem;
+  white-space:normal;
+}
+
+    /* tables */
+    .table-wrap { overflow-x:auto; margin:1.6rem 0 1.9rem; }
+    table { width:100%; border-collapse:collapse; font-size:0.92rem; }
+    th {
+  font-family:'Source Code Pro', monospace; font-size:0.6rem; font-weight:500;
+  letter-spacing:0.08em; text-transform:uppercase; color:#77736b;
+  text-align:left; padding:0.55rem 0.7rem; border-bottom:1px solid #1b1a18;
+}
+    td { padding:0.5rem 0.7rem; border-bottom:1px solid #dcd8cf; color:#34322e; }
+    td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+    tr.total td { border-top:1px solid #1b1a18; border-bottom:none; color:#1b1a18; font-weight:600; }
+    tr.sub td { color:#77736b; font-style:italic; }
+    tr.pick td { color:#1b1a18; font-weight:600; }
+    .good { color:#2f6b3a; }
+    .bad { color:#a3322b; }
+    .best { color:#1b1a18; font-weight:600; }
+
+    /* callout */
+    .callout {
+  border-left:2px solid #dcd8cf;
+  padding:0.8rem 1.2rem; margin:1.8rem 0;
+  background:#f2f0ea;
+}
+    .callout p { margin-bottom:0; font-size:0.92rem; }
+    .callout p.callout-label {
+  font-family:'Source Code Pro', monospace; font-size:0.58rem;
+  letter-spacing:0.12em; text-transform:uppercase; color:#77736b;
+  margin-bottom:0.4rem;
+}
+    .callout.highlight { border-left-color:#1b1a18; }
+
+    /* figure */
+    .chart-wrap { margin:1.8rem 0 2rem; }
+    .chart { width:100%; height:auto; display:block; }
+    .chart text { font-family:'Source Code Pro', monospace; font-size:12.5px; fill:#77736b; }
+    .chart .zone { fill:#f2f0ea; }
+    .chart .grid { stroke:#dcd8cf; stroke-width:1; stroke-dasharray:2 4; }
+    .chart .axis { stroke:#77736b; stroke-width:1; }
+    .chart .wall { stroke:#1b1a18; stroke-width:1; stroke-dasharray:5 4; }
+    .chart .curve { fill:none; stroke:#a3322b; stroke-width:2.2; }
+    .chart .dot { fill:#1b1a18; }
+    .chart .dot-main { fill:#a3322b; }
+    .chart text.strong { fill:#1b1a18; }
+    .fig-cap { font-size:0.86rem; color:#77736b; margin-top:0.6rem; line-height:1.55; }
+
+    /* code */
+    pre.code {
+  background:#f2f0ea; border:1px solid #dcd8cf;
+  padding:1rem 1.1rem; margin:1.4rem 0 1.8rem; overflow-x:auto;
+  font-family:'Source Code Pro', monospace; font-size:0.66rem; line-height:1.6;
+  color:#1b1a18; tab-size:4;
+}
+    pre.code .c { color:#77736b; font-style:italic; }
+    .post-body pre.code code { background:none; padding:0; font-size:inherit; }
+    .appendix-head { margin-top:4rem; padding-top:1.4rem; border-top:1px solid #dcd8cf; }
+
+    /* dark theme */
+    html[data-theme="dark"] body { background:#141413; color:#cfccc4; }
+    html[data-theme="dark"] .journal-bar { border-bottom:1px solid #34322e; }
+    html[data-theme="dark"] .back-link, html[data-theme="dark"] .nav-link { color:#8f8b82; }
+    html[data-theme="dark"] .back-link:hover, html[data-theme="dark"] .nav-link:hover { color:#ecebe6; }
+    html[data-theme="dark"] #theme-toggle { border:1px solid #34322e; color:#8f8b82; }
+    html[data-theme="dark"] #theme-toggle:hover { color:#ecebe6; border-color:#ecebe6; }
+    html[data-theme="dark"] #theme-toggle:focus-visible, html[data-theme="dark"] a:focus-visible { outline:2px solid #d86b62; }
+    html[data-theme="dark"] .post-label { color:#d86b62; }
+    html[data-theme="dark"] .post-title { color:#ecebe6; }
+    html[data-theme="dark"] .post-meta { color:#8f8b82; }
+    html[data-theme="dark"] .meta-dot { background:#8f8b82; }
+    html[data-theme="dark"] .post-hero img { border:1px solid #34322e; background:#1d1c1a; }
+    html[data-theme="dark"] .post-body h2 { color:#ecebe6; }
+    html[data-theme="dark"] .post-body h2 .sec { color:#d86b62; }
+    html[data-theme="dark"] .post-body strong { color:#ecebe6; }
+    html[data-theme="dark"] .post-body a { color:#d86b62; }
+    html[data-theme="dark"] .post-body a:hover { color:#ecebe6; }
+    html[data-theme="dark"] .post-body code { background:#1d1c1a; }
+    html[data-theme="dark"] .formula { border-top:1px solid #34322e; border-bottom:1px solid #34322e; }
+    html[data-theme="dark"] .f-row { color:#ecebe6; }
+    html[data-theme="dark"] .f-num { color:#8f8b82; }
+    html[data-theme="dark"] .f-cap { color:#8f8b82; }
+    html[data-theme="dark"] th { color:#8f8b82; border-bottom:1px solid #ecebe6; }
+    html[data-theme="dark"] td { border-bottom:1px solid #34322e; color:#cfccc4; }
+    html[data-theme="dark"] tr.total td { border-top:1px solid #ecebe6; color:#ecebe6; }
+    html[data-theme="dark"] tr.sub td { color:#8f8b82; }
+    html[data-theme="dark"] tr.pick td { color:#ecebe6; }
+    html[data-theme="dark"] .good { color:#79b585; }
+    html[data-theme="dark"] .bad { color:#d86b62; }
+    html[data-theme="dark"] .best { color:#ecebe6; }
+    html[data-theme="dark"] .callout { border-left:2px solid #34322e; background:#1d1c1a; }
+    html[data-theme="dark"] .callout p.callout-label { color:#8f8b82; }
+    html[data-theme="dark"] .callout.highlight { border-left-color:#ecebe6; }
+    html[data-theme="dark"] .chart text { fill:#8f8b82; }
+    html[data-theme="dark"] .chart .zone { fill:#1d1c1a; }
+    html[data-theme="dark"] .chart .grid { stroke:#34322e; }
+    html[data-theme="dark"] .chart .axis { stroke:#8f8b82; }
+    html[data-theme="dark"] .chart .wall { stroke:#ecebe6; }
+    html[data-theme="dark"] .chart .curve { stroke:#d86b62; }
+    html[data-theme="dark"] .chart .dot { fill:#ecebe6; }
+    html[data-theme="dark"] .chart .dot-main { fill:#d86b62; }
+    html[data-theme="dark"] .chart text.strong { fill:#ecebe6; }
+    html[data-theme="dark"] .fig-cap { color:#8f8b82; }
+    html[data-theme="dark"] pre.code { background:#1b1a18; border:1px solid #34322e; color:#ecebe6; }
+    html[data-theme="dark"] pre.code .c { color:#8f8b82; }
+    html[data-theme="dark"] .appendix-head { border-top:1px solid #34322e; }
+    html[data-theme="dark"] tr.total td { border-bottom:none; }
+
+    @media (max-width:640px) {
+  html { font-size:17px; }
+  .journal-bar { flex-wrap:wrap; gap:0.6rem; }
+  .post-title { font-size:2rem; }
+  th, td { padding:0.45rem 0.5rem; font-size:0.82rem; }
+  .f-row { font-size:0.98rem; padding-left:0.2rem; white-space:normal; }
+  .formula { padding:0.8rem 0.6rem; }
+  .f-cap { padding-left:0.2rem; }
+  .chart text { font-size:14.5px; }
+}
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="journal-bar">
+    <a href="../index.html" class="back-link">&#8592; Backtest Brewery</a>
+    <div class="bar-right">
+      <a href="../about.html" class="nav-link">About</a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span id="toggle-icon">&#9680;</span>
+        <span id="toggle-label">Dark</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="post-header">
+    <p class="post-label">Society</p>
+    <h1 class="post-title">The Professional Trader</h1>
+    <div class="post-meta">
+      <span>2026-09-22</span>
+      <span class="meta-dot"></span>
+      <span class="meta-tag">IIT Roorkee &middot; Trading Costs &middot; Break-even &middot; SEBI</span>
+      <span class="meta-dot"></span>
+      <span>6 min read</span>
+    </div>
+  </div>
+
+  <figure class="post-hero">
+    <img src="../profession-trader.jpg" alt="Illustration for The Professional Trader" decoding="async" />
+  </figure>
+
+  <div class="post-body">
+    <div class="callout">
+      <p class="callout-label">Shoutout</p>
+      <p>
+        This post is a remix of <a href="https://hackingnasdaq.blogspot.com/2013/02/the-professional-trader.html">The Professional Trader</a>,
+        written in 2013 by NBBO2OBBN on the hacking NASDAQ @ 500 FPS blog. Same question, same kind of
+        arithmetic, new country and a new decade.
+      </p>
+    </div>
+
+    <p>
+      A professional trader is someone who pays their bills from the market. A good month doesn't
+      count. The rent, the groceries and the EMI have to come out of it every month, including the
+      bad ones.
+    </p>
+
+    <p>
+      That sounds like a fair definition until you try to price it. How many trades does it take to
+      replace a salary? The 2013 post ran that sum for a US computer science graduate. I wanted the
+      Indian version, with a benchmark closer to home: the average IIT Roorkee placement. Same
+      division, different numbers.
+    </p>
+
+    <p>
+      Short version. The salary turns out to be a tiny amount per share and a huge number of trades,
+      and the charges eat most of what those trades earn.
+    </p>
+
+    <h2><span class="sec">&sect; 1</span> The Benchmark</h2>
+
+    <p>
+      Start with the salary. The latest reported average CTC for IIT Roorkee B.Tech graduates, from
+      the 2024-25 season, is &#8377;24.96 LPA. I'll round it to &#8377;25 LPA. Divide by the number of
+      trading days in a year, about 250, and you get what one day of that salary is worth:
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span><em>T</em> = CTC / <em>D</em> = 25,00,000 / 250 = &#8377;10,000</span><span class="f-num">(1)</span></div>
+      <p class="f-cap"><em>T</em> is the profit you need to keep on each trading day and <em>D</em> is the number of trading days. It also works out to about &#8377;2.08 lakh a month and &#8377;50,000 a week.</p>
+    </div>
+
+    <p>
+      Two caveats. CTC is not what lands in your account, and I have not touched tax anywhere in this
+      post. And an average gets dragged up by a handful of very large offers. The NIRF 2026 median for
+      the 4-year UG batch is &#8377;18 LPA, so treat &#8377;25 LPA as the generous benchmark. Every trade
+      count below scales in proportion to the target, so you can swap in your own number.
+    </p>
+
+    <h2><span class="sec">&sect; 2</span> One Day, Spread Over Shares</h2>
+
+    <p>
+      If you trade <em>q</em> shares in a day, the net profit you need on each one is
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span><em>p</em> = <em>T</em> / <em>q</em></span><span class="f-num">(2)</span></div>
+    </div>
+
+    <p>Here is that for a few values of <em>q</em>.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Shares traded a day</th><th class="num">Net profit needed per share</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td class="num">&#8377;10,000</td></tr>
+          <tr><td>10</td><td class="num">&#8377;1,000</td></tr>
+          <tr><td>100</td><td class="num">&#8377;100</td></tr>
+          <tr><td>1,000</td><td class="num">&#8377;10</td></tr>
+          <tr class="pick"><td>10,000</td><td class="num">&#8377;1</td></tr>
+          <tr><td>1 lakh</td><td class="num">10 paise</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      I'll stay on the 10,000 share row. A rupee a share sounds very doable on paper. Then the charges
+      show up.
+    </p>
+
+    <h2><span class="sec">&sect; 3</span> The Charges</h2>
+
+    <p>
+      Say the stock costs &#8377;500. On the NSE a stock in that price range moves in steps of 5 paise.
+      You buy 200 shares (&#8377;1 lakh) and sell them the same day. I ran that trade through
+      <a href="https://zerodha.com/brokerage-calculator/#tab-equities">Zerodha's brokerage calculator</a>
+      to get the actual charges rather than guess at them. It's a good free tool if you want to try
+      your own price and quantity. Here is the round trip:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Charge</th><th>Rate</th><th class="num">Rupees</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Brokerage</td><td>&#8377;20 an order, two orders</td><td class="num">40.00</td></tr>
+          <tr><td>STT</td><td>0.025% of the sell side</td><td class="num">25.00</td></tr>
+          <tr><td>Exchange transaction charge</td><td>NSE, 0.00307% of turnover</td><td class="num">6.14</td></tr>
+          <tr><td>SEBI charges</td><td>&#8377;10 per crore of turnover</td><td class="num">0.20</td></tr>
+          <tr><td>Stamp duty</td><td>0.003% of the buy side</td><td class="num">3.00</td></tr>
+          <tr><td>GST</td><td>18% of brokerage, SEBI and transaction charges</td><td class="num">8.34</td></tr>
+          <tr class="total"><td>Total per round trip</td><td></td><td class="num">82.68</td></tr>
+          <tr class="sub"><td>Per share</td><td>&#8377;82.68 / 200 shares</td><td class="num">0.413</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="formula">
+      <div class="f-row"><span><em>c</em> = 82.68 / 200 = &#8377;0.413 per share</span><span class="f-num">(3)</span></div>
+      <p class="f-cap">One tick on this stock is 5 paise, so <em>c</em> is a little over eight ticks.</p>
+    </div>
+
+    <p>
+      Charges shift a little between brokers, but the size is what matters. Eight ticks are gone before
+      you earn a rupee.
+    </p>
+
+    <h2><span class="sec">&sect; 4</span> A Realistic Hit Rate</h2>
+
+    <p>
+      The 2013 post gave its trader a 60% hit rate, so I'll do the same. Sixty percent of trades win,
+      40% lose, and each one moves <em>w</em> rupees a share either way. Take <em>w</em> = &#8377;3,
+      which is a 0.6% move on a &#8377;500 stock. Averaging over winners and losers, the expected gross
+      profit per share is
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span>E[<em>g</em>] = <em>h</em>&middot;<em>w</em> &minus; (1 &minus; <em>h</em>)&middot;<em>w</em> = (2<em>h</em> &minus; 1)&middot;<em>w</em></span><span class="f-num">(4)</span></div>
+      <div class="f-row"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 0.2 &times; &#8377;3 = &#8377;0.60</span></div>
+      <p class="f-cap"><em>g</em> is the gross profit per share and <em>h</em> is the hit rate. A 60% hit rate with equal sized wins and losses leaves you a fifth of one move.</p>
+    </div>
+
+    <p>Now take out the charges:</p>
+
+    <div class="formula">
+      <div class="f-row"><span><em>n</em> = E[<em>g</em>] &minus; <em>c</em> = 0.60 &minus; 0.413 = &#8377;0.187 per share</span><span class="f-num">(5)</span></div>
+    </div>
+
+    <p>
+      You keep about 19 paise a share. To keep &#8377;10,000 a day at that rate, you need far more than
+      10,000 shares:
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span><em>q</em>* = <em>T</em> / <em>n</em> = 10,000 / 0.187 &asymp; 53,476 shares</span><span class="f-num">(6)</span></div>
+      <div class="f-row"><span><em>R</em> = <em>q</em>* / 200 &asymp; 267 round trips</span></div>
+    </div>
+
+    <p>
+      That is 53,476 shares, not 10,000. In trades of 200 shares it comes to 267 round trips a day.
+    </p>
+
+    <h2><span class="sec">&sect; 5</span> How Often You Would Have to Trade</h2>
+
+    <p>
+      The cash market runs 9:15 to 3:30, which is 6 hours 15 minutes, or 22,500 seconds. Spread 267
+      round trips across that and you get a round trip every 84 seconds. Each round trip is an entry
+      and an exit, so the gap that matters is between orders:
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span><em>t</em> = <em>S</em> / (2<em>R</em>) = 22,500 / (2 &times; 267) &asymp; 42 seconds</span><span class="f-num">(7)</span></div>
+      <p class="f-cap"><em>S</em> is the length of the session in seconds.</p>
+    </div>
+
+    <p>
+      An order about every 42 seconds, all session, at a 60% hit rate, for 250 days. Here is one day
+      on a single sheet.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Line</th><th class="num">Amount</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Shares traded</td><td class="num">53,476</td></tr>
+          <tr><td>Round trips of 200 shares</td><td class="num">267</td></tr>
+          <tr><td>Gross profit at &#8377;0.60 a share</td><td class="num">&#8377;32,086</td></tr>
+          <tr><td>Charges at &#8377;82.68 a round trip</td><td class="num bad">(&#8377;22,076)</td></tr>
+          <tr class="total"><td>Net for the day</td><td class="num">&asymp; &#8377;10,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Charges take 69% of what you earn. The job pays that &#8377;10,000 for a normal day of work. The
+      market wants 267 round trips for it, and I haven't even touched tax.
+    </p>
+
+    <p>
+      The &#8377;3 move is doing a lot of the work here. Shrink it and the picture turns ugly quickly.
+      Net per share is (2<em>h</em> &minus; 1)<em>w</em> &minus; <em>c</em>, which hits zero at a
+      break-even move <em>w</em>*, and the trades you need blow up as <em>w</em> gets close to it:
+    </p>
+
+    <div class="formula">
+      <div class="f-row"><span><em>w</em>* = <em>c</em> / (2<em>h</em> &minus; 1) = 0.413 / 0.2 &asymp; &#8377;2.07</span><span class="f-num">(8)</span></div>
+      <div class="f-row"><span><em>R</em>(<em>w</em>) = <em>T</em> / (200 &middot; ((2<em>h</em> &minus; 1)<em>w</em> &minus; <em>c</em>)) = 250 / (<em>w</em> &minus; <em>w</em>*)</span><span class="f-num">(9)</span></div>
+      <p class="f-cap">200 is the number of shares per trade. Below <em>w</em>*, the edge does not cover the charges and no amount of volume fixes it.</p>
+    </div>
+
+    <figure class="chart-wrap">
+<svg class="chart" viewBox="0 0 520 320" role="img" aria-labelledby="fig1-title fig1-desc">
+<title id="fig1-title">Round trips a day needed to net 10,000 rupees, by the size of each win and loss</title>
+<desc id="fig1-desc">The curve falls from more than 1,500 round trips near the 2.07 rupee break-even move to 267 at 3 rupees, 129 at 4 rupees and 64 at 6 rupees.</desc>
+<rect class="zone" x="74.0" y="24" width="7.5" height="246"/>
+<line class="grid" x1="74" y1="188.0" x2="504" y2="188.0"/>
+<line class="grid" x1="74" y1="106.0" x2="504" y2="106.0"/>
+<line class="grid" x1="74" y1="24.0" x2="504" y2="24.0"/>
+<text x="66" y="274.0" text-anchor="end">0</text>
+<text x="66" y="192.0" text-anchor="end">500</text>
+<text x="66" y="110.0" text-anchor="end">1,000</text>
+<text x="66" y="28.0" text-anchor="end">1,500</text>
+<line class="axis" x1="74.0" y1="270" x2="74.0" y2="274"/>
+<text x="74.0" y="289" text-anchor="middle">2</text>
+<line class="axis" x1="181.5" y1="270" x2="181.5" y2="274"/>
+<text x="181.5" y="289" text-anchor="middle">3</text>
+<line class="axis" x1="289.0" y1="270" x2="289.0" y2="274"/>
+<text x="289.0" y="289" text-anchor="middle">4</text>
+<line class="axis" x1="396.5" y1="270" x2="396.5" y2="274"/>
+<text x="396.5" y="289" text-anchor="middle">5</text>
+<line class="axis" x1="504.0" y1="270" x2="504.0" y2="274"/>
+<text x="504.0" y="289" text-anchor="middle">6</text>
+<line class="axis" x1="74" y1="24" x2="74" y2="270"/>
+<line class="axis" x1="74" y1="270" x2="504" y2="270"/>
+<text x="289.0" y="312" text-anchor="middle">Size of each win and loss, rupees per share</text>
+<text transform="translate(12 147.0) rotate(-90)" text-anchor="middle">Round trips a day</text>
+<line class="wall" x1="81.5" y1="24" x2="81.5" y2="270"/>
+<text class="strong" x="87.5" y="262">break-even, 2.07</text>
+<text transform="translate(79.1 147.0) rotate(-90)" text-anchor="middle">loses money</text>
+<path class="curve" d="M99.4 24.0 L100.5 37.9 L101.6 50.4 L102.7 61.5 L103.7 71.6 L104.8 80.8 L105.9 89.1 L107.0 96.8 L108.0 103.8 L109.1 110.3 L110.2 116.2 L111.3 121.8 L112.3 127.0 L113.4 131.8 L114.5 136.3 L115.6 140.5 L116.6 144.5 L117.7 148.2 L118.8 151.7 L119.9 155.0 L120.9 158.2 L122.0 161.2 L123.1 164.0 L124.2 166.6 L125.2 169.2 L126.3 171.6 L127.4 173.9 L128.5 176.1 L129.5 178.2 L130.6 180.2 L131.7 182.1 L132.8 184.0 L133.8 185.8 L134.9 187.4 L136.0 189.1 L137.1 190.6 L138.1 192.2 L139.2 193.6 L140.3 195.0 L141.4 196.3 L142.4 197.6 L143.5 198.9 L144.6 200.1 L145.7 201.3 L146.7 202.4 L147.8 203.5 L148.9 204.6 L150.0 205.6 L151.0 206.6 L152.1 207.6 L153.2 208.5 L154.3 209.4 L155.3 210.3 L156.4 211.1 L157.5 212.0 L158.6 212.8 L159.6 213.6 L160.7 214.3 L161.8 215.1 L162.9 215.8 L163.9 216.5 L165.0 217.2 L166.1 217.9 L167.2 218.5 L168.2 219.2 L169.3 219.8 L170.4 220.4 L171.5 221.0 L172.5 221.6 L173.6 222.1 L174.7 222.7 L175.8 223.2 L176.8 223.8 L177.9 224.3 L179.0 224.8 L180.1 225.3 L181.1 225.8 L182.2 226.2 L187.6 228.4 L193.0 230.5 L198.3 232.3 L203.7 233.9 L209.1 235.4 L214.5 236.8 L219.8 238.1 L225.2 239.3 L230.6 240.4 L236.0 241.5 L241.3 242.4 L246.7 243.3 L252.1 244.2 L257.5 244.9 L262.8 245.7 L268.2 246.4 L273.6 247.1 L279.0 247.7 L284.3 248.3 L289.7 248.8 L295.1 249.4 L300.5 249.9 L305.8 250.4 L311.2 250.8 L316.6 251.2 L322.0 251.7 L327.3 252.1 L332.7 252.5 L338.1 252.8 L343.5 253.2 L348.8 253.5 L354.2 253.8 L359.6 254.1 L365.0 254.5 L370.3 254.7 L375.7 255.0 L381.1 255.3 L386.5 255.5 L391.8 255.8 L397.2 256.0 L402.6 256.3 L408.0 256.5 L413.3 256.7 L418.7 256.9 L424.1 257.1 L429.5 257.3 L434.8 257.5 L440.2 257.7 L445.6 257.9 L451.0 258.1 L456.3 258.2 L461.7 258.4 L467.1 258.6 L472.5 258.7 L477.8 258.9 L483.2 259.0 L488.6 259.2 L494.0 259.3 L499.3 259.5 L504.0 259.6"/>
+<circle class="dot" cx="127.8" cy="174.7" r="3.5"/>
+<text class="strong" x="136.8" y="178.7">575</text>
+<circle class="dot-main" cx="181.5" cy="225.9" r="5"/>
+<text class="strong" x="191.5" y="217.9">267, the example</text>
+<circle class="dot" cx="289.0" cy="248.8" r="3.5"/>
+<text class="strong" x="298.0" y="240.8">129</text>
+</svg>
+      <p class="fig-cap">Figure 1. Round trips a day needed to net &#8377;10,000 at a 60% hit rate, by the size of each win and loss. The curve blows up at the break-even move of &#8377;2.07.</p>
+    </figure>
+
+    <div class="callout highlight">
+      <p class="callout-label">Worth a pause</p>
+      <p>
+        A 60% hit rate sounds like a real edge. On a &#8377;500 stock with these charges it only pays
+        once each win and loss is bigger than &#8377;2.07, which is about 0.41% of the price. Below that
+        line you are paying for the privilege of being right most of the time.
+      </p>
+    </div>
+
+    <h2><span class="sec">&sect; 6</span> What SEBI Found</h2>
+
+    <p>
+      That was cash stocks and a tidy hit rate. Derivatives are rougher, and SEBI has counted. Its FY26
+      study of individual traders in equity F&amp;O found:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Measure</th><th class="num">FY26</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Individual F&amp;O traders who lost money</td><td class="num">87.7%</td></tr>
+          <tr><td>Traders under 30 who lost money</td><td class="num">88.5%</td></tr>
+          <tr><td>Net loss of individual traders, in total</td><td class="num">&#8377;91,685 crore</td></tr>
+          <tr><td>Average loss per trader</td><td class="num">&#8377;1.17 lakh</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The average loss is about twelve days of the &#8377;10,000 target we started with. On top of that,
+      since 1 April 2026 STT on futures has gone from 0.02% to 0.05%, and STT on option premium from
+      0.10% to 0.15%. That pushes the break-even move up for anyone scalping derivatives. The game got
+      pricier.
+    </p>
+
+  </div>
+
+</div>
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('theme-toggle');
+    var icon = document.getElementById('toggle-icon');
+    var lbl = document.getElementById('toggle-label');
+    function apply(t) {
+      root.setAttribute('data-theme', t);
+      try { localStorage.setItem('bb-theme', t); } catch (e) {}
+      icon.textContent = t === 'dark' ? '\u25D1' : '\u25D0';
+      lbl.textContent = t === 'dark' ? 'Light' : 'Dark';
+    }
+    apply(root.getAttribute('data-theme') || 'light');
+    btn.addEventListener('click', function () {
+      apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+  })();
+</script>
+</body>
+</html>
