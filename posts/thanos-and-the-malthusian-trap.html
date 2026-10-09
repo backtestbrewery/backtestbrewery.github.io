@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thanos and the Malthusian Trap · Backtest Brewery</title>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-94T1HV61JS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-94T1HV61JS');
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7626712205540161"
+     crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Source+Code+Pro:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script>
+    (function(){
+      var t;
+      try { t = localStorage.getItem('bb-theme'); } catch (e) {}
+      if (!t) { t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html { font-size:19px; }
+    body {
+      background:#fbfaf7; color:#34322e;
+      font-family:'EB Garamond', Georgia, 'Times New Roman', serif;
+      line-height:1.7; -webkit-font-smoothing:antialiased;
+      transition:background 0.2s ease, color 0.2s ease;
+    }
+    .page { max-width:760px; margin:0 auto; padding:2.2rem 1.4rem 5rem; }
+
+    /* top bar */
+    .journal-bar {
+      display:flex; justify-content:space-between; align-items:center;
+      padding-bottom:1rem; border-bottom:1px solid #dcd8cf; margin-bottom:3rem;
+      font-family:'Source Code Pro', monospace; font-size:0.66rem; letter-spacing:0.06em;
+    }
+    .back-link, .nav-link { color:#77736b; text-decoration:none; }
+    .back-link:hover, .nav-link:hover { color:#1b1a18; }
+    .bar-right { display:flex; align-items:center; gap:1.2rem; }
+    #theme-toggle {
+      background:none; border:1px solid #dcd8cf; color:#77736b;
+      font-family:'Source Code Pro', monospace; font-size:0.62rem; letter-spacing:0.06em;
+      padding:0.25rem 0.6rem; cursor:pointer; display:flex; gap:0.4rem; align-items:center;
+    }
+    #theme-toggle:hover { color:#1b1a18; border-color:#1b1a18; }
+    #theme-toggle:focus-visible, a:focus-visible { outline:2px solid #a3322b; outline-offset:2px; }
+
+    /* header */
+    .post-header { margin-bottom:2.6rem; }
+    .post-label {
+      font-family:'Source Code Pro', monospace; font-size:0.62rem; letter-spacing:0.12em;
+      text-transform:uppercase; color:#a3322b; margin-bottom:0.8rem;
+    }
+    .post-title {
+      font-size:2.5rem; line-height:1.15; font-weight:500; color:#1b1a18;
+      letter-spacing:-0.01em; margin-bottom:1rem;
+    }
+    .post-meta {
+      display:flex; flex-wrap:wrap; align-items:center; gap:0.6rem;
+      font-family:'Source Code Pro', monospace; font-size:0.62rem; color:#77736b;
+      letter-spacing:0.04em;
+    }
+    .meta-dot { width:3px; height:3px; border-radius:50%; background:#77736b; display:inline-block; }
+
+    /* body */
+    .post-body p { margin-bottom:1.25rem; }
+    .post-body h2 {
+      font-size:1.45rem; font-weight:500; color:#1b1a18; line-height:1.3;
+      margin:3rem 0 1.1rem;
+    }
+    .post-body h2 .sec {
+      font-family:'Source Code Pro', monospace; font-size:0.7rem; color:#a3322b;
+      letter-spacing:0.08em; margin-right:0.7rem; vertical-align:middle;
+    }
+    .post-body strong { color:#1b1a18; font-weight:600; }
+    .post-body em { font-style:italic; }
+    .post-body a { color:#1b1a18; text-decoration:underline; text-decoration-color:#dcd8cf; text-underline-offset:3px; }
+    .post-body a:hover { text-decoration-color:#a3322b; }
+    .post-body ul, .post-body ol { margin:0 0 1.25rem 1.3rem; }
+    .post-body li { margin-bottom:0.45rem; padding-left:0.2rem; }
+
+    /* hero image */
+    .post-hero { margin:0 0 2.8rem; }
+    .post-hero img {
+      display:block; width:100%; height:auto; aspect-ratio:16 / 9; object-fit:cover;
+      border:1px solid #dcd8cf; background:#f2f0ea;
+    }
+
+    /* inline maths */
+    .m .katex { font-size:1.02em; }
+
+    /* display equations, rendered by KaTeX */
+    .eq {
+      display:grid; grid-template-columns:2.6rem minmax(0, 1fr) 2.6rem;
+      align-items:center; margin:1.7rem 0;
+    }
+    .eq-tex {
+      grid-column:2; text-align:center; overflow-x:auto; overflow-y:hidden;
+      padding:0.25rem 0; color:#1b1a18;
+    }
+    .eq-tex .katex-display { margin:0; }
+    .eq-tex .katex { font-size:1.12em; }
+    .eq-num {
+      grid-column:3; text-align:right; color:#1b1a18;
+      font-family:'KaTeX_Main', 'EB Garamond', Georgia, serif; font-size:1rem;
+    }
+    .eq-note {
+      font-size:0.86rem; color:#77736b; text-align:center; line-height:1.55;
+      max-width:34rem; margin:-0.7rem auto 1.9rem;
+    }
+
+    /* tables */
+    .table-wrap { overflow-x:auto; margin:1.6rem 0 1.9rem; }
+    table { width:100%; border-collapse:collapse; font-size:0.92rem; }
+    th {
+      font-family:'Source Code Pro', monospace; font-size:0.6rem; font-weight:500;
+      letter-spacing:0.08em; text-transform:uppercase; color:#77736b;
+      text-align:left; padding:0.55rem 0.7rem; border-bottom:1px solid #1b1a18;
+    }
+    td { padding:0.5rem 0.7rem; border-bottom:1px solid #dcd8cf; color:#34322e; }
+    td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+
+    /* callout */
+    .callout {
+      border-left:2px solid #dcd8cf;
+      padding:0.8rem 1.2rem; margin:1.8rem 0;
+      background:#f2f0ea;
+    }
+    .callout p { margin-bottom:0; font-size:0.92rem; }
+    .callout-label {
+      font-family:'Source Code Pro', monospace; font-size:0.58rem;
+      letter-spacing:0.12em; text-transform:uppercase; color:#77736b;
+      margin-bottom:0.4rem;
+    }
+    .callout.highlight { border-left-color:#1b1a18; }
+
+    /* figure */
+    .figure { margin:2rem 0 2.2rem; }
+    .figure svg { display:block; width:100%; height:auto; }
+    .fig-cap {
+      font-size:0.86rem; color:#77736b; text-align:center; line-height:1.55;
+      max-width:36rem; margin:0.6rem auto 0;
+    }
+    .ch-grid { stroke:#e6e3db; stroke-width:1; }
+    .ch-ref { stroke:#b9b5ab; stroke-width:1; }
+    .ch-axis { stroke:#77736b; stroke-width:1; }
+    .ch-mark { stroke:#b9b5ab; stroke-width:1; stroke-dasharray:3 4; }
+    .ch-txt { fill:#77736b; font-family:'Source Code Pro', monospace; font-size:12px; }
+    .ch-pop { stroke:#a3322b; stroke-width:2.5; }
+    .ch-inc { stroke:#2f6b3a; stroke-width:2.5; }
+    .ch-naive { stroke:#8f8b82; stroke-width:1.5; stroke-dasharray:5 4; }
+    .ch-naive-dot { fill:#8f8b82; }
+    .ch-pop-t { fill:#a3322b; font-family:'EB Garamond', Georgia, serif; font-size:16px; }
+    .ch-inc-t { fill:#2f6b3a; font-family:'EB Garamond', Georgia, serif; font-size:16px; }
+
+    /* references */
+    .refs { font-size:0.86rem; color:#77736b; margin-top:0.4rem; }
+    .refs li { margin-bottom:0.35rem; }
+    .refs a { color:#77736b; }
+    .appendix-head { margin-top:4rem; padding-top:1.4rem; border-top:1px solid #dcd8cf; }
+
+    /* dark theme */
+    html[data-theme="dark"] body { background:#141413; color:#cfccc4; }
+    html[data-theme="dark"] .journal-bar { border-bottom-color:#34322e; }
+    html[data-theme="dark"] .back-link, html[data-theme="dark"] .nav-link { color:#8f8b82; }
+    html[data-theme="dark"] .back-link:hover, html[data-theme="dark"] .nav-link:hover { color:#ecebe6; }
+    html[data-theme="dark"] #theme-toggle { border-color:#34322e; color:#8f8b82; }
+    html[data-theme="dark"] #theme-toggle:hover { color:#ecebe6; border-color:#ecebe6; }
+    html[data-theme="dark"] .post-label, html[data-theme="dark"] .post-body h2 .sec { color:#d86b62; }
+    html[data-theme="dark"] .post-title, html[data-theme="dark"] .post-body h2, html[data-theme="dark"] .post-body strong { color:#ecebe6; }
+    html[data-theme="dark"] .post-meta { color:#8f8b82; }
+    html[data-theme="dark"] .meta-dot { background:#8f8b82; }
+    html[data-theme="dark"] .post-body a { color:#ecebe6; text-decoration-color:#34322e; }
+    html[data-theme="dark"] .post-body a:hover { text-decoration-color:#d86b62; }
+    html[data-theme="dark"] .eq-tex, html[data-theme="dark"] .eq-num { color:#ecebe6; }
+    html[data-theme="dark"] .eq-note, html[data-theme="dark"] .fig-cap { color:#8f8b82; }
+    html[data-theme="dark"] th { color:#8f8b82; border-bottom-color:#ecebe6; }
+    html[data-theme="dark"] td { color:#cfccc4; border-bottom-color:#34322e; }
+    html[data-theme="dark"] .callout { background:#1d1c1a; border-left-color:#34322e; }
+    html[data-theme="dark"] .callout.highlight { border-left-color:#ecebe6; }
+    html[data-theme="dark"] .callout-label { color:#8f8b82; }
+    html[data-theme="dark"] .ch-grid { stroke:#2a2926; }
+    html[data-theme="dark"] .ch-ref, html[data-theme="dark"] .ch-mark { stroke:#55524c; }
+    html[data-theme="dark"] .ch-axis { stroke:#8f8b82; }
+    html[data-theme="dark"] .ch-txt { fill:#8f8b82; }
+    html[data-theme="dark"] .ch-pop { stroke:#d86b62; }
+    html[data-theme="dark"] .ch-pop-t { fill:#d86b62; }
+    html[data-theme="dark"] .ch-inc { stroke:#79b585; }
+    html[data-theme="dark"] .ch-inc-t { fill:#79b585; }
+    html[data-theme="dark"] .ch-naive { stroke:#77736b; }
+    html[data-theme="dark"] .ch-naive-dot { fill:#77736b; }
+    html[data-theme="dark"] .refs, html[data-theme="dark"] .refs a { color:#8f8b82; }
+    html[data-theme="dark"] .appendix-head { border-top-color:#34322e; }
+    html[data-theme="dark"] .post-hero img { border-color:#34322e; background:#1d1c1a; }
+
+    @media (max-width:640px) {
+      html { font-size:17px; }
+      .journal-bar { flex-wrap:wrap; gap:0.6rem; }
+      .post-title { font-size:2rem; }
+      th, td { padding:0.45rem 0.5rem; font-size:0.82rem; }
+      .eq { grid-template-columns:0 minmax(0, 1fr) 2.2rem; }
+      .eq-tex .katex { font-size:1em; }
+      .eq-num { font-size:0.9rem; }
+      .ch-txt { font-size:17px; }
+      .ch-pop-t, .ch-inc-t { font-size:20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="journal-bar">
+    <a href="../index.html" class="back-link">&#8592; Backtest Brewery</a>
+    <div class="bar-right">
+      <a href="../about.html" class="nav-link">About</a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span id="toggle-icon">&#9680;</span>
+        <span id="toggle-label">Dark</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="post-header">
+    <p class="post-label">Quantitative Economics</p>
+    <h1 class="post-title">Thanos and the Malthusian Trap</h1>
+    <div class="post-meta">
+      <span>2026-10-09</span>
+      <span class="meta-dot"></span>
+      <span class="meta-tag">Malthus &middot; Growth Models &middot; Demography</span>
+      <span class="meta-dot"></span>
+      <span>8 min read</span>
+    </div>
+  </div>
+
+  <figure class="post-hero">
+    <img src="thanos.jpg" alt="Thanos" decoding="async" />
+  </figure>
+
+  <div class="post-body">
+    <p>
+      In <em>Avengers: Infinity War</em>, Thanos snaps his fingers and half of all life in the universe
+      turns to dust. His reasoning is what he calls a simple calculus: the universe is finite, its
+      resources are finite, and life left unchecked will eat through all of it. Take away the purple
+      skin and the gauntlet and that's an economics argument. It's also a very old one.
+    </p>
+
+    <p>
+      In 1798 a 32 year old curate called Thomas Malthus published the same argument, short enough to
+      fit on a napkin. Food grows by addition. People grow by multiplication. Multiplication always
+      wins. Economists have been arguing about that napkin for 228 years.
+    </p>
+
+    <p>
+      So I put Malthus into equations and then ran Thanos's experiment on them: what happens if half
+      the population disappears overnight? Do the survivors get rich? For how long? The answer turned
+      out to be one tidy formula, and there's a half-life sitting inside it.
+    </p>
+
+    <h2><span class="sec">§ 1</span> Multiplication Beats Addition</h2>
+
+    <p>
+      Malthus took his growth rate from the American colonies, where land was cheap and people
+      doubled every 25 years. For food he was generous: assume the harvest grows every 25 years by
+      the same amount it produces today. Measuring time <span class="m">t</span> in years,
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">P_t = P_0 \cdot 2^{t/25}, \qquad F_t = F_0\left(1 + \frac{t}{25}\right)</div>
+      <span class="eq-num">(1)</span>
+    </div>
+
+    <p>and the ratio of mouths to food runs away:</p>
+
+    <div class="eq">
+      <div class="eq-tex">\frac{P_t}{F_t} = \frac{2^{t/25}}{1 + t/25} \longrightarrow \infty \quad \text{as } t \to \infty</div>
+      <span class="eq-num">(2)</span>
+    </div>
+
+    <p>
+      His own numbers make the point better than the limit does. Britain had about 7 million people.
+      A century of unchecked doubling gives 112 million, while the generous food line feeds 35 million.
+      Push it to 225 years and people stand to food as 512 to 10.
+    </p>
+
+    <p>
+      Since that can't actually happen, something has to hold population down to the food supply.
+      Malthus called these things checks. <strong>Preventive</strong> checks lower births (people marry
+      later). <strong>Positive</strong> checks raise deaths (hunger, disease, child mortality). He
+      described the positive ones; he never proposed them. His recommended fix, from the 1803 edition
+      on, was fewer births.
+    </p>
+
+    <p>
+      The 1798 version is a cartoon, though. Food doesn't grow in a straight line, and population
+      doesn't double forever. The version economists actually use is better, and a lot more fun.
+    </p>
+
+    <h2><span class="sec">§ 2</span> The Trap as a Steady State</h2>
+
+    <p>
+      Picture a farming economy. Output <span class="m">Y</span> comes from labour
+      <span class="m">L</span> (which is just the population), a fixed amount of land
+      <span class="m">X</span>, and a technology level <span class="m">A</span>:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">Y = A\,L^{\alpha}X^{1-\alpha} \quad\Longrightarrow\quad y \equiv \frac{Y}{L} = A\left(\frac{X}{L}\right)^{1-\alpha}</div>
+      <span class="eq-num">(3)</span>
+    </div>
+
+    <p>
+      Here <span class="m">0 \lt \alpha \lt 1</span>, and <span class="m">1-\alpha</span> is the share of
+      output that goes to land. Income per head <span class="m">y</span> falls as people crowd onto the
+      same fields. That's diminishing returns doing its job.
+    </p>
+
+    <p>
+      Now the Malthusian part. Population grows when people live above subsistence and shrinks when
+      they live below it:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">\frac{\dot L}{L} = n(y), \qquad n'(y) \gt 0, \qquad n(y^{*}) = 0</div>
+      <span class="eq-num">(4)</span>
+    </div>
+
+    <p>
+      Set <span class="m">y = y^{*}</span> in (3) and solve for the population the land can hold:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">L^{*} = X\left(\frac{A}{y^{*}}\right)^{\frac{1}{1-\alpha}}</div>
+      <span class="eq-num">(5)</span>
+    </div>
+
+    <p>
+      Look at what's missing. Income in the long run is <span class="m">y^{*}</span>, full stop.
+      Better technology raises <span class="m">L^{*}</span> and leaves living standards exactly where
+      they were. Every new plough becomes more people, not richer people. That's the trap.
+    </p>
+
+    <p>
+      This isn't just a nice story. Ashraf and Galor tested it on data from 1 CE to 1500 CE and found
+      precisely this pattern: places with better technology and more productive land had denser
+      populations, but no significant difference in living standards.
+    </p>
+
+    <h2><span class="sec">§ 3</span> Delete Half the People</h2>
+
+    <p>
+      Start the economy at its steady state and halve <span class="m">L</span> in one go. Land and
+      technology don't change, so (3) says income per head jumps straight away:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">y_0 = A\left(\frac{X}{L^{*}/2}\right)^{1-\alpha} = 2^{1-\alpha}\,y^{*}</div>
+      <span class="eq-num">(6)</span>
+    </div>
+
+    <p>
+      With a land share of 0.4, that's <span class="m">2^{0.4} = 1.32</span>. Survivors are 32% richer
+      the morning after. Nice for them. But now <span class="m">y \gt y^{*}</span>, so by (4) the
+      population starts growing again. How fast does the bonus disappear?
+    </p>
+
+    <p>
+      Work in logs. Let <span class="m">x = \ln(L/L^{*})</span> be how far below the old population we
+      are. From (3), <span class="m">\ln(y/y^{*}) = -(1-\alpha)\,x</span>. Near the steady state,
+      approximate the growth response as linear in log income, <span class="m">n(y) \approx \eta \ln(y/y^{*})</span>,
+      where <span class="m">\eta</span> measures how strongly births and deaths react to being richer.
+      Then
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">\dot x = n(y) = -\eta(1-\alpha)\,x \quad\Longrightarrow\quad x(t) = x_0\,e^{-kt}, \qquad k = \eta(1-\alpha)</div>
+      <span class="eq-num">(7)</span>
+    </div>
+
+    <p>
+      Plug in <span class="m">x_0 = -\ln 2</span> and both paths drop out in closed form:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">\frac{L(t)}{L^{*}} = 2^{-e^{-kt}}, \qquad \frac{y(t)}{y^{*}} = 2^{(1-\alpha)\,e^{-kt}}</div>
+      <span class="eq-num">(8)</span>
+    </div>
+
+    <p>
+      You don't even need to know <span class="m">\eta</span>. Right after the shock the population grows
+      at <span class="m">g_0 = k \ln 2</span>, and that's something you can observe. The log gap shrinks
+      exponentially, so it has a half-life, and so does the income bonus:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">T_{1/2} = \frac{\ln 2}{k} = \frac{(\ln 2)^2}{g_0} \approx \frac{0.48}{g_0}, \qquad T_{90\%} = \frac{\ln 10 \cdot \ln 2}{g_0} \approx \frac{1.6}{g_0}</div>
+      <span class="eq-num">(9)</span>
+    </div>
+    <p class="eq-note">The time to close half of the log gap, and 90% of it, in terms of the growth rate just after the shock.</p>
+
+    <p>
+      Say the survivors grow at 1% a year at first. Half the gap is gone in 48 years and 90% of it in
+      160. Within two lifetimes the economy is essentially back where it started, with the same
+      population and the same subsistence income.
+    </p>
+
+    <div class="figure">
+      <svg viewBox="0 0 640 380" role="img" aria-label="After halving, population climbs back and the income bonus fades with the same half-life">
+      <line class="ch-grid" x1="56" x2="520" y1="305.3" y2="305.3"/>
+      <text class="ch-txt" x="46" y="309.3" text-anchor="end">0.50</text>
+      <line class="ch-grid" x1="56" x2="520" y1="231.6" y2="231.6"/>
+      <text class="ch-txt" x="46" y="235.6" text-anchor="end">0.75</text>
+      <line class="ch-ref" x1="56" x2="520" y1="157.9" y2="157.9"/>
+      <text class="ch-txt" x="46" y="161.9" text-anchor="end">1.00</text>
+      <line class="ch-grid" x1="56" x2="520" y1="84.2" y2="84.2"/>
+      <text class="ch-txt" x="46" y="88.2" text-anchor="end">1.25</text>
+      <line class="ch-axis" x1="56" x2="520" y1="320" y2="320"/>
+      <text class="ch-txt" x="56.0" y="340" text-anchor="middle">0</text>
+      <text class="ch-txt" x="172.0" y="340" text-anchor="middle">50</text>
+      <text class="ch-txt" x="288.0" y="340" text-anchor="middle">100</text>
+      <text class="ch-txt" x="404.0" y="340" text-anchor="middle">150</text>
+      <text class="ch-txt" x="520.0" y="340" text-anchor="middle">200</text>
+      <text class="ch-txt" x="520" y="364" text-anchor="end">years after the shock</text>
+      <text class="ch-txt" x="56" y="24">relative to the old steady state</text>
+      <line class="ch-mark" x1="167.5" x2="167.5" y1="40" y2="320"/>
+      <text class="ch-txt" x="173.5" y="52">half the gap closed, t = 48</text>
+      <path class="ch-naive" fill="none" d="M56.0,305.3 L57.2,304.5 L58.3,303.8 L59.5,303.0 L60.6,302.3 L61.8,301.5 L63.0,300.8 L64.1,300.0 L65.3,299.2 L66.4,298.5 L67.6,297.7 L68.8,296.9 L69.9,296.2 L71.1,295.4 L72.2,294.6 L73.4,293.8 L74.6,293.0 L75.7,292.2 L76.9,291.4 L78.0,290.6 L79.2,289.8 L80.4,288.9 L81.5,288.1 L82.7,287.3 L83.8,286.5 L85.0,285.6 L86.2,284.8 L87.3,284.0 L88.5,283.1 L89.6,282.3 L90.8,281.4 L92.0,280.6 L93.1,279.7 L94.3,278.8 L95.4,278.0 L96.6,277.1 L97.8,276.2 L98.9,275.3 L100.1,274.4 L101.2,273.5 L102.4,272.6 L103.6,271.7 L104.7,270.8 L105.9,269.9 L107.0,269.0 L108.2,268.1 L109.4,267.2 L110.5,266.2 L111.7,265.3 L112.8,264.4 L114.0,263.4 L115.2,262.5 L116.3,261.5 L117.5,260.5 L118.6,259.6 L119.8,258.6 L121.0,257.6 L122.1,256.7 L123.3,255.7 L124.4,254.7 L125.6,253.7 L126.8,252.7 L127.9,251.7 L129.1,250.7 L130.2,249.7 L131.4,248.7 L132.6,247.6 L133.7,246.6 L134.9,245.6 L136.0,244.5 L137.2,243.5 L138.4,242.5 L139.5,241.4 L140.7,240.3 L141.8,239.3 L143.0,238.2 L144.2,237.1 L145.3,236.1 L146.5,235.0 L147.6,233.9 L148.8,232.8 L150.0,231.7 L151.1,230.6 L152.3,229.5 L153.4,228.3 L154.6,227.2 L155.8,226.1 L156.9,225.0 L158.1,223.8 L159.2,222.7 L160.4,221.5 L161.6,220.4 L162.7,219.2 L163.9,218.0 L165.0,216.8 L166.2,215.7 L167.4,214.5 L168.5,213.3 L169.7,212.1 L170.8,210.9 L172.0,209.7 L173.2,208.4 L174.3,207.2 L175.5,206.0 L176.6,204.8 L177.8,203.5 L179.0,202.3 L180.1,201.0 L181.3,199.7 L182.4,198.5 L183.6,197.2 L184.8,195.9 L185.9,194.6 L187.1,193.3 L188.2,192.0 L189.4,190.7 L190.6,189.4 L191.7,188.1 L192.9,186.8 L194.0,185.4 L195.2,184.1 L196.4,182.8 L197.5,181.4 L198.7,180.1 L199.8,178.7 L201.0,177.3 L202.2,175.9 L203.3,174.5 L204.5,173.2 L205.6,171.7 L206.8,170.3 L208.0,168.9 L209.1,167.5 L210.3,166.1 L211.4,164.6 L212.6,163.2 L213.8,161.7 L214.9,160.3 L216.1,158.8"/>
+      <circle class="ch-naive-dot" cx="216.8" cy="157.9" r="3.5"/>
+      <text class="ch-txt" x="223.8" y="176.9">69 yrs</text>
+      <path class="ch-pop" fill="none" d="M56.0,305.3 L58.3,303.8 L60.6,302.3 L63.0,300.9 L65.3,299.4 L67.6,298.0 L69.9,296.5 L72.2,295.1 L74.6,293.7 L76.9,292.3 L79.2,290.9 L81.5,289.5 L83.8,288.1 L86.2,286.7 L88.5,285.3 L90.8,284.0 L93.1,282.6 L95.4,281.3 L97.8,279.9 L100.1,278.6 L102.4,277.3 L104.7,276.0 L107.0,274.7 L109.4,273.4 L111.7,272.1 L114.0,270.8 L116.3,269.6 L118.6,268.3 L121.0,267.1 L123.3,265.9 L125.6,264.6 L127.9,263.4 L130.2,262.2 L132.6,261.0 L134.9,259.8 L137.2,258.7 L139.5,257.5 L141.8,256.3 L144.2,255.2 L146.5,254.1 L148.8,252.9 L151.1,251.8 L153.4,250.7 L155.8,249.6 L158.1,248.5 L160.4,247.4 L162.7,246.4 L165.0,245.3 L167.4,244.3 L169.7,243.2 L172.0,242.2 L174.3,241.2 L176.6,240.2 L179.0,239.2 L181.3,238.2 L183.6,237.2 L185.9,236.2 L188.2,235.3 L190.6,234.3 L192.9,233.4 L195.2,232.5 L197.5,231.5 L199.8,230.6 L202.2,229.7 L204.5,228.8 L206.8,227.9 L209.1,227.1 L211.4,226.2 L213.8,225.3 L216.1,224.5 L218.4,223.7 L220.7,222.8 L223.0,222.0 L225.4,221.2 L227.7,220.4 L230.0,219.6 L232.3,218.8 L234.6,218.0 L237.0,217.3 L239.3,216.5 L241.6,215.8 L243.9,215.0 L246.2,214.3 L248.6,213.6 L250.9,212.8 L253.2,212.1 L255.5,211.4 L257.8,210.7 L260.2,210.0 L262.5,209.4 L264.8,208.7 L267.1,208.0 L269.4,207.4 L271.8,206.7 L274.1,206.1 L276.4,205.5 L278.7,204.8 L281.0,204.2 L283.4,203.6 L285.7,203.0 L288.0,202.4 L290.3,201.8 L292.6,201.3 L295.0,200.7 L297.3,200.1 L299.6,199.6 L301.9,199.0 L304.2,198.5 L306.6,197.9 L308.9,197.4 L311.2,196.9 L313.5,196.3 L315.8,195.8 L318.2,195.3 L320.5,194.8 L322.8,194.3 L325.1,193.8 L327.4,193.3 L329.8,192.9 L332.1,192.4 L334.4,191.9 L336.7,191.5 L339.0,191.0 L341.4,190.6 L343.7,190.1 L346.0,189.7 L348.3,189.3 L350.6,188.8 L353.0,188.4 L355.3,188.0 L357.6,187.6 L359.9,187.2 L362.2,186.8 L364.6,186.4 L366.9,186.0 L369.2,185.6 L371.5,185.3 L373.8,184.9 L376.2,184.5 L378.5,184.2 L380.8,183.8 L383.1,183.4 L385.4,183.1 L387.8,182.7 L390.1,182.4 L392.4,182.1 L394.7,181.7 L397.0,181.4 L399.4,181.1 L401.7,180.8 L404.0,180.5 L406.3,180.1 L408.6,179.8 L411.0,179.5 L413.3,179.2 L415.6,178.9 L417.9,178.6 L420.2,178.4 L422.6,178.1 L424.9,177.8 L427.2,177.5 L429.5,177.3 L431.8,177.0 L434.2,176.7 L436.5,176.5 L438.8,176.2 L441.1,175.9 L443.4,175.7 L445.8,175.4 L448.1,175.2 L450.4,175.0 L452.7,174.7 L455.0,174.5 L457.4,174.3 L459.7,174.0 L462.0,173.8 L464.3,173.6 L466.6,173.4 L469.0,173.2 L471.3,172.9 L473.6,172.7 L475.9,172.5 L478.2,172.3 L480.6,172.1 L482.9,171.9 L485.2,171.7 L487.5,171.5 L489.8,171.3 L492.2,171.1 L494.5,171.0 L496.8,170.8 L499.1,170.6 L501.4,170.4 L503.8,170.2 L506.1,170.1 L508.4,169.9 L510.7,169.7 L513.0,169.6 L515.4,169.4 L517.7,169.2 L520.0,169.1"/>
+      <path class="ch-inc" fill="none" d="M56.0,63.7 L58.3,65.3 L60.6,66.8 L63.0,68.3 L65.3,69.7 L67.6,71.2 L69.9,72.6 L72.2,73.9 L74.6,75.3 L76.9,76.6 L79.2,77.9 L81.5,79.2 L83.8,80.5 L86.2,81.7 L88.5,83.0 L90.8,84.2 L93.1,85.3 L95.4,86.5 L97.8,87.6 L100.1,88.7 L102.4,89.8 L104.7,90.9 L107.0,92.0 L109.4,93.0 L111.7,94.0 L114.0,95.0 L116.3,96.0 L118.6,97.0 L121.0,98.0 L123.3,98.9 L125.6,99.8 L127.9,100.7 L130.2,101.6 L132.6,102.5 L134.9,103.4 L137.2,104.2 L139.5,105.0 L141.8,105.9 L144.2,106.7 L146.5,107.5 L148.8,108.2 L151.1,109.0 L153.4,109.8 L155.8,110.5 L158.1,111.2 L160.4,112.0 L162.7,112.7 L165.0,113.4 L167.4,114.0 L169.7,114.7 L172.0,115.4 L174.3,116.0 L176.6,116.7 L179.0,117.3 L181.3,117.9 L183.6,118.5 L185.9,119.1 L188.2,119.7 L190.6,120.3 L192.9,120.9 L195.2,121.4 L197.5,122.0 L199.8,122.5 L202.2,123.1 L204.5,123.6 L206.8,124.1 L209.1,124.6 L211.4,125.1 L213.8,125.6 L216.1,126.1 L218.4,126.6 L220.7,127.0 L223.0,127.5 L225.4,128.0 L227.7,128.4 L230.0,128.9 L232.3,129.3 L234.6,129.7 L237.0,130.1 L239.3,130.6 L241.6,131.0 L243.9,131.4 L246.2,131.8 L248.6,132.2 L250.9,132.5 L253.2,132.9 L255.5,133.3 L257.8,133.7 L260.2,134.0 L262.5,134.4 L264.8,134.7 L267.1,135.1 L269.4,135.4 L271.8,135.7 L274.1,136.1 L276.4,136.4 L278.7,136.7 L281.0,137.0 L283.4,137.3 L285.7,137.6 L288.0,137.9 L290.3,138.2 L292.6,138.5 L295.0,138.8 L297.3,139.1 L299.6,139.4 L301.9,139.6 L304.2,139.9 L306.6,140.2 L308.9,140.4 L311.2,140.7 L313.5,140.9 L315.8,141.2 L318.2,141.4 L320.5,141.7 L322.8,141.9 L325.1,142.2 L327.4,142.4 L329.8,142.6 L332.1,142.8 L334.4,143.1 L336.7,143.3 L339.0,143.5 L341.4,143.7 L343.7,143.9 L346.0,144.1 L348.3,144.3 L350.6,144.5 L353.0,144.7 L355.3,144.9 L357.6,145.1 L359.9,145.3 L362.2,145.5 L364.6,145.7 L366.9,145.8 L369.2,146.0 L371.5,146.2 L373.8,146.4 L376.2,146.5 L378.5,146.7 L380.8,146.8 L383.1,147.0 L385.4,147.2 L387.8,147.3 L390.1,147.5 L392.4,147.6 L394.7,147.8 L397.0,147.9 L399.4,148.1 L401.7,148.2 L404.0,148.4 L406.3,148.5 L408.6,148.6 L411.0,148.8 L413.3,148.9 L415.6,149.0 L417.9,149.2 L420.2,149.3 L422.6,149.4 L424.9,149.5 L427.2,149.7 L429.5,149.8 L431.8,149.9 L434.2,150.0 L436.5,150.1 L438.8,150.2 L441.1,150.3 L443.4,150.5 L445.8,150.6 L448.1,150.7 L450.4,150.8 L452.7,150.9 L455.0,151.0 L457.4,151.1 L459.7,151.2 L462.0,151.3 L464.3,151.4 L466.6,151.5 L469.0,151.6 L471.3,151.7 L473.6,151.7 L475.9,151.8 L478.2,151.9 L480.6,152.0 L482.9,152.1 L485.2,152.2 L487.5,152.3 L489.8,152.3 L492.2,152.4 L494.5,152.5 L496.8,152.6 L499.1,152.7 L501.4,152.7 L503.8,152.8 L506.1,152.9 L508.4,152.9 L510.7,153.0 L513.0,153.1 L515.4,153.2 L517.7,153.2 L520.0,153.3"/>
+      <text class="ch-pop-t" x="528.0" y="189.1">population</text>
+      <text class="ch-pop-t" x="528.0" y="210.1">L / L*</text>
+      <text class="ch-inc-t" x="528.0" y="123.3">income</text>
+      <text class="ch-inc-t" x="528.0" y="144.3">y / y*</text>
+      <text class="ch-txt" x="64.0" y="55.7">1.32</text>
+      </svg>
+      <p class="fig-cap">Figure 1. Halving the population in the model of § 2, with land share 0.4 and post-shock growth of 1% a year. Both solid lines are equation (8). The dashed line is the naive answer, population growing at a constant 1% forever, which gets back to full size in 69 years.</p>
+    </div>
+
+    <p>
+      The dashed line is worth a second look. If you assume growth stays at 1%, you get the textbook
+      doubling time <span class="m">\ln 2 / g_0 \approx 69</span> years, and the population sails right
+      past where it started. The Malthusian model is slower and gentler, because growth itself fades
+      as the extra income gets eaten. The destination doesn't change either way.
+    </p>
+
+    <div class="callout highlight">
+      <p class="callout-label">The steady state has no memory</p>
+      <p>
+        Look at (5) again. <span class="m">L^{*}</span> depends on land, technology and the birth
+        response. The size of the shock appears nowhere. Cutting the population moves the economy
+        along the curve; only changing <span class="m">A</span>, <span class="m">X</span> or
+        <span class="m">n(\cdot)</span> moves the curve.
+      </p>
+    </div>
+
+    <p>
+      Malthus knew this, by the way. In chapter 6 of the 1798 essay he points out that the 1666
+      plague in London left no visible mark on its population 15 or 20 years later, and that a plague
+      killing millions would simply be followed by births running far ahead of deaths.
+    </p>
+
+    <h2><span class="sec">§ 4</span> A Real Experiment: the Black Death</h2>
+
+    <p>
+      History did run this experiment, once. The Black Death killed roughly 40% of Europe's population
+      between 1347 and 1352. Plug a 40% loss into (6):
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">\frac{y_0}{y^{*}} = \left(\frac{1}{1-0.4}\right)^{1-\alpha}</div>
+      <span class="eq-num">(10)</span>
+    </div>
+
+    <p>
+      Historians reckon English survivors ended up with about 30% more disposable income than before
+      the plague. Set the left side of (10) to 1.3 and solve:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">1-\alpha = \frac{\ln 1.3}{\ln(1/0.6)} \approx 0.51</div>
+      <span class="eq-num">(11)</span>
+    </div>
+
+    <p>
+      That's back of the envelope stuff, but a land share around one half isn't a crazy number for a
+      medieval farm economy. Gregory Clark's wage and price series for England show the same thing
+      more carefully: a remarkably stable inverse relationship between real wages and population from
+      1250 to 1600. When the plague pushed population down, wages rose, and they kept rising into the
+      1440s.
+    </p>
+
+    <p>
+      Here's the catch. That bonus lasted about 150 years only because the plague kept coming back
+      every few decades. It was a repeated shock, not a one-off. Even then, European cities were back
+      to their pre-plague size on average by the 16th century. A single cull, by (9), gets undone much
+      faster.
+    </p>
+
+    <h2><span class="sec">§ 5</span> How the Trap Actually Broke</h2>
+
+    <p>
+      If deleting people doesn't work, what did? Take growth rates of (3), writing
+      <span class="m">g_z</span> for the growth rate of <span class="m">z</span>:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">g_y = g_A - (1-\alpha)\,g_L</div>
+      <span class="eq-num">(12)</span>
+    </div>
+
+    <p>
+      Inside the trap, population adjusts until <span class="m">g_y = 0</span>, which means
+      <span class="m">g_L = g_A/(1-\alpha)</span>. Faster technology just means faster population
+      growth. There are two ways out, and the modern world used both.
+    </p>
+
+    <p>
+      <strong>Ideas come from people.</strong> Michael Kremer's 1993 paper on world population from one
+      million BC to 1990 starts from the observation that an idea, once found, can be used by everyone.
+      So more people means more inventors. Write that as <span class="m">g_A = \delta L</span> and
+      feed it into the trap condition:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">g_L = \frac{\delta}{1-\alpha}\,L</div>
+      <span class="eq-num">(13)</span>
+    </div>
+
+    <p>
+      The growth rate of population rises with its level. That's faster than exponential, and it's
+      what world population actually did for most of history. Kremer also found that among regions with
+      no contact with each other, the ones that started bigger had faster technological change. It
+      also means a cull is doubly bad in this world: halve <span class="m">L</span> and you halve the
+      flow of new ideas too.
+    </p>
+
+    <p>
+      <strong>People stopped converting income into kids.</strong> The demographic transition breaks
+      equation (4). Once incomes, schooling and cities pass a certain point, <span class="m">n(y)</span>
+      stops rising with <span class="m">y</span> and starts falling. Malthus's preventive check turned
+      up after all, chosen voluntarily, which is the version he hoped for and didn't expect. With
+      <span class="m">g_L</span> held down, (12) finally gives <span class="m">g_y \gt 0</span>, year
+      after year.
+    </p>
+
+    <p>The numbers today look nothing like 1798:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Indicator</th><th class="num">Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>World population growth, peak (1963)</td><td class="num">2.3% a year</td></tr>
+          <tr><td>World population growth, 2026</td><td class="num">about 0.83% a year</td></tr>
+          <tr><td>Births per woman, 1990</td><td class="num">3.31</td></tr>
+          <tr><td>Births per woman, 2024</td><td class="num">2.25</td></tr>
+          <tr><td>Countries whose population has already peaked</td><td class="num">63</td></tr>
+          <tr><td>UN projected peak, mid 2080s</td><td class="num">about 10.3 billion</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p class="callout-label">A bet worth $576.07</p>
+      <p>
+        In 1980 the economist Julian Simon bet the biologist Paul Ehrlich that five metals of
+        Ehrlich's choosing would be cheaper in real terms ten years later. World population grew by
+        more than 800 million over that decade. All five prices fell, and Ehrlich mailed Simon a cheque
+        for $576.07. Fair warning: stretch the window to 1980 to 2011 and Simon would have lost on four
+        of the five. Commodity prices are noisy. The long trend is the point, not any single decade.
+      </p>
+    </div>
+
+    <h2><span class="sec">§ 6</span> What I'm Taking Away</h2>
+
+    <p>
+      Malthus was right about the world he lived in. For most of history, technology really did turn
+      into more people rather than richer people, and the data back him up.
+    </p>
+
+    <p>
+      But a one-off cut in population is a shock, not a policy. In his own model the bonus decays with
+      a half-life of <span class="m">(\ln 2)^2/g_0</span>, and the economy returns to exactly the same
+      place, because nothing that sets <span class="m">L^{*}</span> has changed. The only levers that
+      move the destination are technology, land and the birth response, which is a fairly good
+      description of what actually happened.
+    </p>
+
+    <p>
+      The trap didn't break because there were fewer of us. It broke because there were more of us
+      thinking, and then because people decided, on their own, to have fewer kids.
+    </p>
+
+    <p>
+      Thanos would have had to snap again every couple of generations. The rest of us got out of the
+      trap by thinking our way out, not by thinning ourselves out.
+    </p>
+
+    <h2 class="appendix-head"><span class="sec">Refs</span> Where the Numbers Come From</h2>
+
+    <ol class="refs">
+      <li>Malthus, T. R. (1798). <a href="https://www.gutenberg.org/files/4239/4239-h/4239-h.htm" target="_blank" rel="noopener">An Essay on the Principle of Population</a>, chapters 1, 2, 6 and 7.</li>
+      <li>Ashraf, Q. and Galor, O. (2011). <a href="https://www.nber.org/papers/w17037" target="_blank" rel="noopener">Dynamics and Stagnation in the Malthusian Epoch</a>. American Economic Review 101(5).</li>
+      <li>Kremer, M. (1993). <a href="https://gwern.net/doc/economics/1993-kremer.pdf" target="_blank" rel="noopener">Population Growth and Technological Change: One Million B.C. to 1990</a>. Quarterly Journal of Economics 108(3).</li>
+      <li>Clark, G. (2016). <a href="https://ideas.repec.org/a/cup/demeco/v82y2016i2p139-165_1.html" target="_blank" rel="noopener">Microbes and Markets: Was the Black Death an Economic Revolution?</a> Journal of Demographic Economics 82(2).</li>
+      <li>Jedwab, R., Johnson, N. and Koyama, M. <a href="https://cepr.org/voxeu/columns/pandemics-places-and-populations-evidence-black-death" target="_blank" rel="noopener">Pandemics, places, and populations: Evidence from the Black Death</a>. VoxEU.</li>
+      <li>Stuttaford, A. (2025), citing James Belich. <a href="https://www.nationalreview.com/2025/05/the-black-deaths-economic-dividend/amp/" target="_blank" rel="noopener">The Black Death's Economic Dividend</a>. National Review.</li>
+      <li>Our World in Data. <a href="https://ourworldindata.org/world-population-growth-past-future" target="_blank" rel="noopener">World population growth, past and future</a>.</li>
+      <li>United Nations. World Population Prospects 2024, as reported by <a href="https://www.dawn.com/news/amp/1845492" target="_blank" rel="noopener">Dawn</a> and <a href="https://dce.visionias.in/news-today/2024-07-12/society/world-population-prospects-2024" target="_blank" rel="noopener">Vision IAS</a>.</li>
+      <li>Statistics Times. <a href="https://www.statisticstimes.com/m/demographics/world-population.php" target="_blank" rel="noopener">World population 2026</a>, based on UN projections.</li>
+      <li>Wikipedia. <a href="https://en.wikipedia.org/wiki/Simon%E2%80%93Ehrlich_wager" target="_blank" rel="noopener">The Simon and Ehrlich wager</a>.</li>
+    </ol>
+  </div>
+
+</div>
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('theme-toggle');
+    var icon = document.getElementById('toggle-icon');
+    var lbl = document.getElementById('toggle-label');
+    function apply(t) {
+      root.setAttribute('data-theme', t);
+      try { localStorage.setItem('bb-theme', t); } catch (e) {}
+      icon.textContent = t === 'dark' ? '◑' : '◐';
+      lbl.textContent = t === 'dark' ? 'Light' : 'Dark';
+    }
+    apply(root.getAttribute('data-theme') || 'light');
+    btn.addEventListener('click', function () {
+      apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+  })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script>
+  (function () {
+    if (!window.katex) return;
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('.eq-tex'));
+    boxes.forEach(function (el) {
+      try { katex.render(el.textContent, el, { displayMode: true, throwOnError: false }); } catch (e) {}
+    });
+    document.querySelectorAll('.m').forEach(function (el) {
+      try { katex.render(el.textContent, el, { displayMode: false, throwOnError: false }); } catch (e) {}
+    });
+    /* keep every equation on one line: shrink step by step on narrow screens, scroll if still too wide */
+    function fit() {
+      boxes.forEach(function (el) {
+        var k = el.querySelector('.katex');
+        if (!k) return;
+        k.style.fontSize = '';
+        var base = parseFloat(getComputedStyle(k).fontSize);
+        var size = base;
+        var guard = 0;
+        while (el.scrollWidth > el.clientWidth + 1 && size > base * 0.6 && guard < 40) {
+          size = size * 0.96;
+          k.style.fontSize = size + 'px';
+          guard += 1;
+        }
+      });
+    }
+    fit();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    var timer;
+    window.addEventListener('resize', function () { clearTimeout(timer); timer = setTimeout(fit, 120); });
+  })();
+</script>
+</body>
+</html>
