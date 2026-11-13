@@ -225,14 +225,14 @@
 
     <div class="formula">
       <span class="formula-row">Setup:</span>
-      <span class="formula-indent">V = {v&#x2081;, v&#x2082;, ..., v&#x2099;}  -- set of n voters</span>
-      <span class="formula-indent">A = {a, b, c, ...}          -- set of k candidates, k &ge; 3</span>
-      <span class="formula-indent">f : Profiles &rarr; Orderings -- the social choice function</span>
+      <span class="formula-indent">V = {v&#x2081;, v&#x2082;, ..., v&#x2099;}: set of n voters</span>
+      <span class="formula-indent">A = {a, b, c, ...}: set of k candidates, k &ge; 3</span>
+      <span class="formula-indent">f : Profiles &rarr; Orderings: the social choice function</span>
       <span class="formula-row">&nbsp;</span>
       <span class="formula-row">A profile is one complete set of individual ranked ballots.</span>
       <span class="formula-row">f maps every valid profile to a single social preference ordering.</span>
       <span class="formula-row">The question: what properties can f satisfy simultaneously?</span>
-      <span class="formula-caption">Eq. 1 -- Formal setup of the social choice problem</span>
+      <span class="formula-caption">Eq. 1: Formal setup of the social choice problem</span>
     </div>
 
     <h2><span class="sec">§ 2</span> First Past the Post</h2>
@@ -259,7 +259,7 @@
       <span class="formula-indent">k = 3  &rarr;  min share: ~34%</span>
       <span class="formula-indent">k = 5  &rarr;  min share: ~21%</span>
       <span class="formula-indent">k = 10 &rarr;  min share: ~11%</span>
-      <span class="formula-caption">Eq. 2 -- Theoretical minimum winning vote share under plurality rule</span>
+      <span class="formula-caption">Eq. 2: Theoretical minimum winning vote share under plurality rule</span>
     </div>
 
     <p>
@@ -496,7 +496,7 @@
       <span class="formula-indent">Round 2:  A = 49%,  B = 51%  &rarr;  Winner: B</span>
       <span class="formula-row">&nbsp;</span>
       <span class="formula-row">B's vote share fell from 45% to 36%. B went from losing to winning.</span>
-      <span class="formula-caption">Eq. 3 -- Non-monotonicity in Instant Runoff Voting</span>
+      <span class="formula-caption">Eq. 3: Non-monotonicity in Instant Runoff Voting</span>
     </div>
 
     <p>
@@ -529,7 +529,7 @@
       <span class="formula-row">&nbsp;</span>
       <span class="formula-row">Result: Burgers &gt; Pizza &gt; Sushi &gt; Burgers ...</span>
       <span class="formula-row">A cycle. No Condorcet winner exists.</span>
-      <span class="formula-caption">Eq. 4 -- Condorcet's paradox: rational individuals, irrational group</span>
+      <span class="formula-caption">Eq. 4: Condorcet's paradox: rational individuals, irrational group</span>
     </div>
 
     <p>
@@ -566,7 +566,7 @@
       <span class="formula-indent">(5) IIA:                society's ranking of X vs Y depends only</span>
       <span class="formula-indent">                       on individual X-vs-Y preferences, not on</span>
       <span class="formula-indent">                       where any third candidate Z sits.</span>
-      <span class="formula-caption">Eq. 5 -- Arrow's five conditions for a rational ranked voting system</span>
+      <span class="formula-caption">Eq. 5: Arrow's five conditions for a rational ranked voting system</span>
     </div>
 
     <div class="callout highlight">
@@ -587,7 +587,7 @@
     <div class="formula">
       <span class="formula-row">Proof Sketch (Geanakoplos 2005):</span>
       <span class="formula-row">&nbsp;</span>
-      <span class="formula-row">Step 1 -- Extremal Lemma:</span>
+      <span class="formula-row">Step 1 (Extremal Lemma):</span>
       <span class="formula-indent">If every voter ranks candidate B at top or bottom,</span>
       <span class="formula-indent">society must also rank B at top or bottom.</span>
       <span class="formula-row">&nbsp;</span>
@@ -600,21 +600,21 @@
       <span class="formula-indent">By (4) Transitivity:  A &gt; B and B &gt; C forces A &gt; C.</span>
       <span class="formula-indent">Contradiction: C &gt; A and A &gt; C cannot both hold. QED Step 1.</span>
       <span class="formula-row">&nbsp;</span>
-      <span class="formula-row">Step 2 -- Pivotal Voter:</span>
+      <span class="formula-row">Step 2 (Pivotal Voter):</span>
       <span class="formula-indent">Start: all voters rank B last &rarr; society ranks B last (unanimity).</span>
       <span class="formula-indent">Move voters one at a time from B-last to B-first.</span>
       <span class="formula-indent">By Step 1, society's B is always extremal after each switch.</span>
       <span class="formula-indent">At voter n*, society's B flips from bottom to top.</span>
       <span class="formula-indent">n* is the pivotal voter.</span>
       <span class="formula-row">&nbsp;</span>
-      <span class="formula-row">Step 3 -- Dictator:</span>
+      <span class="formula-row">Step 3 (Dictator):</span>
       <span class="formula-indent">Construct a profile where n* places A above B.</span>
       <span class="formula-indent">Using (5) IIA and (4) transitivity: society ranks A &gt; C</span>
       <span class="formula-indent">regardless of every other voter's preference over A vs C.</span>
       <span class="formula-indent">n* dictates A vs C for all possible other-voter profiles.</span>
       <span class="formula-indent">Symmetric argument &rarr; n* dictates all pairwise comparisons.</span>
       <span class="formula-indent">n* is a complete dictator, violating (2). QED.</span>
-      <span class="formula-caption">Eq. 6 -- Pivotal voter proof of Arrow's Impossibility Theorem</span>
+      <span class="formula-caption">Eq. 6: Pivotal voter proof of Arrow's Impossibility Theorem</span>
     </div>
 
     <p>

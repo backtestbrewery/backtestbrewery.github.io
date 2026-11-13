@@ -234,14 +234,14 @@
 
     <div class="formula">
       <span class="formula-row">Setup:</span>
-      <span class="formula-indent">p &isin; [0,1]  -- the stated probability for a bucket of events</span>
-      <span class="formula-indent">n_p            -- number of events forecast at probability p</span>
-      <span class="formula-indent">k_p             -- number of those events that occurred</span>
+      <span class="formula-indent">p &isin; [0,1]: the stated probability for a bucket of events</span>
+      <span class="formula-indent">n_p: number of events forecast at probability p</span>
+      <span class="formula-indent">k_p: number of those events that occurred</span>
       <span class="formula-row">&nbsp;</span>
       <span class="formula-row">Calibration condition:  k_p / n_p &rarr; p  as n_p grows large</span>
       <span class="formula-row">Overconfident at p  if  k_p / n_p &lt; p</span>
       <span class="formula-row">Underconfident at p  if  k_p / n_p &gt; p</span>
-      <span class="formula-caption">Eq. 1 &mdash; Formal definition of calibration</span>
+      <span class="formula-caption">Eq. 1: Formal definition of calibration</span>
     </div>
 
     <p>
@@ -256,7 +256,7 @@
       <span class="formula-row">&nbsp;</span>
       <span class="formula-indent">p = 0.70, n = 5,589  &rarr;  SE &asymp; 0.6 percentage points</span>
       <span class="formula-indent">p = 0.85, n = 383    &rarr;  SE &asymp; 1.8 percentage points</span>
-      <span class="formula-caption">Eq. 2 &mdash; Standard error of an observed frequency under correct calibration</span>
+      <span class="formula-caption">Eq. 2: Standard error of an observed frequency under correct calibration</span>
     </div>
 
     <p>
@@ -332,7 +332,7 @@
         <circle class="pt-good" cx="345" cy="94" r="6" />
         <text class="lbl" x="345" y="130" text-anchor="middle">Correlated markets (&sect;5)</text>
       </svg>
-      <span class="chart-caption">Fig. 1 &mdash; Predicted probability vs. observed frequency. Points on the dashed
+      <span class="chart-caption">Fig. 1: Predicted probability vs. observed frequency. Points on the dashed
         diagonal are well calibrated. The two highlighted points illustrate the systematic deviations
         discussed in &sect;4 and &sect;5.</span>
     </div>
@@ -367,10 +367,10 @@
       <span class="formula-row">BS  =  (1/N) &sum; (p_i &minus; o_i)&sup2;</span>
       <span class="formula-row">&nbsp;</span>
       <span class="formula-row">BS  =  Reliability &minus; Resolution + Uncertainty</span>
-      <span class="formula-indent">Reliability -- calibration error; want this small</span>
-      <span class="formula-indent">Resolution  -- how much predictions vary from the base rate, correctly; want this large</span>
-      <span class="formula-indent">Uncertainty -- inherent variance of the outcome; fixed, not under the forecaster's control</span>
-      <span class="formula-caption">Eq. 3 &mdash; Murphy's decomposition of the Brier score</span>
+      <span class="formula-indent">Reliability: calibration error; want this small</span>
+      <span class="formula-indent">Resolution: how much predictions vary from the base rate, correctly; want this large</span>
+      <span class="formula-indent">Uncertainty: inherent variance of the outcome; fixed, not under the forecaster's control</span>
+      <span class="formula-caption">Eq. 3: Murphy's decomposition of the Brier score</span>
     </div>
 
     <p>
@@ -455,7 +455,7 @@
 
     <div class="formula">
       <span class="formula-row">Var(&sum; X_i)  =  &sum; Var(X_i)  +  2 &sum;_{i&lt;j} Cov(X_i, X_j)</span>
-      <span class="formula-caption">Eq. 4 &mdash; Variance of a sum of correlated binary outcomes</span>
+      <span class="formula-caption">Eq. 4: Variance of a sum of correlated binary outcomes</span>
     </div>
 
     <p>
@@ -507,7 +507,7 @@
             <td>Rounded probability buckets near 0% or 100%</td>
             <td>Apparent bias may be a labelling artefact</td>
             <td>Asymmetric truncation at the bounds</td>
-            <td class="num">&mdash;</td>
+            <td class="num">n/a</td>
           </tr>
           <tr>
             <td><strong>Uniform, zero-information forecasts</strong></td>

@@ -238,7 +238,7 @@
     <h2><span class="sec">§ 1</span> Been a Few Days</h2>
 
     <p>
-      Heads-down on microstructure strategies for a while now. Genuinely fun, genuinely frustrating - starting
+      Heads-down on microstructure strategies for a while now. Genuinely fun, genuinely frustrating, starting
       from scratch with no playbook, no mentor, just market data and a suspicion that there's something
       extractable at the tick level. Found a family of trigger-happy setups that <em>do not lose</em> roughly
       90% of the time. Sharpes in double digits. Looked great until I remembered there are three states, not two.
@@ -248,7 +248,7 @@
 
     <p>
       Most people think in terms of win and loss. At the microstructure level there's a third state: the draw.
-      A draw is when you correctly predict a 1-tick directional move - the model is right - but the spread
+      A draw is when you correctly predict a 1-tick directional move (the model is right) but the spread
       width equals that 1 tick. You beat the spread by exactly nothing. Gross P&amp;L: zero.
     </p>
 
@@ -271,7 +271,7 @@
     </div>
 
     <p>
-      On paper that 45/45/10 split looks fine - you're right 90% of the time. In gross terms you end up
+      On paper that 45/45/10 split looks fine: you're right 90% of the time. In gross terms you end up
       flat on half your trades. The real kick in the teeth comes when you layer transaction costs on top.
       Draws become losses. Some wins become draws. The 65% that looked like acceptable churn is now
       net-negative territory. The strategy that didn't lose is now definitely losing.
@@ -361,7 +361,7 @@
 
     <p>
       The draw zone on NSE isn't 1 tick wide. It's <strong>5.5 ticks wide</strong>. You need to capture
-      at least a ₹0.28/share move just to break even. For a ₹500 stock that's a 0.056% move per trade - on
+      at least a ₹0.28/share move just to break even. For a ₹500 stock that's a 0.056% move per trade, on
       a strategy designed to trade 1–2 tick setups. The math collapses before you've written a single line
       of strategy logic.
     </p>
@@ -369,7 +369,7 @@
     <div class="callout">
       <div class="callout-label">STT is the largest single line item</div>
       <p>
-        STT alone - 0.025% on sell-side turnover - costs 2.5 ticks per round trip. Stamp Duty on the
+        STT alone, at 0.025% on sell-side turnover, costs 2.5 ticks per round trip. Stamp Duty on the
         buy side costs another 1.5. Together, those two government levies account for 4 of your 5.5-tick
         break-even before the exchange has taken a rupee. There's no way to negotiate or route around them.
       </p>
@@ -379,7 +379,7 @@
 
     <p>
       The knee-jerk response is to switch to Nifty futures where tick size is 0.5 points and contract
-      value is larger - costs get diluted, right? Partially. But Budget 2026 had other ideas. From
+      value is larger, so costs get diluted, right? Partially. But Budget 2026 had other ideas. From
       April 1st, STT on futures went from 0.02% to <strong>0.05%</strong> on the sell side. A 150% jump.
     </p>
 
@@ -431,21 +431,21 @@
 
     <div class="formula">
       break-even (ticks) = total_round_trip_cost / (tick_size × lot_size)
-      <span class="formula-caption">Eq. 1 - Minimum price move required for net-zero P&amp;L</span>
+      <span class="formula-caption">Eq. 1: Minimum price move required for net-zero P&amp;L</span>
     </div>
 
     <h2><span class="sec">§ 5</span> The Rejected Jump Shot</h2>
 
     <p>
       Here's what's actually happening in the strategy. The model correctly identifies a 1-tick directional
-      move. Price ticks up. But within the same bar - sometimes within milliseconds - mean reversion
+      move. Price ticks up. But within the same bar, sometimes within milliseconds, mean reversion
       kicks in. Everyone who was waiting on the first uptick jumps on it, sells into the move, and the
       price is knocked straight back down. In basketball terms: a clean read of the defence, a good jump
       shot, rejected at the rim by the shot blocker who was already positioned.
     </p>
 
     <p>
-      The gross P&amp;L on a rejected jump shot is zero - the model predicted correctly. The net P&amp;L
+      The gross P&amp;L on a rejected jump shot is zero, since the model predicted correctly. The net P&amp;L
       after 5.5 ticks of transaction cost is deeply negative. And because these rejected shots happen roughly
       45% of the time, the cost bleeds are relentless. The strategy fails not because the signal is wrong
       but because statutory costs alone are wide enough to swallow the available profit on the correctly
@@ -471,8 +471,8 @@
 
     <p>
       <strong>Whether futures make sense post-Budget 2026.</strong> The STT hike to 0.05% substantially
-      narrows the window for intraday futures strategies. Options have their own cost dynamics - options
-      STT is now 0.15% on premium, up from 0.10% - and the tick structure is non-linear. Neither segment
+      narrows the window for intraday futures strategies. Options have their own cost dynamics: options
+      STT is now 0.15% on premium, up from 0.10%, and the tick structure is non-linear. Neither segment
       is obviously better than equity cash for a tick-level approach. The search continues.
     </p>
 
@@ -480,7 +480,7 @@
       ...the expedition continues.
     </p>
 
-    <h2><span class="sec">§ A</span> Appendix - Cost Calculator (Python)</h2>
+    <h2><span class="sec">§ A</span> Appendix: Cost Calculator (Python)</h2>
 
     <p>
       The numbers in this post come from a small utility I keep updated whenever SEBI or the exchanges
@@ -647,7 +647,7 @@ if __name__ == '__main__':
 
     <p>
       Running the example above at a 6-tick profit target (₹0.30/share on a ₹500 stock) produces a
-      net positive P&amp;L - but only just. Drop to 5 ticks and the trade is net-zero. Drop to 4 ticks
+      net positive P&amp;L, but only just. Drop to 5 ticks and the trade is net-zero. Drop to 4 ticks
       and the statutory charges eat you alive. That's the black hole: it's invisible in gross P&amp;L,
       relentless in net.
     </p>

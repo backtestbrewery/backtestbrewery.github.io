@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Alpha Decay — Why Your Edge Has a Half-Life — Backtest Brewery</title>
+  <title>Alpha Decay: Why Your Edge Has a Half-Life · Backtest Brewery</title>
   <link rel="canonical" href="https://www.alphanova.tech/blog/alpha-decay-trading-edges-half-life" />
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-94T1HV61JS"></script>
   <script>
@@ -198,7 +198,7 @@
 
     <p>
       The term borrows deliberately from nuclear physics (which is a very interesting subject in itself). A radioactive isotope loses half its
-      activity in a fixed period — the half-life. A trading signal loses half its predictive power
+      activity in a fixed period, called the half-life. A trading signal loses half its predictive power
       on a similar curve. The only question is how steep that curve is. And that answer depends
       almost entirely on the frequency at which you are operating.
     </p>
@@ -206,7 +206,7 @@
     <h2><span class="sec">§ 1</span> What Alpha Actually Decays Into</h2>
 
     <p>
-      Alpha exists because of an information asymmetry — you know something the price does not yet
+      Alpha exists because of an information asymmetry: you know something the price does not yet
       reflect. The decay happens as that information propagates. Other participants observe the same
       patterns, deploy similar logic, and compete away the edge. What was once a 10 bps expected
       return per trade becomes 6, then 2, then noise. 
@@ -221,16 +221,16 @@
 
     <div class="formula">
       <span class="formula-row">α(t) = α₀ · e<sup>−λt</sup></span>
-      <span class="formula-row" style="color:var(--muted); font-size:0.78rem;">where λ is the decay rate — high in HFT, low in MFT</span>
-      <span class="formula-caption">Stylised alpha decay model — exponential erosion of signal strength over time</span>
+      <span class="formula-row" style="color:var(--muted); font-size:0.78rem;">where λ is the decay rate (high in HFT, low in MFT)</span>
+      <span class="formula-caption">Stylised alpha decay model: exponential erosion of signal strength over time</span>
     </div>
 
-    <h2><span class="sec">§ 2</span> HFT — Edges Measured in Microseconds</h2>
+    <h2><span class="sec">§ 2</span> HFT: Edges Measured in Microseconds</h2>
 
     <p>
       At the high-frequency end, alpha decay is not a quarterly review problem. It is a
       <em>today</em> problem. HFT strategies extract edge from execution quality, latency
-      advantages, and order book microstructure — not from any fundamental view on where a
+      advantages, and order book microstructure, not from any fundamental view on where a
       stock should trade. The signal is the spread. The alpha is the fill.
     </p>
 
@@ -253,10 +253,10 @@
       </p>
     </div>
 
-    <h2><span class="sec">§ 3</span> MFT — Slower Decay, Deeper Roots</h2>
+    <h2><span class="sec">§ 3</span> MFT: Slower Decay, Deeper Roots</h2>
 
     <p>
-      Medium-frequency strategies — holding periods from hours to a few days — operate on a
+      Medium-frequency strategies, with holding periods from hours to a few days, operate on a
       different informational basis. The signals here are closer to price action: momentum,
       mean reversion, volatility regimes, order flow imbalance over longer windows. These
       are not pure microstructure plays. There is a fundamental logic underneath them, even
@@ -264,8 +264,8 @@
     </p>
 
     <p>
-      Because the signal is rooted in something more structural, for example, how participants behave
-      across a session, how volatility clusters, how trends persist or reverse — the decay
+      Because the signal is rooted in something more structural, such as how participants behave
+      across a session, how volatility clusters, and how trends persist or reverse, the decay
       rate is meaningfully slower. A well-constructed MFT momentum signal might have a
       half-life measured in <strong>months to a few years</strong> before the edge is
       substantially competed away. Capacity is larger, the universe of applicable instruments
@@ -284,8 +284,8 @@
         <tbody>
           <tr>
             <td>Holding period</td>
-            <td>Microseconds – seconds</td>
-            <td>Hours – days</td>
+            <td>Microseconds to seconds</td>
+            <td>Hours to days</td>
           </tr>
           <tr>
             <td>Edge source</td>
@@ -299,13 +299,13 @@
           </tr>
           <tr>
             <td>Alpha half-life</td>
-            <td>Weeks – months</td>
-            <td>Months – years</td>
+            <td>Weeks to months</td>
+            <td>Months to years</td>
           </tr>
           <tr>
             <td>Crowding risk</td>
-            <td>Extreme — arms race dynamics</td>
-            <td>Moderate — capacity absorbs more capital</td>
+            <td>Extreme: arms race dynamics</td>
+            <td>Moderate: capacity absorbs more capital</td>
           </tr>
           <tr>
             <td>Decay driver</td>

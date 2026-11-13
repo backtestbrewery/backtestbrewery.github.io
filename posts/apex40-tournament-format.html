@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Optimising the World Cup — The Apex 40 Format — Backtest Brewery</title>
+  <title>Optimising the World Cup: The Apex 40 Format · Backtest Brewery</title>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-94T1HV61JS"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -204,7 +204,7 @@
       The idea: reduce the field from 48 to 40 teams, replace the group stage with a 4-round
       Swiss system, add a Wild Card elimination round for places 13–20, and enforce medical-grade
       rest protocols throughout. Call it the Apex 40. Total matches: 100. Total duration: 50 days.
-      The question I want to dig into is not "would this be fun to watch" — it obviously would —
+      The question I want to dig into is not "would this be fun to watch" (it obviously would)
       but whether the math actually holds up.
     </p>
 
@@ -217,7 +217,7 @@
 
     <div class="formula">
       <span class="formula-row">min Z = w₁·C_operational + w₂·C_travel + w₃·C_rest + w₄·C_fairness + w₅·C_quality</span>
-      <span class="formula-caption">Eq. 1 — MILP objective function over five cost components</span>
+      <span class="formula-caption">Eq. 1: MILP objective function over five cost components</span>
     </div>
 
     <p>
@@ -226,22 +226,22 @@
 
     <div class="formula">
       <span class="formula-row">C_travel = Σ_(t,i,j) dist(i,j) · y[t,i,j]</span>
-      <span class="formula-indent">— total weighted team travel distance across all rounds</span>
+      <span class="formula-indent">total weighted team travel distance across all rounds</span>
       <span class="formula-row" style="margin-top:0.6rem;">C_rest = Σ_(t,m) max(0, R_min_stage − r_eff[t,m])</span>
-      <span class="formula-indent">— penalty for effective rest falling below minimum, after deducting travel time</span>
+      <span class="formula-indent">penalty for effective rest falling below minimum, after deducting travel time</span>
       <span class="formula-row" style="margin-top:0.6rem;">C_fairness = Var(points_earned / opponent_quality[t])</span>
-      <span class="formula-indent">— variance in quality-adjusted performance across all teams</span>
+      <span class="formula-indent">variance in quality-adjusted performance across all teams</span>
       <span class="formula-row" style="margin-top:0.6rem;">C_quality = Σ_m FIFA_rank_gap[m] / 40</span>
-      <span class="formula-indent">— penalises large mismatches; by construction smaller in Swiss than fixed groups</span>
-      <span class="formula-caption">Eq. 2 — Expanded cost components</span>
+      <span class="formula-indent">penalises large mismatches; by construction smaller in Swiss than fixed groups</span>
+      <span class="formula-caption">Eq. 2: Expanded cost components</span>
     </div>
 
     <p>
-      The structure is familiar to anyone who has written a portfolio optimisation — you are minimising
+      The structure is familiar to anyone who has written a portfolio optimisation: you are minimising
       a weighted sum of costs, each of which captures something you care about but which partially
       conflict with each other. Lower travel cost might mean playing more matches in the same venue,
       which conflicts with optimal rest windows. The weights <code>w₁...w₅</code> are calibration
-      parameters — I have not pinned their exact values, which is an honest admission that this is
+      parameters. I have not pinned their exact values, which is an honest admission that this is
       a policy choice as much as a mathematical one.
     </p>
 
@@ -255,30 +255,30 @@
     <div class="formula">
       <span class="formula-row"><strong>C-Swiss-1: No Rematch</strong></span>
       <span class="formula-row">Σ_(d &lt; d') x[m,s,d] · x[m',s',d'] = 0  ∀ (t₁,t₂) pairs already matched</span>
-      <span class="formula-caption">Eq. 3 — No pair of teams may meet twice in the Swiss phase</span>
+      <span class="formula-caption">Eq. 3: No pair of teams may meet twice in the Swiss phase</span>
     </div>
 
     <div class="formula">
       <span class="formula-row"><strong>C-Swiss-2: Points-Ordered Pairing</strong></span>
       <span class="formula-row">rank[t₁,d] − rank[t₂,d] ≤ 3  ∀ match m on day d</span>
-      <span class="formula-caption">Eq. 4 — Teams paired within 3 ranking positions of each other</span>
+      <span class="formula-caption">Eq. 4: Teams paired within 3 ranking positions of each other</span>
     </div>
 
     <div class="formula">
       <span class="formula-row"><strong>C-Swiss-3: Wild Card Seeding</strong></span>
       <span class="formula-row">y_wc[i,j] = 1  iff  i = (12+k) and j = (21−k)  for k = 1,2,3,4</span>
-      <span class="formula-caption">Eq. 5 — 13th vs 20th, 14th vs 19th, 15th vs 18th, 16th vs 17th</span>
+      <span class="formula-caption">Eq. 5: 13th vs 20th, 14th vs 19th, 15th vs 18th, 16th vs 17th</span>
     </div>
 
     <div class="formula">
       <span class="formula-row"><strong>C-Swiss-4: Effective Rest with Travel Deduction</strong></span>
       <span class="formula-row">r_eff[t,m] = r[t,m] − TravelTime[t, prev_venue → next_venue] ≥ R_min_stage</span>
-      <span class="formula-caption">Eq. 6 — Effective rest must exceed minimum after deducting travel hours</span>
+      <span class="formula-caption">Eq. 6: Effective rest must exceed minimum after deducting travel hours</span>
     </div>
 
     <p>
       C-Swiss-2 is the critical one. The ≤ 3 ranking-position bound means you always play someone
-      at approximately your current level — but not necessarily your exact mirror. This is important
+      at approximately your current level, though not necessarily your exact mirror. This is important
       because in a 40-team field with a no-rematch constraint, strict adjacent pairing (rank 1 vs 2,
       3 vs 4...) quickly becomes infeasible once teams share identical points records. The ±3 slack
       allows the algorithm to find valid pairings without compromising competitive balance too severely.
@@ -286,12 +286,12 @@
 
     <p>
       C-Swiss-4 is quietly the most operationally significant. Scheduling rest as a raw time gap
-      is naive — a team that finishes a match in São Paulo and plays next in New York four days later
+      is naive. A team that finishes a match in São Paulo and plays next in New York four days later
       has effectively lost a day to travel. The constraint bakes this in explicitly, which is genuinely
       novel in tournament scheduling literature.
     </p>
 
-    <h2><span class="sec">§ 3</span> Match Importance — Formal Definition</h2>
+    <h2><span class="sec">§ 3</span> Match Importance: Formal Definition</h2>
 
     <p>
       Match importance here is defined as the probability that a result materially changes at least
@@ -300,11 +300,11 @@
 
     <div class="formula">
       <span class="formula-row">I(m) = 1 − P(result_m has no effect on team's qualification status)</span>
-      <span class="formula-caption">Eq. 7 — Match importance as probability of material outcome effect</span>
+      <span class="formula-caption">Eq. 7: Match importance as probability of material outcome effect</span>
     </div>
 
     <p>
-      The no-effect probability is estimated via Monte Carlo — 10,000 simulated Apex 40 tournaments.
+      The no-effect probability is estimated via Monte Carlo, using 10,000 simulated Apex 40 tournaments.
       The results are striking:
     </p>
 
@@ -367,9 +367,9 @@
 
     <p>
       The 85% figure for Round 1 is the only number that invites scrutiny. A Round 1 loss doesn't
-      eliminate you — it just sends you into a harder bracket. True, but it slightly inflates the
+      eliminate you. It just sends you into a harder bracket. True, but it slightly inflates the
       importance score: a team that loses Round 1 has not had a match that changed their qualification
-      status in any concrete sense — they have simply had their path made harder. Whether "harder path"
+      status in any concrete sense. They have simply had their path made harder. Whether "harder path"
       constitutes "material effect" is a definitional choice that slightly flatters the format.
     </p>
 
@@ -379,11 +379,11 @@
       qualification cutoff.
     </p>
 
-    <h2><span class="sec">§ 4</span> Fairness — The Gini Coefficient</h2>
+    <h2><span class="sec">§ 4</span> Fairness: The Gini Coefficient</h2>
 
     <p>
       I used the Gini coefficient of expected advancement probability across all 40 teams as
-      the primary fairness metric — a coefficient of 0 means all teams have equal expected advancement,
+      the primary fairness metric. A coefficient of 0 means all teams have equal expected advancement,
       1 means one team has certainty. The comparison across formats:
     </p>
 
@@ -440,7 +440,7 @@
 
     <p>
       The 0.00 draw effect is the most important number in this table. Every group-based format
-      introduces randomness at the draw stage — which group you land in affects your qualification
+      introduces randomness at the draw stage: which group you land in affects your qualification
       probability before a single match is played. The Apex 40's Swiss system self-corrects for
       this entirely: pre-draw and post-draw Gini are identical because there is no draw.
     </p>
@@ -449,7 +449,7 @@
       The jump from Swiss 48 at 0.19 to Apex 40 at 0.14 is the direct effect of adding a fourth
       round. More rounds of self-correcting pairing means more equalisation of opponent difficulty,
       which compresses the expected advancement distribution further. The law of diminishing returns
-      applies — a 5th round would probably drop this to ~0.11, but the schedule cost would be
+      applies. A 5th round would probably drop this to ~0.11, but the schedule cost would be
       prohibitive.
     </p>
 
@@ -463,15 +463,15 @@
     <div class="formula">
       <span class="formula-row">τ(FIFA rank, PPG) ≈ 0.61 over 3 group games</span>
       <span class="formula-row">τ(FIFA rank, PPG) ≈ 0.79 over 4+ games</span>
-      <span class="formula-caption">Eq. 8 — Kendall's tau rank correlation: quality vs. measured performance</span>
+      <span class="formula-caption">Eq. 8: Kendall's tau rank correlation: quality vs. measured performance</span>
     </div>
 
     <p>
-      This is the statistical argument for why a 4th game matters. Football is a high-variance sport —
+      This is the statistical argument for why a 4th game matters. Football is a high-variance sport:
       a single red card or penalty decision can swing a match. Three games is a dangerously small
       sample to determine who advances in a tournament supposedly identifying the best team in the world.
       The jump from 0.61 to 0.79 with one additional game is a substantial improvement in measurement
-      reliability — and the cleanest empirical argument for the format.
+      reliability, and the cleanest empirical argument for the format.
     </p>
 
     <h2><span class="sec">§ 6</span> Full Format Comparison</h2>
@@ -567,7 +567,7 @@
     </div>
 
     <p>
-      The asterisk on the pure knockout format is important — it achieves 100% match importance
+      The asterisk on the pure knockout format is important: it achieves 100% match importance
       trivially, because every game is elimination. But a single bad day sends you home after one
       match. That is not fairness, it is volatility. The Apex 40's 97% average is more interesting
       precisely because it achieves near-equivalent match stakes while giving teams four chances to
@@ -576,7 +576,7 @@
 
     <p>
       The 8×6 groups format (eight groups of six teams, top two advance) is the obvious candidate.
-      It produces 136 total matches — 36 more than Apex 40 — while achieving <em>lower</em> match
+      It produces 136 total matches, 36 more than Apex 40, while achieving <em>lower</em> match
       importance (69%) because the third-through-sixth teams in each group frequently have nothing
       meaningful to play for in later group games. More matches, less drama. Bad trade.
     </p>
@@ -587,7 +587,7 @@
         The most underappreciated number in this whole analysis is the 0.00 draw effect on the Gini
         coefficient. In the current FIFA format, your group draw moves expected advancement probability
         by ±0.02 Gini points before any football is played. That might sound small. For a team on the
-        margin of the field — the 40th or 45th ranked nation — the difference between being drawn into
+        margin of the field, such as the 40th or 45th ranked nation, the difference between being drawn into
         an easy group and a group of death can be the difference between qualifying and going home.
         The Swiss system eliminates this entirely.
       </p>

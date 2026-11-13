@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Benford's Law as a Market Anomaly Detector — Backtest Brewery</title>
+  <title>Benford's Law as a Market Anomaly Detector · Backtest Brewery</title>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-94T1HV61JS"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -235,14 +235,14 @@
 
     <p>
       It shows up in census data, stock prices, accounting figures, earthquake magnitudes, street addresses.
-      The intuition is that data spanning multiple orders of magnitude — anything that grows or compounds
-      over time — tends to spend more time with smaller leading digits simply because of how logarithmic
+      The intuition is that data spanning multiple orders of magnitude (anything that grows or compounds
+      over time) tends to spend more time with smaller leading digits simply because of how logarithmic
       scales work. Markets, which are multiplicative by nature, are a natural candidate.
     </p>
 
     <p>
-      What I found interesting is not that markets follow Benford's Law — they approximately do, most of
-      the time — but what happens when they stop following it. When the observed distribution of
+      What I found interesting is not that markets follow Benford's Law (they approximately do, most of
+      the time) but what happens when they stop following it. When the observed distribution of
       leading digits in recent price changes diverges significantly from the Benford expectation, something
       in the data's behaviour has changed. The question is whether that change is tradeable.
     </p>
@@ -250,7 +250,7 @@
     <div class="figure">
       <img src="fig1_benford_theory.png" alt="Benford's Law theoretical distribution" />
       <div class="figure-caption">
-        <span class="fig-num">Fig. 1 —</span>
+        <span class="fig-num">Fig. 1:</span>
         The theoretical first-digit distribution from Benford's Law.
         Digit 1 accounts for ~30% of occurrences; each successive digit is less frequent.
       </div>
@@ -260,19 +260,19 @@
 
     <p>
       Daily percentage changes in asset prices are not uniformly distributed across leading digits. They
-      can't be — the distribution of returns is itself structured. Small moves (0.1%, 1.x%, 2.x%) are
+      can't be, because the distribution of returns is itself structured. Small moves (0.1%, 1.x%, 2.x%) are
       far more common than large moves (8.x%, 9.x%). That asymmetry, when you extract just the first
       digit, produces a distribution that loosely mirrors Benford's.
     </p>
 
     <div class="formula">
       P(d) = log₁₀(1 + 1/d) &nbsp;&nbsp; for d ∈ {1, 2, ..., 9}
-      <span class="formula-caption">Eq. 1 — Benford's Law probability for leading digit d</span>
+      <span class="formula-caption">Eq. 1: Benford's Law probability for leading digit d</span>
     </div>
 
     <p>
-      The alignment is imperfect — financial returns have fat tails and are not scale-invariant in the
-      strict sense — but over rolling windows of reasonable length, markets tend to produce digit
+      The alignment is imperfect, since financial returns have fat tails and are not scale-invariant in the
+      strict sense, but over rolling windows of reasonable length, markets tend to produce digit
       distributions that pass a chi-square goodness-of-fit test against Benford's expected frequencies.
       The interesting signal is when they don't.
     </p>
@@ -312,26 +312,26 @@ def benford(df, n=20):
     return df</code></pre>
 
     <p>
-      A few decisions embedded in that code are worth unpacking. The window is set to 20 bars — small
+      A few decisions embedded in that code are worth unpacking. The window is set to 20 bars: small
       enough to be responsive, large enough that the chi-square test has meaningful degrees of freedom
       to work with. Laplace smoothing (adding 1 to each count before normalising) prevents zero-frequency
-      cells from inflating the test statistic artificially. And the threshold is the standard 0.05 — nothing
+      cells from inflating the test statistic artificially. And the threshold is the standard 0.05. Nothing
       clever there, it's a starting point.
     </p>
 
     <p>
       The chi-square test here has 8 degrees of freedom (9 digit categories minus 1). The critical
-      value at α = 0.05 is 15.5. When the observed digit distribution is wildly skewed — say, an unusual
-      cluster of large-digit moves (7%, 8%, 9% daily changes) — the statistic blows past that threshold
+      value at α = 0.05 is 15.5. When the observed digit distribution is wildly skewed, say with an unusual
+      cluster of large-digit moves (7%, 8%, 9% daily changes), the statistic blows past that threshold
       and the flag fires.
     </p>
 
     <div class="figure">
       <img src="fig2_observed_vs_expected.png" alt="Observed vs expected digit distributions" />
       <div class="figure-caption">
-        <span class="fig-num">Fig. 2 —</span>
+        <span class="fig-num">Fig. 2:</span>
         Left: a quiet window where the observed digit distribution roughly tracks the Benford expectation.
-        Right: a flagged window — note the concentration in higher digits, indicating larger-than-normal moves dominating the recent window.
+        Right: a flagged window. Note the concentration in higher digits, indicating larger-than-normal moves dominating the recent window.
       </div>
     </div>
 
@@ -339,13 +339,13 @@ def benford(df, n=20):
 
     <p>
       A Benford deviation flag does not tell you direction. It does not say "sell" or "buy." It says the
-      recent return environment has been abnormal — the mix of move sizes has diverged from what you'd
+      recent return environment has been abnormal: the mix of move sizes has diverged from what you'd
       expect under ordinary market behaviour. In practice, this tends to coincide with:
     </p>
 
     <ul style="padding-left:1.4rem; margin-bottom:1.2rem; color:var(--muted); font-size:0.97rem; line-height:1.9;">
       <li>Sustained trending with large daily moves (lots of 5s, 6s, 7s as leading digits)</li>
-      <li>Volatility clusters — not a single spike, but a run of outsized bars</li>
+      <li>Volatility clusters: not a single spike, but a run of outsized bars</li>
       <li>Regime transitions, where the character of price action is changing</li>
     </ul>
 
@@ -358,8 +358,8 @@ def benford(df, n=20):
     <h2><span class="sec">§ 5</span> How I Use It in the Strategy</h2>
 
     <p>
-      In the full strategy — which combines Heikin-Ashi candles, Supertrend, ADXR, PVO, and a smoothened
-      Parabolic SAR — the Benford flag is wired into the exit logic on long positions only. The reasoning
+      In the full strategy, which combines Heikin-Ashi candles, Supertrend, ADXR, PVO, and a smoothened
+      Parabolic SAR, the Benford flag is wired into the exit logic on long positions only. The reasoning
       is asymmetric: on a long, you are exposed to sudden downward moves. If the market has recently been
       printing large-digit moves, the probability of a violent reversal is elevated. The flag is a prompt
       to step aside.
@@ -367,7 +367,7 @@ def benford(df, n=20):
 
     <pre><code><span class="pre-lang">python</span>if pos == 1:
     if deviation == 1:
-        # Benford flag — exit regardless of other signals
+        # Benford flag: exit regardless of other signals
         data.at[i + 1, 'Position'] = 0
     elif close_price < supertrend and ha_close <= ha_open:
         data.at[i + 1, 'Position'] = 0
@@ -378,7 +378,7 @@ def benford(df, n=20):
         data.at[i + 1, 'Position'] = 1</code></pre>
 
     <p>
-      The flag takes priority — it overrides all other hold conditions. This is intentional. The philosophy
+      The flag takes priority and overrides all other hold conditions. This is intentional. The philosophy
       is that if the price action has become structurally abnormal, no other indicator is reliable enough
       to argue against getting out. The strategy re-enters when conditions normalise, so missing a few bars
       while waiting for the flag to clear is an acceptable cost.
@@ -388,7 +388,7 @@ def benford(df, n=20):
       <div class="callout-label">Note on short exits</div>
       <p>
         The Benford flag is not currently wired into short exit logic. On a short position, large-digit
-        moves in the downward direction are in your favour — the flag fires indiscriminately regardless of
+        moves in the downward direction are in your favour, but the flag fires indiscriminately regardless of
         direction. Filtering the flag by the sign of recent moves (only exit shorts on upward large-digit
         clusters) is a logical extension I haven't tested yet.
       </p>
@@ -404,22 +404,22 @@ def benford(df, n=20):
     <p>
       <strong>The 20-bar window is arbitrary.</strong> I picked it because it felt responsive without being
       noisy, but I have not run a proper sensitivity analysis. A shorter window (10 bars) produces far more
-      flags with questionable informativeness. A longer window (60 bars) almost never fires — which might
+      flags with questionable informativeness. A longer window (60 bars) almost never fires, which might
       be better, or might just mean it misses the signal entirely.
     </p>
 
     <p>
       <strong>Benford's Law and financial returns are not a natural fit.</strong> The law's theoretical
-      grounding assumes data spanning several orders of magnitude. Daily percentage changes are bounded —
-      they don't range from 0.0001% to 10000%. The approximate match is empirical, not derivable. I am
+      grounding assumes data spanning several orders of magnitude. Daily percentage changes are bounded.
+      They don't range from 0.0001% to 10000%. The approximate match is empirical, not derivable. I am
       using the distribution as a benchmark for "normal" digit mix, not as a strict probabilistic model.
     </p>
 
     <p>
       <strong>The chi-square test assumes independence.</strong> Rolling windows of daily returns are not
       independent. Consecutive windows overlap by <code>n-1</code> bars. The test's p-values are therefore
-      not strictly valid as independent hypothesis tests. They are being used as a relative measure — how
-      far is this window from Benford — not as a formal statistical claim.
+      not strictly valid as independent hypothesis tests. They are being used as a relative measure (how
+      far is this window from Benford), not as a formal statistical claim.
     </p>
 
     <p>
