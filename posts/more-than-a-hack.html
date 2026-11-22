@@ -383,7 +383,7 @@
       <span class="meta-dot"></span>
       <span class="meta-tag">Football &middot; Tracking Data &middot; Machine Learning &middot; Out of Sample</span>
       <span class="meta-dot"></span>
-      <span>24 min read</span>
+      <span>26 min read</span>
     </div>
   </div>
 
@@ -442,8 +442,8 @@
       This post is the full report on our final submission, written the way I'd write up a backtest. The
       headline numbers first, then the data, the signal, the costs, the out-of-sample tests, what failed,
       and what I'd do next. Along the way I'll point out where each idea came from, because almost every
-      one of them came from markets. It's written before the results are out, which feels like the honest
-      way to write it.
+      one of them came from markets. I wrote it before the results were out, which felt like the honest
+      way to write it. The result, and what it taught me, is in a postscript at the end.
     </p>
 
     <h2><span class="sec">&sect; 1</span>The Tear Sheet</h2>
@@ -1481,9 +1481,147 @@
     </ol>
 
     <p>
-      Whatever the leaderboard says on 26 November, the thing I'll keep is this. A football match and a
-      market are both noisy streams hiding a state you can't see, and the tools carry over almost
-      untouched. That's what made it more than a hack.
+      Whatever the leaderboard said, the thing I'll keep is this. A football match and a market are both
+      noisy streams hiding a state you can't see, and the tools carry over almost untouched. That's what
+      made it more than a hack.
+    </p>
+
+    <h2><span class="sec">&sect; 18</span>Postscript: The Live Result</h2>
+
+    <p>
+      The scoreboard came out on 20 November. Out of <strong>759 entries</strong>, EM FC finished
+      <strong>137th</strong> with a spellF1 of <strong>0.574</strong> on the full match.
+    </p>
+
+    <div class="glance">
+      <div><span class="g-num">137th</span><span class="g-lab">of 759 entries</span></div>
+      <div><span class="g-num">Top 18%</span><span class="g-lab">ahead of 622 entries</span></div>
+      <div><span class="g-num">0.574</span><span class="g-lab">our full-match spellF1</span></div>
+      <div><span class="g-num">0.710</span><span class="g-lab">the winning score</span></div>
+    </div>
+
+    <div class="figure">
+<svg viewBox="0 0 640 278" role="img" aria-label="Distribution of all 759 scores on the official scoreboard, with EM FC marked">
+<line class="ch-grid" x1="50.0" y1="230.0" x2="610.0" y2="230.0"/>
+<text class="f-t" x="42.0" y="234.0" text-anchor="end">0</text>
+<line class="ch-grid" x1="50.0" y1="184.3" x2="610.0" y2="184.3"/>
+<text class="f-t" x="42.0" y="188.3" text-anchor="end">20</text>
+<line class="ch-grid" x1="50.0" y1="138.6" x2="610.0" y2="138.6"/>
+<text class="f-t" x="42.0" y="142.6" text-anchor="end">40</text>
+<line class="ch-grid" x1="50.0" y1="92.9" x2="610.0" y2="92.9"/>
+<text class="f-t" x="42.0" y="96.9" text-anchor="end">60</text>
+<rect class="ch-f-id" x="51.0" y="230.0" width="13.6" height="0.0"><title>0.00 to 0.02: 0 entries</title></rect>
+<rect class="ch-f-id" x="66.6" y="227.7" width="13.6" height="2.3"><title>0.02 to 0.04: 1 entries</title></rect>
+<rect class="ch-f-id" x="82.1" y="225.4" width="13.6" height="4.6"><title>0.04 to 0.06: 2 entries</title></rect>
+<rect class="ch-f-id" x="97.7" y="227.7" width="13.6" height="2.3"><title>0.06 to 0.08: 1 entries</title></rect>
+<rect class="ch-f-id" x="113.2" y="230.0" width="13.6" height="0.0"><title>0.08 to 0.10: 0 entries</title></rect>
+<rect class="ch-f-id" x="128.8" y="230.0" width="13.6" height="0.0"><title>0.10 to 0.12: 0 entries</title></rect>
+<rect class="ch-f-id" x="144.3" y="227.7" width="13.6" height="2.3"><title>0.12 to 0.14: 1 entries</title></rect>
+<rect class="ch-f-id" x="159.9" y="227.7" width="13.6" height="2.3"><title>0.14 to 0.16: 1 entries</title></rect>
+<rect class="ch-f-id" x="175.4" y="225.4" width="13.6" height="4.6"><title>0.16 to 0.18: 2 entries</title></rect>
+<rect class="ch-f-id" x="191.0" y="225.4" width="13.6" height="4.6"><title>0.18 to 0.20: 2 entries</title></rect>
+<rect class="ch-f-id" x="206.6" y="223.1" width="13.6" height="6.9"><title>0.20 to 0.22: 3 entries</title></rect>
+<rect class="ch-f-id" x="222.1" y="204.9" width="13.6" height="25.1"><title>0.22 to 0.24: 11 entries</title></rect>
+<rect class="ch-f-id" x="237.7" y="168.3" width="13.6" height="61.7"><title>0.24 to 0.26: 27 entries</title></rect>
+<rect class="ch-f-id" x="253.2" y="188.9" width="13.6" height="41.1"><title>0.26 to 0.28: 18 entries</title></rect>
+<rect class="ch-f-id" x="268.8" y="145.4" width="13.6" height="84.6"><title>0.28 to 0.30: 37 entries</title></rect>
+<rect class="ch-f-id" x="284.3" y="136.3" width="13.6" height="93.7"><title>0.30 to 0.32: 41 entries</title></rect>
+<rect class="ch-f-id" x="299.9" y="88.3" width="13.6" height="141.7"><title>0.32 to 0.34: 62 entries</title></rect>
+<rect class="ch-f-id" x="315.4" y="79.1" width="13.6" height="150.9"><title>0.34 to 0.36: 66 entries</title></rect>
+<rect class="ch-f-id" x="331.0" y="118.0" width="13.6" height="112.0"><title>0.36 to 0.38: 49 entries</title></rect>
+<rect class="ch-f-id" x="346.6" y="140.9" width="13.6" height="89.1"><title>0.38 to 0.40: 39 entries</title></rect>
+<rect class="ch-f-id" x="362.1" y="134.0" width="13.6" height="96.0"><title>0.40 to 0.42: 42 entries</title></rect>
+<rect class="ch-f-id" x="377.7" y="166.0" width="13.6" height="64.0"><title>0.42 to 0.44: 28 entries</title></rect>
+<rect class="ch-f-id" x="393.2" y="170.6" width="13.6" height="59.4"><title>0.44 to 0.46: 26 entries</title></rect>
+<rect class="ch-f-id" x="408.8" y="166.0" width="13.6" height="64.0"><title>0.46 to 0.48: 28 entries</title></rect>
+<rect class="ch-f-id" x="424.3" y="170.6" width="13.6" height="59.4"><title>0.48 to 0.50: 26 entries</title></rect>
+<rect class="ch-f-id" x="439.9" y="170.6" width="13.6" height="59.4"><title>0.50 to 0.52: 26 entries</title></rect>
+<rect class="ch-f-id" x="455.4" y="175.1" width="13.6" height="54.9"><title>0.52 to 0.54: 24 entries</title></rect>
+<rect class="ch-f-id" x="471.0" y="145.4" width="13.6" height="84.6"><title>0.54 to 0.56: 37 entries</title></rect>
+<rect class="ch-f-on" x="486.6" y="143.1" width="13.6" height="86.9"><title>0.56 to 0.58: 38 entries</title></rect>
+<rect class="ch-f-id" x="502.1" y="136.3" width="13.6" height="93.7"><title>0.58 to 0.60: 41 entries</title></rect>
+<rect class="ch-f-id" x="517.7" y="159.1" width="13.6" height="70.9"><title>0.60 to 0.62: 31 entries</title></rect>
+<rect class="ch-f-id" x="533.2" y="182.0" width="13.6" height="48.0"><title>0.62 to 0.64: 21 entries</title></rect>
+<rect class="ch-f-id" x="548.8" y="191.1" width="13.6" height="38.9"><title>0.64 to 0.66: 17 entries</title></rect>
+<rect class="ch-f-id" x="564.3" y="218.6" width="13.6" height="11.4"><title>0.66 to 0.68: 5 entries</title></rect>
+<rect class="ch-f-id" x="579.9" y="220.9" width="13.6" height="9.1"><title>0.68 to 0.70: 4 entries</title></rect>
+<rect class="ch-f-id" x="595.4" y="225.4" width="13.6" height="4.6"><title>0.70 to 0.72: 2 entries</title></rect>
+<line class="ch-axis" x1="50.0" y1="230.0" x2="610.0" y2="230.0"/>
+<text class="f-t" x="50.0" y="248.0" text-anchor="middle">0</text>
+<text class="f-t" x="127.8" y="248.0" text-anchor="middle">0.1</text>
+<text class="f-t" x="205.6" y="248.0" text-anchor="middle">0.2</text>
+<text class="f-t" x="283.3" y="248.0" text-anchor="middle">0.3</text>
+<text class="f-t" x="361.1" y="248.0" text-anchor="middle">0.4</text>
+<text class="f-t" x="438.9" y="248.0" text-anchor="middle">0.5</text>
+<text class="f-t" x="516.7" y="248.0" text-anchor="middle">0.6</text>
+<text class="f-t" x="594.4" y="248.0" text-anchor="middle">0.7</text>
+<text class="f-t" x="330.0" y="268.0" text-anchor="middle">spellF1 on the full match</text>
+<line class="ch-ref" x1="239.2" y1="28.0" x2="239.2" y2="230.0"/>
+<text class="f-t" x="239.2" y="22.0" text-anchor="middle">floor 0.243</text>
+<line class="ch-ref" x1="364.9" y1="28.0" x2="364.9" y2="230.0"/>
+<text class="f-t" x="364.9" y="22.0" text-anchor="middle">median 0.405</text>
+<line class="ch-ref" x1="496.3" y1="28.0" x2="496.3" y2="230.0"/>
+<text class="f-t f-red" x="496.3" y="22.0" text-anchor="middle">EM FC 0.574</text>
+<line class="ch-ref" x1="602.4" y1="50.0" x2="602.4" y2="230.0"/>
+<text class="f-t" x="602.4" y="44.0" text-anchor="end">winner 0.710</text>
+</svg>
+      <p class="fig-cap">Figure 8. Every score on the official scoreboard, in bins of 0.02. The red bar holds EM FC. The floor is the organisers' 2 s baseline.</p>
+    </div>
+
+    <p>
+      That's comfortably above the median entry (0.405) and more than twice the floor. It's also a long way
+      from the top. And a quant has to say the uncomfortable part out loud: my out-of-sample estimate was
+      0.715, and live came in at 0.574. A gap of 0.14 is more than three times the 0.04 the organisers call
+      noise. The backtest was too optimistic.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Test</th><th>How foreign it was</th><th class="num">spellF1</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>10 external matches, held out</td><td>Other leagues, but degraded to look like our match</td><td class="num">0.715</td></tr>
+          <tr><td>Same, nested</td><td>As above, choices re-made blind</td><td class="num">0.713</td></tr>
+          <tr><td>Public 5 minutes of the real match</td><td>The real thing, but 17 possessions</td><td class="num">0.653</td></tr>
+          <tr><td>20 SkillCorner matches, untouched</td><td>Another league, another tracker, never used for anything</td><td class="num">0.566</td></tr>
+          <tr><td><strong>The full match, live</strong></td><td>The hidden answer key</td><td class="num"><strong>0.574</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Look at which test got closest. Not the careful leave-one-match-out number, and not the five public
+      minutes. It was the <strong>untouched SkillCorner set</strong>, the one I had the least control
+      over: a different league, a different tracker, never used to choose anything. It said 0.566. Live
+      said 0.574.
+    </p>
+
+    <p>
+      In hindsight the reason is uncomfortable but simple. The ten validation matches were "other markets",
+      but I had made them look like ours: same blackouts, same drop-outs, same noise. So they shared my
+      assumptions about what our match looks like, and they couldn't tell me where those assumptions were
+      wrong. The five public minutes flattered us exactly the way &sect; 5 warned they could: that window
+      has the ball in view far more often than the match as a whole, so it was an easy stretch. Until the
+      full answer key is published I can only guess at the rest. My best guess is short possessions: on the
+      public window we predicted 13 against 17, and a model that merges short spells pays for it every
+      time a possession is counted.
+    </p>
+
+    <div class="callout highlight">
+      <p class="callout-label">What the live result taught me</p>
+      <p>
+        An edge measured on markets you've shaped to look like yours is an upper bound, not an estimate.
+        The number to trust is the one from the test you had the least control over. I'd written about
+        backtests decaying in <a href="alpha-decay-trading.html">Alpha Decay</a>; this was the same lesson,
+        with a football instead of a price. And the winner scored 0.710, almost exactly my held-out
+        estimate, so that level was reachable on this match. The gap was transfer, not ceiling.
+      </p>
+    </div>
+
+    <p>
+      137th of 759, in a first attempt at football tracking data, built entirely without touching the
+      answer key. I'll take it, and I'll take the lesson more seriously than the rank.
     </p>
 
     <h2 class="appendix-head"><span class="sec">Refs</span> Data, Code and Further Reading</h2>
