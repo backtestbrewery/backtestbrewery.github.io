@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>More Than A Hack · Backtest Brewery</title>
+  <meta name="description" content="A full report on our More than a Hack 2027 submission: frame-level football possession for FC Barcelona v Athletic Club, built and tested the way a quant builds a trading strategy." />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-94T1HV61JS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-94T1HV61JS');
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7626712205540161"
+     crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Source+Code+Pro:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script>
+    (function(){
+      var t;
+      try { t = localStorage.getItem('bb-theme'); } catch (e) {}
+      if (!t) { t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html { font-size:19px; }
+    body {
+      background:#fbfaf7; color:#34322e;
+      font-family:'EB Garamond', Georgia, 'Times New Roman', serif;
+      line-height:1.7; -webkit-font-smoothing:antialiased;
+      transition:background 0.2s ease, color 0.2s ease;
+    }
+    .page { max-width:760px; margin:0 auto; padding:2.2rem 1.4rem 5rem; }
+
+    /* top bar */
+    .journal-bar {
+      display:flex; justify-content:space-between; align-items:center;
+      padding-bottom:1rem; border-bottom:1px solid #dcd8cf; margin-bottom:3rem;
+      font-family:'Source Code Pro', monospace; font-size:0.66rem; letter-spacing:0.06em;
+    }
+    .back-link, .nav-link { color:#77736b; text-decoration:none; }
+    .back-link:hover, .nav-link:hover { color:#1b1a18; }
+    .bar-right { display:flex; align-items:center; gap:1.2rem; }
+    #theme-toggle {
+      background:none; border:1px solid #dcd8cf; color:#77736b;
+      font-family:'Source Code Pro', monospace; font-size:0.62rem; letter-spacing:0.06em;
+      padding:0.25rem 0.6rem; cursor:pointer; display:flex; gap:0.4rem; align-items:center;
+    }
+    #theme-toggle:hover { color:#1b1a18; border-color:#1b1a18; }
+    #theme-toggle:focus-visible, a:focus-visible { outline:2px solid #a3322b; outline-offset:2px; }
+
+    /* header */
+    .post-header { margin-bottom:2.6rem; }
+    .post-label {
+      font-family:'Source Code Pro', monospace; font-size:0.62rem; letter-spacing:0.12em;
+      text-transform:uppercase; color:#a3322b; margin-bottom:0.8rem;
+    }
+    .post-title {
+      font-size:2.5rem; line-height:1.15; font-weight:500; color:#1b1a18;
+      letter-spacing:-0.01em; margin-bottom:1rem;
+    }
+    .post-meta {
+      display:flex; flex-wrap:wrap; align-items:center; gap:0.6rem;
+      font-family:'Source Code Pro', monospace; font-size:0.62rem; color:#77736b;
+      letter-spacing:0.04em;
+    }
+    .meta-dot { width:3px; height:3px; border-radius:50%; background:#77736b; display:inline-block; }
+
+    /* body */
+    .post-body p { margin-bottom:1.25rem; }
+    .post-body h2 {
+      font-size:1.45rem; font-weight:500; color:#1b1a18; line-height:1.3;
+      margin:3rem 0 1.1rem;
+    }
+    .post-body h2 .sec {
+      font-family:'Source Code Pro', monospace; font-size:0.7rem; color:#a3322b;
+      letter-spacing:0.08em; margin-right:0.7rem; vertical-align:middle;
+    }
+    .post-body strong { color:#1b1a18; font-weight:600; }
+    .post-body em { font-style:italic; }
+    .post-body a { color:#1b1a18; text-decoration:underline; text-decoration-color:#dcd8cf; text-underline-offset:3px; }
+    .post-body a:hover { text-decoration-color:#a3322b; }
+    .post-body ul, .post-body ol { margin:0 0 1.25rem 1.3rem; }
+    .post-body li { margin-bottom:0.45rem; padding-left:0.2rem; }
+
+    /* hero image */
+    .post-hero { margin:0 0 2.8rem; }
+    .post-hero img {
+      display:block; width:100%; height:auto; aspect-ratio:16 / 9; object-fit:cover;
+      border:1px solid #dcd8cf; background:#f2f0ea;
+    }
+
+    /* inline maths */
+    .m .katex { font-size:1.02em; }
+
+    /* display equations, rendered by KaTeX */
+    .eq {
+      display:grid; grid-template-columns:2.6rem minmax(0, 1fr) 2.6rem;
+      align-items:center; margin:1.7rem 0;
+    }
+    .eq-tex {
+      grid-column:2; text-align:center; overflow-x:auto; overflow-y:hidden;
+      padding:0.25rem 0; color:#1b1a18;
+    }
+    .eq-tex .katex-display { margin:0; }
+    .eq-tex .katex { font-size:1.12em; }
+    .eq-num {
+      grid-column:3; text-align:right; color:#1b1a18;
+      font-family:'KaTeX_Main', 'EB Garamond', Georgia, serif; font-size:1rem;
+    }
+    .eq-note {
+      font-size:0.86rem; color:#77736b; text-align:center; line-height:1.55;
+      max-width:34rem; margin:-0.7rem auto 1.9rem;
+    }
+
+    /* tables */
+    .table-wrap { overflow-x:auto; margin:1.6rem 0 1.9rem; }
+    table { width:100%; border-collapse:collapse; font-size:0.92rem; }
+    th {
+      font-family:'Source Code Pro', monospace; font-size:0.6rem; font-weight:500;
+      letter-spacing:0.08em; text-transform:uppercase; color:#77736b;
+      text-align:left; padding:0.55rem 0.7rem; border-bottom:1px solid #1b1a18;
+    }
+    td { padding:0.5rem 0.7rem; border-bottom:1px solid #dcd8cf; color:#34322e; }
+    td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+
+    /* callout */
+    .callout {
+      border-left:2px solid #dcd8cf;
+      padding:0.8rem 1.2rem; margin:1.8rem 0;
+      background:#f2f0ea;
+    }
+    .callout p { margin-bottom:0; font-size:0.92rem; }
+    .callout-label {
+      font-family:'Source Code Pro', monospace; font-size:0.58rem;
+      letter-spacing:0.12em; text-transform:uppercase; color:#77736b;
+      margin-bottom:0.4rem;
+    }
+    .callout.highlight { border-left-color:#1b1a18; }
+
+    /* figure */
+    .figure { margin:2rem 0 2.2rem; }
+    .figure svg { display:block; width:100%; height:auto; }
+    .fig-cap {
+      font-size:0.86rem; color:#77736b; text-align:center; line-height:1.55;
+      max-width:36rem; margin:0.6rem auto 0;
+    }
+    .ch-grid { stroke:#e6e3db; stroke-width:1; }
+    .ch-ref { stroke:#b9b5ab; stroke-width:1.2; stroke-dasharray:6 4; }
+    .ch-axis { stroke:#77736b; stroke-width:1; }
+    .ch-mark { stroke:#b9b5ab; stroke-width:1; stroke-dasharray:3 4; }
+    .ch-txt { fill:#77736b; font-family:'Source Code Pro', monospace; font-size:12px; }
+    .ch-shade { fill:#f2f0ea; }
+    .ch-on { stroke:#a3322b; stroke-width:2.5; }
+    .ch-cc { stroke:#1b1a18; stroke-width:1.6; }
+    .ch-id { stroke:#9a968c; stroke-width:1.8; }
+    .ch-f-on { fill:#a3322b; }
+    .ch-f-id { fill:#bdb9af; }
+    .ch-f-cc { fill:#1b1a18; }
+    .ch-on-t { fill:#a3322b; font-family:'EB Garamond', Georgia, serif; font-size:16px; }
+    .ch-cc-t { fill:#1b1a18; font-family:'EB Garamond', Georgia, serif; font-size:16px; }
+    .ch-id-t { fill:#77736b; font-family:'EB Garamond', Georgia, serif; font-size:16px; }
+
+    /* references */
+    .refs { font-size:0.86rem; color:#77736b; margin-top:0.4rem; }
+    .refs li { margin-bottom:0.35rem; }
+    .refs a { color:#77736b; }
+    .appendix-head { margin-top:4rem; padding-top:1.4rem; border-top:1px solid #dcd8cf; }
+
+    /* dark theme */
+    html[data-theme="dark"] body { background:#141413; color:#cfccc4; }
+    html[data-theme="dark"] .journal-bar { border-bottom-color:#34322e; }
+    html[data-theme="dark"] .back-link, html[data-theme="dark"] .nav-link { color:#8f8b82; }
+    html[data-theme="dark"] .back-link:hover, html[data-theme="dark"] .nav-link:hover { color:#ecebe6; }
+    html[data-theme="dark"] #theme-toggle { border-color:#34322e; color:#8f8b82; }
+    html[data-theme="dark"] #theme-toggle:hover { color:#ecebe6; border-color:#ecebe6; }
+    html[data-theme="dark"] .post-label, html[data-theme="dark"] .post-body h2 .sec { color:#d86b62; }
+    html[data-theme="dark"] .post-title, html[data-theme="dark"] .post-body h2, html[data-theme="dark"] .post-body strong { color:#ecebe6; }
+    html[data-theme="dark"] .post-meta { color:#8f8b82; }
+    html[data-theme="dark"] .meta-dot { background:#8f8b82; }
+    html[data-theme="dark"] .post-body a { color:#ecebe6; text-decoration-color:#34322e; }
+    html[data-theme="dark"] .post-body a:hover { text-decoration-color:#d86b62; }
+    html[data-theme="dark"] .eq-tex, html[data-theme="dark"] .eq-num { color:#ecebe6; }
+    html[data-theme="dark"] .eq-note, html[data-theme="dark"] .fig-cap { color:#8f8b82; }
+    html[data-theme="dark"] th { color:#8f8b82; border-bottom-color:#ecebe6; }
+    html[data-theme="dark"] td { color:#cfccc4; border-bottom-color:#34322e; }
+    html[data-theme="dark"] .callout { background:#1d1c1a; border-left-color:#34322e; }
+    html[data-theme="dark"] .callout.highlight { border-left-color:#ecebe6; }
+    html[data-theme="dark"] .callout-label { color:#8f8b82; }
+    html[data-theme="dark"] .ch-grid { stroke:#2a2926; }
+    html[data-theme="dark"] .ch-ref, html[data-theme="dark"] .ch-mark { stroke:#55524c; }
+    html[data-theme="dark"] .ch-axis { stroke:#8f8b82; }
+    html[data-theme="dark"] .ch-txt { fill:#8f8b82; }
+    html[data-theme="dark"] .ch-shade { fill:#1d1c1a; }
+    html[data-theme="dark"] .ch-on { stroke:#d86b62; }
+    html[data-theme="dark"] .ch-cc { stroke:#ecebe6; }
+    html[data-theme="dark"] .ch-id { stroke:#6f6b64; }
+    html[data-theme="dark"] .ch-f-on { fill:#d86b62; }
+    html[data-theme="dark"] .ch-f-id { fill:#6f6b64; }
+    html[data-theme="dark"] .ch-f-cc { fill:#ecebe6; }
+    html[data-theme="dark"] .ch-on-t { fill:#d86b62; }
+    html[data-theme="dark"] .ch-cc-t { fill:#ecebe6; }
+    html[data-theme="dark"] .ch-id-t { fill:#8f8b82; }
+    html[data-theme="dark"] .refs, html[data-theme="dark"] .refs a { color:#8f8b82; }
+    html[data-theme="dark"] .appendix-head { border-top-color:#34322e; }
+
+    @media (max-width:640px) {
+      html { font-size:17px; }
+      .journal-bar { flex-wrap:wrap; gap:0.6rem; }
+      .post-title { font-size:2rem; }
+      th, td { padding:0.45rem 0.5rem; font-size:0.82rem; }
+      .eq { grid-template-columns:0 minmax(0, 1fr) 2.2rem; }
+      .eq-tex .katex { font-size:1em; }
+      .eq-num { font-size:0.9rem; }
+      .ch-txt { font-size:14px; }
+      .ch-on-t, .ch-cc-t, .ch-id-t { font-size:18px; }
+    }
+  
+    /* series navigation */
+    .series { border:1px solid #dcd8cf; padding:1rem 1.25rem 0.8rem; margin:2.2rem 0 2.6rem; }
+    .series-label {
+      font-family:'Source Code Pro', monospace; font-size:0.58rem; letter-spacing:0.12em;
+      text-transform:uppercase; color:#77736b; margin-bottom:0.55rem;
+    }
+    .post-body .series ol { margin:0 0 0 1.3rem; }
+    .post-body .series li { font-size:0.95rem; color:#77736b; margin-bottom:0.25rem; }
+    .post-body .series li.current { color:#1b1a18; }
+    .post-body .series li.current::after {
+      content:'you are here'; font-family:'Source Code Pro', monospace; font-size:0.55rem;
+      letter-spacing:0.08em; text-transform:uppercase; color:#a3322b; margin-left:0.6rem;
+    }
+    .post-body .series .soon {
+      font-family:'Source Code Pro', monospace; font-size:0.55rem; letter-spacing:0.08em;
+      text-transform:uppercase; margin-left:0.6rem;
+    }
+
+    /* hover layer on charts */
+    .figure { position:relative; }
+    .hover-x { stroke:#b9b5ab; stroke-width:1; }
+    .hover-dot { stroke:#fbfaf7; stroke-width:2; }
+    .tip {
+      position:absolute; pointer-events:none; opacity:0; z-index:3;
+      background:#fbfaf7; border:1px solid #dcd8cf; padding:0.45rem 0.65rem;
+      font-family:'Source Code Pro', monospace; font-size:0.6rem; line-height:1.6;
+      color:#34322e; white-space:nowrap; box-shadow:0 2px 10px rgba(27,26,24,0.06);
+      transition:opacity 0.12s ease;
+    }
+    .tip .tl { color:#77736b; }
+    .tip .sw { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:0.45rem; vertical-align:1px; }
+    .sw.ch-f-on { background:#a3322b; } .sw.ch-f-cc { background:#1b1a18; } .sw.ch-f-id { background:#9a968c; }
+    .fig-hint {
+      font-family:'Source Code Pro', monospace; font-size:0.55rem; letter-spacing:0.08em;
+      text-transform:uppercase; color:#b9b5ab; text-align:right; margin:0 0 0.3rem;
+    }
+
+    /* interactive widget */
+    .widget { border:1px solid #dcd8cf; background:#f2f0ea; padding:1.1rem 1.25rem 1rem; margin:1.9rem 0 2.2rem; }
+    .widget-label {
+      font-family:'Source Code Pro', monospace; font-size:0.58rem; letter-spacing:0.12em;
+      text-transform:uppercase; color:#77736b; margin-bottom:0.8rem;
+    }
+    .slider-row { display:flex; align-items:center; gap:0.9rem; margin-bottom:0.6rem; }
+    .slider-row label { font-family:'Source Code Pro', monospace; font-size:0.62rem; color:#77736b; white-space:nowrap; }
+    .slider-row input[type=range] { flex:1; accent-color:#a3322b; min-width:0; }
+    .slider-row output { font-family:'Source Code Pro', monospace; font-size:0.75rem; color:#1b1a18; min-width:3rem; text-align:right; }
+    .widget svg { display:block; width:100%; height:auto; }
+    .readouts { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:0.8rem; margin-top:0.7rem; }
+    .ro-label { display:block; font-family:'Source Code Pro', monospace; font-size:0.55rem; letter-spacing:0.08em; text-transform:uppercase; color:#77736b; }
+    .ro-num { display:block; font-size:1.45rem; color:#1b1a18; line-height:1.25; font-variant-numeric:tabular-nums; }
+    .ro-num.neg { color:#a3322b; }
+
+    /* takeaways */
+    .post-body ol.takeaways li { margin-bottom:0.55rem; }
+
+    html[data-theme="dark"] .series { border-color:#34322e; }
+    html[data-theme="dark"] .series-label, html[data-theme="dark"] .post-body .series li { color:#8f8b82; }
+    html[data-theme="dark"] .post-body .series li.current { color:#ecebe6; }
+    html[data-theme="dark"] .post-body .series li.current::after { color:#d86b62; }
+    html[data-theme="dark"] .hover-x { stroke:#55524c; }
+    html[data-theme="dark"] .hover-dot { stroke:#141413; }
+    html[data-theme="dark"] .tip { background:#1d1c1a; border-color:#34322e; color:#cfccc4; box-shadow:none; }
+    html[data-theme="dark"] .tip .tl { color:#8f8b82; }
+    html[data-theme="dark"] .sw.ch-f-on { background:#d86b62; }
+    html[data-theme="dark"] .sw.ch-f-cc { background:#ecebe6; }
+    html[data-theme="dark"] .sw.ch-f-id { background:#6f6b64; }
+    html[data-theme="dark"] .fig-hint { color:#55524c; }
+    html[data-theme="dark"] .widget { background:#1d1c1a; border-color:#34322e; }
+    html[data-theme="dark"] .widget-label, html[data-theme="dark"] .slider-row label, html[data-theme="dark"] .ro-label { color:#8f8b82; }
+    html[data-theme="dark"] .slider-row output, html[data-theme="dark"] .ro-num { color:#ecebe6; }
+    html[data-theme="dark"] .ro-num.neg { color:#d86b62; }
+    html[data-theme="dark"] .slider-row input[type=range] { accent-color:#d86b62; }
+
+    @media (max-width:640px) {
+      .readouts { gap:0.5rem; }
+      .ro-num { font-size:1.15rem; }
+      .tip { font-size:0.58rem; }
+      .fig-hint { display:none; }
+    }
+
+  
+    /* ---- More Than A Hack additions ---- */
+    .overview { margin:0 0 1.4rem; }
+    .overview-label {
+      font-family:'Source Code Pro', monospace; font-size:0.6rem; letter-spacing:0.12em;
+      text-transform:uppercase; color:#a3322b; margin-bottom:0.7rem;
+    }
+    .post-body p.lede { font-size:1.34rem; line-height:1.5; color:#1b1a18; margin-bottom:0.85rem; }
+    .glance {
+      display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:1.2rem 1rem;
+      margin:1.8rem 0 2.6rem; padding:1.3rem 0 1.2rem;
+      border-top:1px solid #1b1a18; border-bottom:1px solid #dcd8cf;
+    }
+    .g-num { display:block; font-size:1.75rem; line-height:1.1; color:#1b1a18; font-variant-numeric:tabular-nums; }
+    .g-lab {
+      display:block; margin-top:0.3rem; font-family:'Source Code Pro', monospace; font-size:0.54rem;
+      letter-spacing:0.08em; text-transform:uppercase; color:#77736b; line-height:1.5;
+    }
+    .f-t { fill:#77736b; font-family:'Source Code Pro', monospace; font-size:12px; }
+    .f-small { font-size:11px; }
+    .f-red { fill:#a3322b; }
+    .f-cap { letter-spacing:0.06em; }
+    .f-l { fill:#1b1a18; font-family:'EB Garamond', Georgia, serif; font-size:16px; }
+    .f-lm { fill:#77736b; font-family:'EB Garamond', Georgia, serif; font-size:16px; }
+    .ch-box { fill:#f2f0ea; stroke:#dcd8cf; stroke-width:1; }
+    .ch-box-on { fill:#f2f0ea; stroke:#a3322b; stroke-width:1.6; }
+    .ch-flow { stroke:#9a968c; stroke-width:1.3; }
+    .ch-arrow { fill:#9a968c; }
+    .ch-ring { fill:none; stroke:#1b1a18; stroke-width:1.4; }
+    .s-h { fill:#a3322b; } .s-a { fill:#1b1a18; } .s-d { fill:#dcd8cf; }
+    .post-body ol:not(.takeaways):not(.refs) li { margin-bottom:0.6rem; }
+
+    html[data-theme="dark"] .overview-label { color:#d86b62; }
+    html[data-theme="dark"] .post-body p.lede, html[data-theme="dark"] .g-num { color:#ecebe6; }
+    html[data-theme="dark"] .glance { border-top-color:#ecebe6; border-bottom-color:#34322e; }
+    html[data-theme="dark"] .g-lab { color:#8f8b82; }
+    html[data-theme="dark"] .f-t, html[data-theme="dark"] .f-lm { fill:#8f8b82; }
+    html[data-theme="dark"] .f-red { fill:#d86b62; }
+    html[data-theme="dark"] .f-l { fill:#ecebe6; }
+    html[data-theme="dark"] .ch-box { fill:#1d1c1a; stroke:#34322e; }
+    html[data-theme="dark"] .ch-box-on { fill:#1d1c1a; stroke:#d86b62; }
+    html[data-theme="dark"] .ch-flow { stroke:#6f6b64; }
+    html[data-theme="dark"] .ch-arrow { fill:#6f6b64; }
+    html[data-theme="dark"] .ch-ring { stroke:#ecebe6; }
+    html[data-theme="dark"] .s-h { fill:#d86b62; }
+    html[data-theme="dark"] .s-a { fill:#ecebe6; }
+    html[data-theme="dark"] .s-d { fill:#3a3834; }
+
+    @media (max-width:640px) {
+      .post-body p.lede { font-size:1.18rem; }
+      .glance { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+      .g-num { font-size:1.5rem; }
+      .f-t { font-size:13.5px; }
+      .f-small { font-size:12px; }
+      .f-l, .f-lm { font-size:17px; }
+    }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="journal-bar">
+    <a href="../index.html" class="back-link">&#8592; Backtest Brewery</a>
+    <div class="bar-right">
+      <a href="../about.html" class="nav-link">About</a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span id="toggle-icon">&#9680;</span>
+        <span id="toggle-label">Dark</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="post-header">
+    <p class="post-label">Sports &middot; Competition Report</p>
+    <h1 class="post-title">More Than A Hack</h1>
+    <div class="post-meta">
+      <span>2026-11-19</span>
+      <span class="meta-dot"></span>
+      <span class="meta-tag">Football &middot; Tracking Data &middot; Machine Learning &middot; Out of Sample</span>
+      <span class="meta-dot"></span>
+      <span>24 min read</span>
+    </div>
+  </div>
+
+  <div class="post-body">
+
+    <div class="overview">
+      <p class="overview-label">The competition</p>
+      <p class="lede">
+        <strong>More than a Hack 2027</strong> is a football data hackathon run by Metrica Sports,
+        FC Barcelona's Barça Innovation Hub and Mobile World Capital Barcelona. This year it asked one
+        question and answered it with one number.
+      </p>
+      <p class="lede">
+        Here is a full professional match, FC Barcelona against Athletic Club. For every one of its
+        <strong>199,319 frames</strong>, who has the ball?
+      </p>
+      <p class="lede">
+        No jury, no pitch deck, no presentation. A script scores every team against a hidden answer key,
+        and the score is the ranking.
+      </p>
+    </div>
+
+    <div class="glance">
+      <div><span class="g-num">199,319</span><span class="g-lab">frames to label</span></div>
+      <div><span class="g-num">25</span><span class="g-lab">frames a second</span></div>
+      <div><span class="g-num">41%</span><span class="g-lab">of graded frames with no ball</span></div>
+      <div><span class="g-num">17</span><span class="g-lab">possessions of public answers</span></div>
+      <div><span class="g-num">46</span><span class="g-lab">tracking slots for 22 players</span></div>
+      <div><span class="g-num">0</span><span class="g-lab">hand labels allowed</span></div>
+      <div><span class="g-num">4</span><span class="g-lab">weeks from data to deadline</span></div>
+      <div><span class="g-num">1</span><span class="g-lab">number decides: spellF1</span></div>
+    </div>
+
+    <p>
+      The match is LaLiga 2024-25, matchday 2, recorded by two cameras: a wide tactical camera that sees
+      the whole pitch, and the TV broadcast with its cuts and replays. Every team got the same bundle:
+      both videos, automatic tracking of the players and the ball, automatic tactical tags, and the maps
+      from each camera to the pitch. All of it machine-made, none of it corrected.
+    </p>
+
+    <p>
+      The rules were short. Any method, any external data, LLMs welcome. Three things banned: labelling
+      the match by hand, touching the hidden answer key, and submitting a file your public code can't
+      regenerate exactly. Teams of three to five. Data out on 20 October, deadline 17 November, results
+      before 26 November.
+    </p>
+
+    <p>
+      I entered with my team, <strong>EM FC</strong>. I'm not a football analyst. I build trading
+      strategies and then try to break them, which is what this blog is mostly about. When the data
+      arrived it looked a lot like a tick feed: a noisy, gappy stream of numbers, 25 updates a second,
+      where the thing you actually care about is hidden and has to be inferred. So I treated it like one.
+    </p>
+
+    <p>
+      This post is the full report on our final submission, written the way I'd write up a backtest. The
+      headline numbers first, then the data, the signal, the costs, the out-of-sample tests, what failed,
+      and what I'd do next. Along the way I'll point out where each idea came from, because almost every
+      one of them came from markets. It's written before the results are out, which feels like the honest
+      way to write it.
+    </p>
+
+    <h2><span class="sec">&sect; 1</span>The Tear Sheet</h2>
+
+    <p>
+      Every strategy report starts with a tear sheet, so here's ours. Every line is explained further down.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>What</th><th class="num">Number</th><th>Read it as</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Out of sample, 10 other matches</td><td class="num"><strong>0.715</strong></td><td>spellF1, each match held out in turn</td></tr>
+          <tr><td>Same, every choice re-made blind</td><td class="num">0.713</td><td>choosing cost us about 0.002</td></tr>
+          <tr><td>Worst and best held-out match</td><td class="num">0.656 / 0.730</td><td>spread across matches: 0.023</td></tr>
+          <tr><td>Untouched set, 20 matches, another league</td><td class="num">0.566</td><td>never trained on, never tuned with</td></tr>
+          <tr><td>The real match, public 5 minutes, scored once</td><td class="num"><strong>0.653</strong></td><td>organisers' best baseline: 0.424</td></tr>
+          <tr><td>Per-frame score on those 5 minutes</td><td class="num">0.833</td><td>macroF1; baseline: 0.581</td></tr>
+          <tr><td>Turnover: possessions in the full match</td><td class="num">266</td><td>Barcelona 128, Athletic 138</td></tr>
+          <tr><td>Time with the ball dead</td><td class="num">42.4%</td><td>45% in the training matches</td></tr>
+          <tr><td>Run time</td><td class="num">&lt; 1 min</td><td>laptop CPU, no video read</td></tr>
+          <tr><td>Reproducibility</td><td class="num">exact</td><td>same file, byte for byte, Windows and Linux</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2><span class="sec">&sect; 2</span>The Problem, in Plain Football</h2>
+
+    <p>Every frame gets one of four labels:</p>
+
+    <ul>
+      <li><strong>H</strong>: Barcelona (home) have the ball and it's in play.</li>
+      <li><strong>A</strong>: Athletic (away) have it.</li>
+      <li><strong>D</strong>: dead ball. Out of play, a foul, a goal, a substitution. Nobody "owns" it.</li>
+      <li><strong>X</strong>: no answer. Free outside the two halves, and never a good idea inside them.</li>
+    </ul>
+
+    <p>
+      Possession changes only on <em>control</em>. A touch, a deflection, a header nobody collects: none
+      of these hand the ball over. A loose ball stays with the last team that controlled it. That one word,
+      control, turns out to shape the whole solution.
+    </p>
+
+    <p>What makes it hard is the data:</p>
+
+    <ul>
+      <li><strong>The ball is missing on 41% of graded frames.</strong> Not flicker: long blackouts, mostly while play is stopped.</li>
+      <li><strong>46 tracking slots for 22 players.</strong> Tracks appear, vanish and swap identity as the tracker loses and finds people. There are no player names.</li>
+      <li><strong>The goalkeeper slots carry the wrong team at times.</strong> One of them stands in the other team's box for thousands of frames. My fix: each keeper slot takes, frame by frame, the team that defends the goal in its half.</li>
+      <li><strong>Units lie.</strong> Player speeds are labelled km/h and are actually m/s.</li>
+      <li><strong>Only 5 minutes of answers are public.</strong> The other 101 minutes of graded play stay hidden until the results.</li>
+    </ul>
+
+    <p>
+      If you've ever cleaned exchange data, this list feels familiar: missing ticks, symbols mapped to the
+      wrong instrument, wrong units. The first job is always the same. Make the data say what it claims to say.
+    </p>
+
+    <h2><span class="sec">&sect; 3</span>Read the Scoring Rule First</h2>
+
+    <p>
+      The first thing I do with any strategy is read exactly how it will be judged. Sharpe, drawdown,
+      hit rate: each one rewards a different strategy, and optimising the wrong one builds the wrong
+      thing. This competition reports two numbers and ranks on one of them.
+    </p>
+
+    <p>
+      <strong>macroF1</strong> is the per-frame view: how often each frame has the right label, averaged
+      over H, A and D. <strong>spellF1</strong> is the one that ranks. It cuts both the truth and your
+      answer into possessions, a possession being an unbroken run of H or of A, then pairs each predicted
+      possession with a true one of the same team if they overlap enough:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">\text{IoU}(p, g) = \frac{|\,p \cap g\,|}{|\,p \cup g\,|} \qquad\qquad \text{spellF1} = \frac{1}{5}\sum_{\tau \in \{0.3,\,0.4,\,0.5,\,0.6,\,0.7\}} \text{F1}_{\tau}</div>
+      <span class="eq-num">(1)</span>
+    </div>
+
+    <p class="eq-note">
+      A pair counts as a hit when its overlap (IoU) clears the bar <span class="m">\tau</span>. Hits,
+      misses and false alarms give an F1 at each bar, and the five are averaged.
+    </p>
+
+    <p>
+      The organisers prove why this matters with their own baseline: the nearest player to the ball,
+      then a majority vote over a moving window. Same algorithm four times, only the window changes.
+    </p>
+
+    <div class="figure">
+<svg viewBox="0 0 640 314" role="img" aria-label="macroF1 and spellF1 of the organisers' four smoothing baselines on the full match">
+<line class="ch-axis" x1="170.0" y1="34.0" x2="170.0" y2="288.0"/>
+<text class="f-t" x="170.0" y="306.0" text-anchor="middle">0</text>
+<line class="ch-grid" x1="277.5" y1="34.0" x2="277.5" y2="288.0"/>
+<text class="f-t" x="277.5" y="306.0" text-anchor="middle">0.25</text>
+<line class="ch-grid" x1="385.0" y1="34.0" x2="385.0" y2="288.0"/>
+<text class="f-t" x="385.0" y="306.0" text-anchor="middle">0.5</text>
+<line class="ch-grid" x1="492.5" y1="34.0" x2="492.5" y2="288.0"/>
+<text class="f-t" x="492.5" y="306.0" text-anchor="middle">0.75</text>
+<line class="ch-grid" x1="600.0" y1="34.0" x2="600.0" y2="288.0"/>
+<text class="f-t" x="600.0" y="306.0" text-anchor="middle">1</text>
+<rect class="ch-f-id" x="170.0" y="6.0" width="12.0" height="12.0"></rect>
+<text class="f-t" x="188.0" y="16.5" text-anchor="start">macroF1, scored per frame</text>
+<rect class="ch-f-on" x="385.0" y="6.0" width="12.0" height="12.0"></rect>
+<text class="f-t" x="403.0" y="16.5" text-anchor="start">spellF1, per possession</text>
+<text class="f-l" x="158.0" y="66.0" text-anchor="end">No smoothing</text>
+<rect class="ch-f-id" x="170.0" y="44.0" width="280.9" height="16.0"><title>No smoothing: macroF1 0.6532</title></rect>
+<text class="f-t" x="456.9" y="56.5" text-anchor="start">0.65</text>
+<rect class="ch-f-on" x="170.0" y="64.0" width="20.9" height="16.0"><title>No smoothing: spellF1 0.0486</title></rect>
+<text class="f-t f-red" x="196.9" y="76.5" text-anchor="start">0.05</text>
+<text class="f-l" x="158.0" y="130.0" text-anchor="end">1 s window</text>
+<rect class="ch-f-id" x="170.0" y="108.0" width="290.3" height="16.0"><title>1 s window: macroF1 0.6752</title></rect>
+<text class="f-t" x="466.3" y="120.5" text-anchor="start">0.68</text>
+<rect class="ch-f-on" x="170.0" y="128.0" width="85.8" height="16.0"><title>1 s window: spellF1 0.1996</title></rect>
+<text class="f-t f-red" x="261.8" y="140.5" text-anchor="start">0.20</text>
+<text class="f-l" x="158.0" y="194.0" text-anchor="end">2 s window</text>
+<text class="f-t f-small" x="158.0" y="211.0" text-anchor="end">published floor</text>
+<rect class="ch-f-id" x="170.0" y="172.0" width="289.1" height="16.0"><title>2 s window: macroF1 0.6724</title></rect>
+<text class="f-t" x="465.1" y="184.5" text-anchor="start">0.67</text>
+<rect class="ch-f-on" x="170.0" y="192.0" width="104.6" height="16.0"><title>2 s window: spellF1 0.2433</title></rect>
+<text class="f-t f-red" x="280.6" y="204.5" text-anchor="start">0.24</text>
+<text class="f-l" x="158.0" y="258.0" text-anchor="end">5 s window</text>
+<rect class="ch-f-id" x="170.0" y="236.0" width="273.3" height="16.0"><title>5 s window: macroF1 0.6356</title></rect>
+<text class="f-t" x="449.3" y="248.5" text-anchor="start">0.64</text>
+<rect class="ch-f-on" x="170.0" y="256.0" width="96.4" height="16.0"><title>5 s window: spellF1 0.2242</title></rect>
+<text class="f-t f-red" x="272.4" y="268.5" text-anchor="start">0.22</text>
+</svg>
+      <p class="fig-cap">Figure 1. The organisers' baseline on the full match with four window lengths. The per-frame score barely moves. The possession score moves five-fold. The 2 s version is the published floor.</p>
+    </div>
+
+    <p>
+      The per-frame score likes all four. The possession score says the raw version is worthless: a
+      respectable 0.65 per frame, but 0.05 per possession, because it flips constantly and invents
+      hundreds of possessions that never happened.
+    </p>
+
+    <p>
+      To a trader this is hit rate against profit per trade. A strategy that flips position every bar can
+      have a fine hit rate and still be a disaster, because it trades 500 times when it should trade
+      50. spellF1 counts trades. Every false flip is a fake possession, and a fake possession costs as
+      much as a missed one.
+    </p>
+
+    <p>spellF1 also hates being late:</p>
+
+    <div class="figure">
+<svg viewBox="0 0 640 272" role="img" aria-label="spellF1 of a perfect answer shifted late by 0 to 25 frames">
+<line class="ch-grid" x1="70.0" y1="220.0" x2="600.0" y2="220.0"/>
+<text class="f-t" x="60.0" y="224.0" text-anchor="end">0.5</text>
+<line class="ch-grid" x1="70.0" y1="182.0" x2="600.0" y2="182.0"/>
+<text class="f-t" x="60.0" y="186.0" text-anchor="end">0.6</text>
+<line class="ch-grid" x1="70.0" y1="144.0" x2="600.0" y2="144.0"/>
+<text class="f-t" x="60.0" y="148.0" text-anchor="end">0.7</text>
+<line class="ch-grid" x1="70.0" y1="106.0" x2="600.0" y2="106.0"/>
+<text class="f-t" x="60.0" y="110.0" text-anchor="end">0.8</text>
+<line class="ch-grid" x1="70.0" y1="68.0" x2="600.0" y2="68.0"/>
+<text class="f-t" x="60.0" y="72.0" text-anchor="end">0.9</text>
+<line class="ch-grid" x1="70.0" y1="30.0" x2="600.0" y2="30.0"/>
+<text class="f-t" x="60.0" y="34.0" text-anchor="end">1.0</text>
+<line class="ch-axis" x1="70.0" y1="220.0" x2="600.0" y2="220.0"/>
+<line class="ch-axis" x1="70.0" y1="220.0" x2="70.0" y2="225.0"/>
+<text class="f-t" x="70.0" y="240.0" text-anchor="middle">0</text>
+<line class="ch-axis" x1="176.0" y1="220.0" x2="176.0" y2="225.0"/>
+<text class="f-t" x="176.0" y="240.0" text-anchor="middle">5</text>
+<line class="ch-axis" x1="282.0" y1="220.0" x2="282.0" y2="225.0"/>
+<text class="f-t" x="282.0" y="240.0" text-anchor="middle">10</text>
+<line class="ch-axis" x1="388.0" y1="220.0" x2="388.0" y2="225.0"/>
+<text class="f-t" x="388.0" y="240.0" text-anchor="middle">15</text>
+<line class="ch-axis" x1="494.0" y1="220.0" x2="494.0" y2="225.0"/>
+<text class="f-t" x="494.0" y="240.0" text-anchor="middle">20</text>
+<line class="ch-axis" x1="600.0" y1="220.0" x2="600.0" y2="225.0"/>
+<text class="f-t" x="600.0" y="240.0" text-anchor="middle">25</text>
+<text class="f-t" x="335.0" y="262.0" text-anchor="middle">frames late (25 frames = 1 second)</text>
+<path class="ch-on" fill="none" d="M70.0,30.0 L91.2,30.0 L133.6,36.9 L239.6,70.5 L600.0,161.5"/>
+<circle class="ch-f-on" cx="70.0" cy="30.0" r="4.5"><title>0 frames late: spellF1 1.0000</title></circle>
+<circle class="ch-f-on" cx="91.2" cy="30.0" r="4.5"><title>1 frames late: spellF1 1.0000</title></circle>
+<circle class="ch-f-on" cx="133.6" cy="36.9" r="4.5"><title>3 frames late: spellF1 0.9818</title></circle>
+<circle class="ch-f-on" cx="239.6" cy="70.5" r="4.5"><title>8 frames late: spellF1 0.8933</title></circle>
+<circle class="ch-f-on" cx="600.0" cy="161.5" r="4.5"><title>25 frames late: spellF1 0.6539</title></circle>
+<text class="f-t" x="99.2" y="20.0" text-anchor="start">1 frame late: 1.00, free</text>
+<text class="f-t" x="142.6" y="33.9" text-anchor="start">3 frames: 0.98</text>
+<text class="f-t" x="249.6" y="65.5" text-anchor="start">8 frames: 0.89</text>
+<text class="f-t f-red" x="592.0" y="185.5" text-anchor="end">1 second: 0.65</text>
+</svg>
+      <p class="fig-cap">Figure 2. A perfect answer, shifted later by a few frames, scored with spellF1 (cases from the organisers' documentation; the line joins the five measured points). One frame late is free. A second late costs a third of the score.</p>
+    </div>
+
+    <p>
+      That's latency. In a fast market, a correct signal that arrives a second late is a different and
+      worse signal. Here it's the same: a change of possession placed a second after it happened is
+      treated almost like a wrong answer.
+    </p>
+
+    <div class="callout highlight">
+      <p class="callout-label">The quant reflex</p>
+      <p>
+        Before writing any code I wrote down, in one sentence, what the metric rewards: <em>few, clean,
+        well-timed changes</em>. That sentence decided the design. A model that gives the probability of
+        each state on every frame, and a separate rule that charges for every change and is allowed to
+        look at the whole half before placing one. Both are below.
+      </p>
+    </div>
+
+    <h2><span class="sec">&sect; 4</span>The Same Problem in Trading Clothes</h2>
+
+    <p>
+      Once the metric was clear, I wrote out a translation table. Most decisions made themselves after that.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>In football</th><th>In markets</th><th>What it led to</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>A frame, 1/25 of a second</td><td>A tick</td><td>Model every frame, decide on runs</td></tr>
+          <tr><td>Who has the ball</td><td>Your position: long Barça, long Athletic</td><td>Three states: H, A, dead</td></tr>
+          <tr><td>A change of possession</td><td>A trade</td><td>Charge a cost for it (&sect; 12)</td></tr>
+          <tr><td>Dead ball</td><td>Market closed</td><td>Its own state, costly to enter and leave</td></tr>
+          <tr><td>Ball not tracked</td><td>Feed outage, missing quotes</td><td>Missingness is information (&sect; 11), but it must not leak (&sect; 7)</td></tr>
+          <tr><td>The TV feed, delayed</td><td>A second exchange with latency</td><td>Find the lag, fill gaps from it (&sect; 8)</td></tr>
+          <tr><td>Other matches with labels</td><td>Other markets with history</td><td>Train there, adapt to here (&sect; 6, &sect; 7)</td></tr>
+          <tr><td>5 public minutes, 17 possessions</td><td>A 17-trade backtest</td><td>Look once, at the very end (&sect; 5)</td></tr>
+          <tr><td>The hidden full match</td><td>Live trading</td><td>You find out afterwards</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Here is the whole plan on one page. The next eight sections walk through it box by box.</p>
+
+    <div class="figure">
+<svg viewBox="0 0 640 534" role="img" aria-label="The EM FC pipeline: learn on other matches, apply to Barcelona v Athletic">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ch-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text class="f-t f-red f-cap" x="16.0" y="22.0" text-anchor="start">LEARN: other matches, labelled</text>
+<text class="f-t f-red f-cap" x="344.0" y="22.0" text-anchor="start">APPLY: Barça v Athletic</text>
+<rect class="ch-box" x="16" y="40" width="280" height="58" rx="3"/>
+<text class="f-l" x="30.0" y="64.0" text-anchor="start">10 public matches</text>
+<text class="f-t f-small" x="30.0" y="83.0" text-anchor="start">7 Bundesliga (DFL) + 3 Metrica</text>
+<line class="ch-flow" x1="156.0" y1="100" x2="156.0" y2="113" marker-end="url(#arr)"/>
+<rect class="ch-box" x="16" y="116" width="280" height="58" rx="3"/>
+<text class="f-l" x="30.0" y="140.0" text-anchor="start">Possession means control</text>
+<text class="f-t f-small" x="30.0" y="159.0" text-anchor="start">a touch under 2 s is not a change</text>
+<line class="ch-flow" x1="156.0" y1="176" x2="156.0" y2="189" marker-end="url(#arr)"/>
+<rect class="ch-box" x="16" y="192" width="280" height="58" rx="3"/>
+<text class="f-l" x="30.0" y="216.0" text-anchor="start">Degrade to look like our match</text>
+<text class="f-t f-small" x="30.0" y="235.0" text-anchor="start">same blackouts, drop-outs, noise</text>
+<line class="ch-flow" x1="156.0" y1="252" x2="156.0" y2="265" marker-end="url(#arr)"/>
+<rect class="ch-box" x="16" y="268" width="280" height="58" rx="3"/>
+<text class="f-l" x="30.0" y="292.0" text-anchor="start">219 team features</text>
+<text class="f-t f-small" x="30.0" y="311.0" text-anchor="start">swap home and away: exact mirror</text>
+<line class="ch-flow" x1="156.0" y1="328" x2="156.0" y2="341" marker-end="url(#arr)"/>
+<rect class="ch-box" x="16" y="344" width="280" height="92" rx="3"/>
+<text class="f-l" x="30.0" y="368.0" text-anchor="start">Train and validate</text>
+<text class="f-t f-small" x="30.0" y="387.0" text-anchor="start">LightGBM on 2 degraded copies</text>
+<text class="f-t f-small" x="30.0" y="403.0" text-anchor="start">3 GRU seeds, 1 boundary model</text>
+<text class="f-t f-small" x="30.0" y="419.0" text-anchor="start">leave one match out</text>
+<rect class="ch-box" x="344" y="40" width="280" height="58" rx="3"/>
+<text class="f-l" x="358.0" y="64.0" text-anchor="start">Tactical tracking</text>
+<text class="f-t f-small" x="358.0" y="83.0" text-anchor="start">ball missing on 41% of frames</text>
+<line class="ch-flow" x1="484.0" y1="100" x2="484.0" y2="113" marker-end="url(#arr)"/>
+<rect class="ch-box" x="344" y="116" width="280" height="58" rx="3"/>
+<text class="f-l" x="358.0" y="140.0" text-anchor="start">Sync the broadcast feed</text>
+<text class="f-t f-small" x="358.0" y="159.0" text-anchor="start">+8,049 ball frames, cut-away flag</text>
+<line class="ch-flow" x1="484.0" y1="176" x2="484.0" y2="189" marker-end="url(#arr)"/>
+<rect class="ch-box" x="344" y="192" width="280" height="58" rx="3"/>
+<text class="f-l" x="358.0" y="216.0" text-anchor="start">Same 219 features</text>
+<text class="f-t f-small" x="358.0" y="235.0" text-anchor="start">same code as in training</text>
+<line class="ch-flow" x1="484.0" y1="252" x2="484.0" y2="265" marker-end="url(#arr)"/>
+<rect class="ch-box" x="344" y="268" width="280" height="58" rx="3"/>
+<text class="f-l" x="358.0" y="292.0" text-anchor="start">Frame probabilities</text>
+<text class="f-t f-small" x="358.0" y="311.0" text-anchor="start">P(H), P(A), P(dead), every frame</text>
+<line class="ch-flow" x1="484.0" y1="328" x2="484.0" y2="341" marker-end="url(#arr)"/>
+<rect class="ch-box" x="344" y="344" width="280" height="58" rx="3"/>
+<text class="f-l" x="358.0" y="368.0" text-anchor="start">Evidence without labels (EM)</text>
+<text class="f-t f-small" x="358.0" y="387.0" text-anchor="start">blackouts, cut-aways: stoppage?</text>
+<line class="ch-flow" x1="484.0" y1="404" x2="484.0" y2="417" marker-end="url(#arr)"/>
+<rect class="ch-box-on" x="344" y="420" width="280" height="58" rx="3"/>
+<text class="f-l" x="358.0" y="444.0" text-anchor="start">Viterbi decoder</text>
+<text class="f-t f-small" x="358.0" y="463.0" text-anchor="start">a price on every switch</text>
+<path class="ch-flow" fill="none" d="M298,390 H320.0 V297 H341" marker-end="url(#arr)"/>
+<line class="ch-flow" x1="484.0" y1="480" x2="484.0" y2="505" marker-end="url(#arr)"/>
+<text class="f-l" x="484.0" y="524.0" text-anchor="middle">EM FC.csv: 199,319 labels</text>
+</svg>
+      <p class="fig-cap">Figure 3. The pipeline. Everything on the left uses other matches only. On the right, the provided match is used as input only: no labels, no video.</p>
+    </div>
+
+    <h2><span class="sec">&sect; 5</span>Seventeen Trades Is Not a Backtest</h2>
+
+    <p>
+      The organisers publish the answers for the first 5 minutes. It's tempting. It's also 17 possessions.
+      On 17 possessions, one possession right or wrong moves spellF1 by about 0.06. The 90% bootstrap
+      interval on our own public score runs from 0.45 to 0.83.
+    </p>
+
+    <p>
+      You wouldn't size a strategy off 17 trades. You certainly wouldn't pick the best of ten strategies
+      with them, because you'd just pick the luckiest one. I wrote about exactly this trap in
+      <a href="breeding-the-perfect-candlestick-pattern.html">Breeding the Perfect Candlestick Pattern</a>:
+      search hard enough on a small sample and you will always find something beautiful that isn't real.
+      The rules agree. The 5 minutes are a pipeline check, not a tuning set.
+    </p>
+
+    <p>So I fixed a validation protocol before building any model, borrowed straight from strategy research:</p>
+
+    <ol>
+      <li><strong>Leave one match out</strong>, over 10 labelled public matches from other leagues. Train on nine, score the tenth, rotate. Walk-forward testing, but across markets instead of across time.</li>
+      <li><strong>Nested</strong>: redo every choice (blend weights, decoder costs) using only the nine training matches, then score the tenth. The gap between this and step 1 is the price of choosing. It's the same idea as deflating a Sharpe ratio for the number of strategies you tried.</li>
+      <li><strong>An untouched set</strong>: 20 matches from another league and another tracking provider, scored once at the end. A different exchange.</li>
+      <li><strong>The real match's public 5 minutes</strong>, scored once, after everything was frozen. Day one of paper trading.</li>
+    </ol>
+
+    <p>
+      This protocol killed my first idea. It was a hand-built model: the nearest player to the ball, how
+      fast players move, whether the ball sits on a corner spot, a referee-whistle detector on the audio,
+      shirt colours near the ball from the video. Lots of weights, all set by hand. It looked clever. It's
+      also exactly the kind of model that only looks clever on the data its weights were set on. Fitted
+      honestly on other matches and scored on held-out ones, it managed about <strong>0.56</strong>. The
+      learned model in the rest of this post scores <strong>0.715</strong>.
+    </p>
+
+    <div class="callout">
+      <p class="callout-label">The lesson I keep relearning</p>
+      <p>
+        If you can't fit a weight out of sample, it isn't a parameter. It's an opinion. A model full of
+        opinions can look great on the five minutes you looked at, and it tells you nothing about the
+        hundred you didn't.
+      </p>
+    </div>
+
+    <h2><span class="sec">&sect; 6</span>Borrowing Other Markets</h2>
+
+    <p>
+      You don't backtest a Nifty strategy on one month of Nifty. You use every market and every year you
+      can find. Same here: the model learns from <strong>other matches</strong> that come with labels, and
+      nothing was labelled by us.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Source</th><th class="num">Matches</th><th>Labels</th><th>Role</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DFL open data, Bundesliga 1 and 2</td><td class="num">7</td><td>Official per-frame ball status and possession, 11.1 h</td><td>Train and validate</td></tr>
+          <tr><td>Metrica Sports sample games</td><td class="num">3</td><td>Possession derived by my code from public event data, 4.7 h</td><td>Train and validate</td></tr>
+          <tr><td>SkillCorner open data, A-League</td><td class="num">20</td><td>Team in possession, no dead ball, 17.8 h</td><td>Untouched check only</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Why these three? DFL's ball-status flag is the closest public match to the challenge's dead ball.
+      Metrica's tracking comes from the same kind of automatic tracker as our match, with its own real
+      ball gaps. SkillCorner is broadcast tracking from yet another provider, which makes it a stress test.
+    </p>
+
+    <p>
+      One translation was needed. DFL's possession flag follows every touch, but the challenge wants
+      <em>control</em>. So I wrote one rule: a team spell shorter than <strong>2 seconds</strong> that ends
+      with the previous team back on the ball, or with play stopping, is a touch, not a possession, and
+      goes back to the previous team. Two seconds is the shortest reading of the challenge's own hint, "a
+      player keeps the ball for a few seconds". I fixed it before running a single experiment and never
+      tuned it.
+    </p>
+
+    <p>
+      That's the same discipline as defining what counts as a trade in a messy fill log <em>before</em>
+      you look at the P&amp;L. Fix the rule first, so you can't bend it later.
+    </p>
+
+    <h2><span class="sec">&sect; 7</span>Make the Backtest Feel Like Live</h2>
+
+    <p>
+      Every quant learns this the hard way. A backtest on clean prices with no costs, no slippage and no
+      missing quotes is a fantasy. Live trading has all three. The fix is to put the frictions
+      <em>into</em> the backtest.
+    </p>
+
+    <p>
+      DFL's tracking is clean: the ball is always there and all 22 players are always tracked. Ours is
+      not. A model trained on clean data learns to lean on a ball that, in our match, is missing 41% of
+      the time. So every DFL match is degraded with statistics measured on our match's tracking alone,
+      no labels involved:
+    </p>
+
+    <ul>
+      <li><strong>Ball blackouts.</strong> Each DFL half gets a continuous stretch of our match's own ball-visibility pattern, pasted on from a random starting point.</li>
+      <li><strong>Missing players.</strong> Players are dropped to match our tracker's count of visible players per team, frame by frame, re-choosing who disappears every 10 seconds.</li>
+      <li><strong>Noise.</strong> A slowly drifting 0.3 m error per player and 0.2 m on the ball, set in advance from typical optical-tracking error.</li>
+      <li><strong>Metrica</strong> already has real gaps from the same kind of tracker, so it only gets the missing players.</li>
+    </ul>
+
+    <p>
+      Then I did it twice. Every match is degraded into <strong>two copies</strong> with different random
+      blackouts and drop-outs. Same reason you run a backtest under many Monte Carlo slippage paths
+      instead of one: the model shouldn't get comfortable with one particular pattern of bad luck.
+    </p>
+
+    <div class="callout highlight">
+      <p class="callout-label">The subtle part, and the one I'm proudest of</p>
+      <p>
+        In our match the ball usually goes missing when play stops. So a missing ball is strong evidence of
+        a dead ball, and the obvious move is to bake that link into the training data.
+        I deliberately didn't. The blackouts are pasted on at random, independent of the labels, so in
+        training a missing ball tells the model <em>nothing</em> about the answer. How strongly a blackout
+        signals a stoppage depends on this tracker and this camera operator. Learn it from Bundesliga data
+        and you learn the Bundesliga's tracker. In trading terms: don't let your strategy learn your data
+        vendor's quirks. Model the vendor separately, on the data you'll actually trade. That's &sect; 11.
+      </p>
+    </div>
+
+    <h2><span class="sec">&sect; 8</span>Two Feeds, One Clock</h2>
+
+    <p>
+      The tactical camera loses the ball 41% of the time. But there's a second feed: the TV broadcast,
+      with its own automatic tracking and its own camera-to-pitch map. It runs on its own clock, with cuts
+      and replays, and it isn't synchronised. To a quant that's a familiar picture: two exchanges quoting
+      the same asset, one of them late. Find the lag, then use one feed to fill holes in the other.
+    </p>
+
+    <p>
+      Within a half the broadcast runs at a constant delay, so the lag is whatever lines the two ball
+      tracks up best:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">\hat{\ell} = \arg\min_{\ell}\ \operatorname{median}_{t}\ \left\lVert\, b^{\text{tactical}}_{t} - b^{\text{broadcast}}_{t+\ell} \,\right\rVert</div>
+      <span class="eq-num">(2)</span>
+    </div>
+
+    <p>
+      I searched coarse to fine: one-second averages over a wide range of lags, then frame by frame. The
+      answer is <strong>4,014 frames</strong> (about 2 min 41 s) in the first half and
+      <strong>26,920 frames</strong> (about 18 minutes) in the second. At that lag the two balls sit a median
+      <strong>0.8 m</strong> apart. No video pixels and no labels, just two ball tracks lined up like two
+      price series.
+    </p>
+
+    <p>
+      Where the tactical ball is missing, I take the broadcast's ball, but only when its pitch map is
+      trustworthy (reprojection error under 5 m) and the ball doesn't jump more than 3 m. That fills
+      <strong>8,049 frames</strong> and lifts ball visibility from 59.3% to 64.4%.
+    </p>
+
+    <p>
+      The broadcast gives one more thing for free. When it has no pitch map at the aligned frame, the
+      director is showing a replay, a close-up or the crowd, and directors do that mostly when the ball is
+      dead. Think of a business channel cutting to the studio: you can guess the market's quiet without
+      seeing a single price. That becomes the <strong>cut-away flag</strong>.
+    </p>
+
+    <h2><span class="sec">&sect; 9</span>The Signal: 219 Numbers per Frame</h2>
+
+    <p>
+      None of the features is about a specific player. Tracks swap identity constantly, so anything
+      player-specific would be noise. Everything describes a team or the ball, each team seen in its own
+      attacking direction:
+    </p>
+
+    <ul>
+      <li><strong>Who's near the ball:</strong> each team's nearest and second-nearest player, and how many players are within 2, 5 and 10 m.</li>
+      <li><strong>Team shape:</strong> centre, spread, the most advanced and the deepest player.</li>
+      <li><strong>Movement:</strong> average speed, the share of players running and walking, speed towards goal. When play stops, players walk.</li>
+      <li><strong>Ball state:</strong> ball speed, ball still, ball beyond a line, ball on a restart spot (corner, centre, touchline), time since and until the ball was last and next seen, length of the current gap.</li>
+      <li><strong>Context:</strong> 24 key features also averaged over 1, 3 and 9 second windows, and over the past and the future 2 and 6 seconds.</li>
+    </ul>
+
+    <p>
+      Yes, the future. In trading that's look-ahead bias and a firing offence. Here it isn't: the job is to
+      label a <em>finished</em> match, not to trade it live, and a stoppage is far easier to recognise when
+      you can see the restart coming. Knowing which of the two worlds you're in is half of avoiding the bias.
+    </p>
+
+    <p>
+      Every team feature comes as a home/away pair, so swapping the teams is just a reshuffle of columns.
+      The model trains on both views, and at prediction time it runs on the match and on its mirror image,
+      with <span class="m">\tilde{x}</span> the match with the teams swapped:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">p_H(x) = \tfrac{1}{2}\left[f_H(x) + f_A(\tilde{x})\right], \qquad p_A(x) = \tfrac{1}{2}\left[f_A(x) + f_H(\tilde{x})\right]</div>
+      <span class="eq-num">(3)</span>
+    </div>
+
+    <p>
+      So the model can't favour a side. This is a market-neutral idea: if you flip every input, the
+      signal must flip too. If it doesn't, you've learned a bias, not an edge.
+    </p>
+
+    <h2><span class="sec">&sect; 10</span>A Small Portfolio of Models</h2>
+
+    <p>Three kinds of model, each with a different job.</p>
+
+    <p>
+      <strong>LightGBM</strong> is gradient-boosted trees: a few hundred small decision trees, each one
+      correcting the last one's mistakes. It's fast, it's strong on tables of features like these, and in
+      deterministic mode it retrains to the same file byte for byte. It trains on both degraded copies of
+      every match, at 5 frames a second.
+    </p>
+
+    <p>
+      A <strong>bidirectional GRU</strong> is a small recurrent neural network that reads the match like a
+      sentence, forwards and backwards, over 51-second windows. It's good exactly where the trees
+      struggle: long stretches where the ball isn't seen and the answer has to come from context. I train
+      three of them with different random seeds and average them. Training uses PyTorch; for the
+      submission I re-implemented the network in plain numpy (matching PyTorch to within
+      <span class="m">4\times10^{-7}</span>), so making the file needs no deep-learning library at all.
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">p = 0.6\,p_{\text{LightGBM}} + 0.4 \cdot \tfrac{1}{3}\sum_{i=1}^{3} p_{\text{GRU},\,i}</div>
+      <span class="eq-num">(4)</span>
+    </div>
+
+    <p>
+      A <strong>boundary model</strong>, a second LightGBM, asks a narrower question: is a direct change
+      of team happening within half a second of this frame? On held-out matches it averages 0.19 on real
+      turnover frames and 0.02 everywhere else. It doesn't label anything. It sets prices, in &sect; 12.
+    </p>
+
+    <p>
+      An ensemble is a portfolio. Two models that make different mistakes, blended, beat either one alone,
+      for the same reason two imperfectly correlated assets beat one. And averaging seeds is parameter
+      robustness: I don't trust a strategy that only works with one lookback, and I don't trust a network
+      that only works with one random seed.
+    </p>
+
+    <div class="figure">
+<svg viewBox="0 0 640 302" role="img" aria-label="Held-out spellF1 of each model step on the 10 external matches">
+<line class="ch-grid" x1="255.0" y1="34.0" x2="255.0" y2="274.0"/>
+<text class="f-t" x="255.0" y="292.0" text-anchor="middle">0.50</text>
+<line class="ch-grid" x1="321.0" y1="34.0" x2="321.0" y2="274.0"/>
+<text class="f-t" x="321.0" y="292.0" text-anchor="middle">0.55</text>
+<line class="ch-grid" x1="387.0" y1="34.0" x2="387.0" y2="274.0"/>
+<text class="f-t" x="387.0" y="292.0" text-anchor="middle">0.60</text>
+<line class="ch-grid" x1="453.0" y1="34.0" x2="453.0" y2="274.0"/>
+<text class="f-t" x="453.0" y="292.0" text-anchor="middle">0.65</text>
+<line class="ch-grid" x1="519.0" y1="34.0" x2="519.0" y2="274.0"/>
+<text class="f-t" x="519.0" y="292.0" text-anchor="middle">0.70</text>
+<line class="ch-grid" x1="585.0" y1="34.0" x2="585.0" y2="274.0"/>
+<text class="f-t" x="585.0" y="292.0" text-anchor="middle">0.75</text>
+<circle class="ch-f-id" cx="261.0" cy="13.0" r="5"></circle>
+<text class="f-t" x="273.0" y="17.0" text-anchor="start">leave one match out</text>
+<circle class="ch-ring" cx="441.0" cy="13.0" r="6"></circle>
+<text class="f-t" x="453.0" y="17.0" text-anchor="start">nested</text>
+<line class="ch-mark" x1="255.0" y1="52.0" x2="585.0" y2="52.0"/>
+<text class="f-lm" x="240.0" y="57.0" text-anchor="end">Hand-built rules*</text>
+<circle class="ch-f-id" cx="334.2" cy="52.0" r="5"><title>Hand-built rules*: 0.560</title></circle>
+<text class="f-t" x="636.0" y="56.0" text-anchor="end">0.560</text>
+<line class="ch-mark" x1="255.0" y1="86.0" x2="585.0" y2="86.0"/>
+<text class="f-lm" x="240.0" y="91.0" text-anchor="end">GRU on its own</text>
+<circle class="ch-f-id" cx="493.9" cy="86.0" r="5"><title>GRU on its own: 0.681</title></circle>
+<text class="f-t" x="636.0" y="90.0" text-anchor="end">0.681</text>
+<line class="ch-mark" x1="255.0" y1="120.0" x2="585.0" y2="120.0"/>
+<text class="f-lm" x="240.0" y="125.0" text-anchor="end">LightGBM + decoder</text>
+<circle class="ch-ring" cx="519.0" cy="120.0" r="7.5"><title>LightGBM + decoder: nested 0.700</title></circle>
+<circle class="ch-f-id" cx="519.0" cy="120.0" r="5"><title>LightGBM + decoder: 0.700</title></circle>
+<text class="f-t" x="636.0" y="124.0" text-anchor="end">0.700</text>
+<line class="ch-mark" x1="255.0" y1="154.0" x2="585.0" y2="154.0"/>
+<text class="f-lm" x="240.0" y="159.0" text-anchor="end">+ blackout evidence</text>
+<circle class="ch-f-id" cx="524.3" cy="154.0" r="5"><title>+ blackout evidence: 0.704</title></circle>
+<text class="f-t" x="636.0" y="158.0" text-anchor="end">0.704</text>
+<line class="ch-mark" x1="255.0" y1="188.0" x2="585.0" y2="188.0"/>
+<text class="f-lm" x="240.0" y="193.0" text-anchor="end">+ GRU in the blend</text>
+<circle class="ch-ring" cx="523.0" cy="188.0" r="7.5"><title>+ GRU in the blend: nested 0.703</title></circle>
+<circle class="ch-f-id" cx="529.6" cy="188.0" r="5"><title>+ GRU in the blend: 0.708</title></circle>
+<text class="f-t" x="636.0" y="192.0" text-anchor="end">0.708</text>
+<line class="ch-mark" x1="255.0" y1="222.0" x2="585.0" y2="222.0"/>
+<text class="f-lm" x="240.0" y="227.0" text-anchor="end">+ boundary-aware decoder</text>
+<circle class="ch-ring" cx="534.8" cy="222.0" r="7.5"><title>+ boundary-aware decoder: nested 0.712</title></circle>
+<circle class="ch-f-id" cx="534.8" cy="222.0" r="5"><title>+ boundary-aware decoder: 0.712</title></circle>
+<text class="f-t" x="636.0" y="226.0" text-anchor="end">0.712</text>
+<line class="ch-mark" x1="255.0" y1="256.0" x2="585.0" y2="256.0"/>
+<text class="f-l" x="240.0" y="261.0" text-anchor="end">+ 2 copies, 3 seeds: final</text>
+<circle class="ch-ring" cx="536.2" cy="256.0" r="7.5"><title>+ 2 copies, 3 seeds: final: nested 0.713</title></circle>
+<circle class="ch-f-on" cx="538.8" cy="256.0" r="5"><title>+ 2 copies, 3 seeds: final: 0.715</title></circle>
+<text class="f-t f-red" x="636.0" y="260.0" text-anchor="end">0.715</text>
+</svg>
+      <p class="fig-cap">Figure 4. Held-out spellF1 on the 10 external matches as each piece was added (GRU on its own includes the blackout evidence of &sect; 11). Rings: the nested score, with every choice re-made without the held-out match. *The hand-built model was scored on held-out Metrica matches only.</p>
+    </div>
+
+    <p>
+      Read that chart with a quant's suspicion. Each step adds between 0.002 and 0.008, and the organisers
+      say differences under 0.04 on a full match are noise. So no single step proves itself. What gives me
+      some confidence is that four independent checks point the same way:
+    </p>
+
+    <ul>
+      <li>The nested score tracks the plain one (0.713 against 0.715), so choosing barely flattered us.</li>
+      <li>All 10 held-out matches land between 0.66 and 0.73 (Figure 6 below).</li>
+      <li>The untouched SkillCorner set moved the same way, 0.555 to 0.566, though it played no part in any choice.</li>
+      <li>Every change that didn't survive these checks was dropped (&sect; 14).</li>
+    </ul>
+
+    <h2><span class="sec">&sect; 11</span>Evidence Without Labels</h2>
+
+    <p>
+      Back to the missing ball. I kept it out of the training labels on purpose. Now I want it back,
+      measured on <em>our</em> match, without any answers. The tool is EM, short for
+      Expectation&ndash;Maximisation, and the one-step version I use is simple:
+    </p>
+
+    <ol>
+      <li>The model already gives every frame a probability that the ball is dead.</li>
+      <li>Put each frame in a bucket: ball seen, or the length of the blackout it sits in. Separately: broadcast showing the pitch, or cut away.</li>
+      <li>For each bucket, add up how much dead-ball probability lands in it, and how much live-ball probability. The log of the ratio of their shares is that bucket's evidence.</li>
+    </ol>
+
+    <div class="eq">
+      <div class="eq-tex">e_k = \tfrac{1}{2}\left[\,\ln\frac{\sum_{t:\,k_t=k} p^{D}_{t}}{\sum_{t} p^{D}_{t}} \;-\; \ln\frac{\sum_{t:\,k_t=k} \left(1-p^{D}_{t}\right)}{\sum_{t} \left(1-p^{D}_{t}\right)}\,\right]</div>
+      <span class="eq-num">(5)</span>
+    </div>
+
+    <p class="eq-note">
+      <span class="m">p^D_t</span> is the model's dead-ball probability on frame <span class="m">t</span>,
+      and <span class="m">k_t</span> is the frame's bucket. The evidence is added to the dead-ball score in
+      the decoder.
+    </p>
+
+    <p>
+      The <span class="m">\tfrac{1}{2}</span> in front is shrinkage, fixed in advance. An estimate built
+      from the model's own beliefs deserves a bit of humility. Here is what comes out on our match:
+    </p>
+
+    <div class="figure">
+<svg viewBox="0 0 640 316" role="img" aria-label="Label-free evidence for a stoppage from each ball-tracking and broadcast category">
+<text class="f-t" x="325.3" y="18.0" text-anchor="end">&#8592; points to live play</text>
+<text class="f-t f-red" x="341.3" y="18.0" text-anchor="start">points to a stoppage &#8594;</text>
+<text class="f-t f-small f-cap" x="165.0" y="44.0" text-anchor="end">BALL TRACKING</text>
+<text class="f-t f-small f-cap" x="165.0" y="230.0" text-anchor="end">BROADCAST</text>
+<line class="ch-grid" x1="244.4" y1="30.0" x2="244.4" y2="288.0"/>
+<text class="f-t" x="244.4" y="306.0" text-anchor="middle">&#8722;1</text>
+<line class="ch-axis" x1="333.3" y1="30.0" x2="333.3" y2="288.0"/>
+<text class="f-t" x="333.3" y="306.0" text-anchor="middle">0</text>
+<line class="ch-grid" x1="422.2" y1="30.0" x2="422.2" y2="288.0"/>
+<text class="f-t" x="422.2" y="306.0" text-anchor="middle">+1</text>
+<line class="ch-grid" x1="511.1" y1="30.0" x2="511.1" y2="288.0"/>
+<text class="f-t" x="511.1" y="306.0" text-anchor="middle">+2</text>
+<line class="ch-grid" x1="600.0" y1="30.0" x2="600.0" y2="288.0"/>
+<text class="f-t" x="600.0" y="306.0" text-anchor="middle">+3</text>
+<text class="f-l" x="165.0" y="65.0" text-anchor="end">Ball in view</text>
+<rect class="ch-f-id" x="225.2" y="52.0" width="108.2" height="18.0"><title>Ball in view: -1.22</title></rect>
+<text class="f-t" x="219.2" y="65.5" text-anchor="end">&#8722;1.22</text>
+<text class="f-l" x="165.0" y="93.0" text-anchor="end">Gap under 2 s</text>
+<rect class="ch-f-on" x="333.3" y="80.0" width="55.4" height="18.0"><title>Gap under 2 s: +0.62</title></rect>
+<text class="f-t f-red" x="394.7" y="93.5" text-anchor="start">+0.62</text>
+<text class="f-l" x="165.0" y="121.0" text-anchor="end">Gap 2 to 5 s</text>
+<rect class="ch-f-on" x="333.3" y="108.0" width="96.4" height="18.0"><title>Gap 2 to 5 s: +1.08</title></rect>
+<text class="f-t f-red" x="435.7" y="121.5" text-anchor="start">+1.08</text>
+<text class="f-l" x="165.0" y="149.0" text-anchor="end">Gap 5 to 10 s</text>
+<rect class="ch-f-on" x="333.3" y="136.0" width="135.6" height="18.0"><title>Gap 5 to 10 s: +1.53</title></rect>
+<text class="f-t f-red" x="475.0" y="149.5" text-anchor="start">+1.53</text>
+<text class="f-l" x="165.0" y="177.0" text-anchor="end">Gap 10 to 30 s</text>
+<rect class="ch-f-on" x="333.3" y="164.0" width="196.5" height="18.0"><title>Gap 10 to 30 s: +2.21</title></rect>
+<text class="f-t f-red" x="535.9" y="177.5" text-anchor="start">+2.21</text>
+<text class="f-l" x="165.0" y="205.0" text-anchor="end">Gap over 30 s</text>
+<rect class="ch-f-on" x="333.3" y="192.0" width="223.9" height="18.0"><title>Gap over 30 s: +2.52</title></rect>
+<text class="f-t f-red" x="563.2" y="205.5" text-anchor="start">+2.52</text>
+<text class="f-l" x="165.0" y="251.0" text-anchor="end">Live picture</text>
+<rect class="ch-f-id" x="263.9" y="238.0" width="69.4" height="18.0"><title>Live picture: -0.78</title></rect>
+<text class="f-t" x="257.9" y="251.5" text-anchor="end">&#8722;0.78</text>
+<text class="f-l" x="165.0" y="279.0" text-anchor="end">Cut-away</text>
+<rect class="ch-f-on" x="333.3" y="266.0" width="134.4" height="18.0"><title>Cut-away: +1.51</title></rect>
+<text class="f-t f-red" x="473.7" y="279.5" text-anchor="start">+1.51</text>
+</svg>
+      <p class="fig-cap">Figure 5. Log-odds evidence for a stoppage, estimated on the match without any labels (before the half weight). Red pushes towards dead ball, grey towards live play.</p>
+    </div>
+
+    <p>
+      It's the pattern you'd hope for. The longer the blackout, the stronger the case for a stoppage,
+      rising steadily from +0.62 to +2.52. A cut-away pushes towards dead, a live picture towards play.
+      Nothing here saw an answer.
+    </p>
+
+    <p>
+      Before adopting the blackout evidence I tested it on the held-out external matches. On Metrica, whose
+      gaps are real, it added +0.009. On DFL, whose gaps I pasted on at random, it did nothing, which is
+      exactly what should happen. That's a placebo test, and passing it matters as much as the gain. The
+      cut-away flag couldn't be tested this way, since no external match comes with a broadcast feed. It's
+      in because it's label-free and it points the expected way.
+    </p>
+
+    <div class="callout">
+      <p class="callout-label">Where the idea came from</p>
+      <p>
+        Regime models. A hidden Markov model separates calm and stormy markets without anyone labelling the
+        regimes, by asking which state best explains what you see. Same move here, with "live" and "dead"
+        as the regimes and blackouts as the thing you see.
+      </p>
+    </div>
+
+    <h2><span class="sec">&sect; 12</span>Charge for Every Switch</h2>
+
+    <p>
+      Now the most quant part of the whole thing. The models give a probability for H, A and dead on every
+      frame. Take the most likely label frame by frame and you get thousands of flips, the "trade every
+      bar" disaster from &sect; 3. You need a rule that only changes position when the evidence is strong
+      and sustained. Traders already know that rule. It's a transaction cost.
+    </p>
+
+    <p>
+      The decoder is <strong>Viterbi</strong>. It finds the single best path of labels through a whole
+      half, where every frame earns the log-probability of its label and every change pays a price:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">\hat{s}_{1:T} = \arg\max_{s_{1:T}}\ \sum_{t=1}^{T}\Big[\ln p_t(s_t) + e_t\,\mathbb{1}[s_t = D]\Big] \;-\; \sum_{t=2}^{T} c(s_{t-1}, s_t)</div>
+      <span class="eq-num">(6)</span>
+    </div>
+
+    <p>
+      A switch from Barcelona to Athletic costs 12, in the same log units. Stopping or restarting play
+      also costs 12. A brief burst of evidence for the other team can't pay that, so a deflection or a
+      50/50 doesn't flip possession. A real turnover produces sustained evidence that easily does. That is
+      the challenge's "controlled possession" rule, written as a price.
+    </p>
+
+    <p>
+      Here is the trade-off on a simulated five minutes: made-up data with a known truth, not the match.
+      The raw guess is right on most frames and still invents dozens of possessions. Slide the cost up.
+    </p>
+
+    <div class="widget" id="switch">
+      <p class="widget-label">Simulated five minutes. Slide the switch cost.</p>
+      <div class="slider-row">
+        <label for="sw-cost">switch cost</label>
+        <input type="range" id="sw-cost" min="0" max="40" step="1" value="0" />
+        <output id="sw-costv" for="sw-cost">0</output>
+      </div>
+<svg viewBox="0 0 640 308" role="img" aria-label="Simulated five minutes: truth, raw frame-by-frame guess, and the decoded labels at the chosen switch cost">
+<text class="f-t" x="82.0" y="24.0" text-anchor="end">Truth</text>
+<g id="w-truth" transform="translate(92,10)"></g>
+<text class="f-t" x="82.0" y="54.0" text-anchor="end">Raw guess</text>
+<g id="w-raw" transform="translate(92,40)"></g>
+<text class="f-t" x="82.0" y="84.0" text-anchor="end">Decoded</text>
+<g id="w-dec" transform="translate(92,70)"></g>
+<rect class="s-h" x="92.0" y="104.0" width="12.0" height="12.0"></rect>
+<text class="f-t" x="110.0" y="114.5" text-anchor="start">Team H</text>
+<rect class="s-a" x="196.0" y="104.0" width="12.0" height="12.0"></rect>
+<text class="f-t" x="214.0" y="114.5" text-anchor="start">Team A</text>
+<rect class="s-d" x="300.0" y="104.0" width="12.0" height="12.0"></rect>
+<text class="f-t" x="318.0" y="114.5" text-anchor="start">Dead ball</text>
+<line class="ch-grid" x1="92.0" y1="270.0" x2="560.0" y2="270.0"/>
+<text class="f-t" x="82.0" y="274.0" text-anchor="end">0</text>
+<line class="ch-grid" x1="92.0" y1="208.0" x2="560.0" y2="208.0"/>
+<text class="f-t" x="82.0" y="212.0" text-anchor="end">0.5</text>
+<line class="ch-grid" x1="92.0" y1="146.0" x2="560.0" y2="146.0"/>
+<text class="f-t" x="82.0" y="150.0" text-anchor="end">1</text>
+<text class="f-t" x="92.0" y="286.0" text-anchor="middle">0</text>
+<text class="f-t" x="209.0" y="286.0" text-anchor="middle">10</text>
+<text class="f-t" x="326.0" y="286.0" text-anchor="middle">20</text>
+<text class="f-t" x="443.0" y="286.0" text-anchor="middle">30</text>
+<text class="f-t" x="560.0" y="286.0" text-anchor="middle">40</text>
+<text class="f-t" x="326.0" y="302.0" text-anchor="middle">switch cost</text>
+<line id="w-mark" class="ch-ref" x1="92" x2="92" y1="140" y2="270"/>
+<path id="w-acc" class="ch-id" fill="none" d=""/>
+<path id="w-f1" class="ch-on" fill="none" d=""/>
+<text id="w-acc-l" class="f-t" x="566" y="0">accuracy</text>
+<text id="w-f1-l" class="f-t f-red" x="566" y="0">spellF1</text>
+<circle id="w-dot-acc" class="ch-f-id" r="4.5" cx="92" cy="0"/>
+<circle id="w-dot-f1" class="ch-f-on" r="4.5" cx="92" cy="0"/>
+</svg>
+      <div class="readouts">
+        <div><span class="ro-label">possessions found / true</span><span class="ro-num" id="sw-n">&ndash;</span></div>
+        <div><span class="ro-label">frames right</span><span class="ro-num" id="sw-acc">&ndash;</span></div>
+        <div><span class="ro-label">spellF1</span><span class="ro-num" id="sw-f1">&ndash;</span></div>
+      </div>
+    </div>
+
+    <p>
+      At zero cost the decoder is just the raw guess: 164 possessions against 25 real ones,
+      spellF1 0.14, even though 82% of frames are right. Around a cost of 7 it peaks at
+      0.86. Push it to 40 and it under-trades: real changes get merged away and spellF1 falls back to
+      0.38, while the share of frames right ends where it started. Too cheap and you overtrade, too
+      expensive and you never trade. Frame accuracy hardly notices either mistake.
+    </p>
+
+    <p>
+      One fixed price is crude, though. A real turnover is a moment when switching <em>should</em> be
+      cheap. So in the submission the switch cost moves with the boundary model's probability
+      <span class="m">b_t</span>:
+    </p>
+
+    <div class="eq">
+      <div class="eq-tex">c_{\text{team}}(t) = 12\,\left(1 - 0.9\,b_t\right), \qquad c_{\text{dead}} = 12</div>
+      <span class="eq-num">(7)</span>
+    </div>
+
+    <p>
+      At a near-certain turnover the price drops to 1.2. Everywhere else it stays close to 12. It's the
+      same as trading cheaply when the order book is deep and expensively when it's thin. This step added
+      +0.004 out of sample, and it made short possessions split where they really split instead of being
+      swallowed by their neighbours.
+    </p>
+
+    <p>
+      One more thing, and it's the reverse of everything trading teaches. In a market you can't see
+      tomorrow, so every filter lags. Here the whole half is known before a single label is written, so
+      Viterbi works as a <em>smoother</em>, not a filter: it places each change where the evidence changes,
+      not where a causal rule would finally notice. With spellF1 charging a third of the score for a
+      one-second delay, that's worth a lot.
+    </p>
+
+    <div class="callout highlight">
+      <p class="callout-label">Where the idea came from</p>
+      <p>
+        I'd already written a whole post on how costs eat strategies,
+        <a href="transaction-costs-microstructure.html">Transaction Costs Are a Black Hole</a>. This decoder
+        is the flip side of that post. If every change costs you, you only change when it pays. The cost
+        and the blend weight were chosen together on the held-out matches, never on the real one.
+      </p>
+    </div>
+
+    <h2><span class="sec">&sect; 13</span>Results</h2>
+
+    <p>
+      First, the out-of-sample record. Each of the 10 external matches was scored by a model that never saw it:
+    </p>
+
+    <div class="figure">
+<svg viewBox="0 0 640 328" role="img" aria-label="Held-out spellF1 and possession counts for each of the 10 external matches">
+<text class="f-t f-cap" x="110.0" y="18.0" text-anchor="start">held-out spellF1</text>
+<text class="f-t f-cap" x="508.0" y="18.0" text-anchor="end">score</text>
+<text class="f-t f-cap" x="636.0" y="18.0" text-anchor="end">found / true</text>
+<line class="ch-grid" x1="110.0" y1="30.0" x2="110.0" y2="300.0"/>
+<text class="f-t" x="110.0" y="318.0" text-anchor="middle">0.60</text>
+<line class="ch-grid" x1="222.5" y1="30.0" x2="222.5" y2="300.0"/>
+<text class="f-t" x="222.5" y="318.0" text-anchor="middle">0.65</text>
+<line class="ch-grid" x1="335.0" y1="30.0" x2="335.0" y2="300.0"/>
+<text class="f-t" x="335.0" y="318.0" text-anchor="middle">0.70</text>
+<line class="ch-grid" x1="447.5" y1="30.0" x2="447.5" y2="300.0"/>
+<text class="f-t" x="447.5" y="318.0" text-anchor="middle">0.75</text>
+<line class="ch-ref" x1="368.3" y1="30.0" x2="368.3" y2="300.0"/>
+<text class="f-t f-small" x="373.3" y="38.0" text-anchor="start">mean 0.715</text>
+<line class="ch-mark" x1="0.0" y1="221.0" x2="640.0" y2="221.0"/>
+<text class="f-lm" x="95.0" y="57.0" text-anchor="end">DFL 1</text>
+<line class="ch-mark" x1="110.0" y1="52.0" x2="397.1" y2="52.0"/>
+<circle class="ch-f-on" cx="397.1" cy="52.0" r="5"><title>DFL 1: 0.728, 260 possessions found, 298 labelled</title></circle>
+<text class="f-t" x="508.0" y="56.0" text-anchor="end">0.728</text>
+<text class="f-t" x="636.0" y="56.0" text-anchor="end">260 / 298</text>
+<text class="f-lm" x="95.0" y="83.0" text-anchor="end">DFL 2</text>
+<line class="ch-mark" x1="110.0" y1="78.0" x2="235.6" y2="78.0"/>
+<circle class="ch-f-on" cx="235.6" cy="78.0" r="5"><title>DFL 2: 0.656, 262 possessions found, 315 labelled</title></circle>
+<text class="f-t" x="508.0" y="82.0" text-anchor="end">0.656</text>
+<text class="f-t" x="636.0" y="82.0" text-anchor="end">262 / 315</text>
+<text class="f-lm" x="95.0" y="109.0" text-anchor="end">DFL 3</text>
+<line class="ch-mark" x1="110.0" y1="104.0" x2="398.2" y2="104.0"/>
+<circle class="ch-f-on" cx="398.2" cy="104.0" r="5"><title>DFL 3: 0.728, 222 possessions found, 279 labelled</title></circle>
+<text class="f-t" x="508.0" y="108.0" text-anchor="end">0.728</text>
+<text class="f-t" x="636.0" y="108.0" text-anchor="end">222 / 279</text>
+<text class="f-lm" x="95.0" y="135.0" text-anchor="end">DFL 4</text>
+<line class="ch-mark" x1="110.0" y1="130.0" x2="342.9" y2="130.0"/>
+<circle class="ch-f-on" cx="342.9" cy="130.0" r="5"><title>DFL 4: 0.704, 270 possessions found, 302 labelled</title></circle>
+<text class="f-t" x="508.0" y="134.0" text-anchor="end">0.704</text>
+<text class="f-t" x="636.0" y="134.0" text-anchor="end">270 / 302</text>
+<text class="f-lm" x="95.0" y="161.0" text-anchor="end">DFL 5</text>
+<line class="ch-mark" x1="110.0" y1="156.0" x2="380.0" y2="156.0"/>
+<circle class="ch-f-on" cx="380.0" cy="156.0" r="5"><title>DFL 5: 0.720, 248 possessions found, 272 labelled</title></circle>
+<text class="f-t" x="508.0" y="160.0" text-anchor="end">0.720</text>
+<text class="f-t" x="636.0" y="160.0" text-anchor="end">248 / 272</text>
+<text class="f-lm" x="95.0" y="187.0" text-anchor="end">DFL 6</text>
+<line class="ch-mark" x1="110.0" y1="182.0" x2="342.9" y2="182.0"/>
+<circle class="ch-f-on" cx="342.9" cy="182.0" r="5"><title>DFL 6: 0.704, 263 possessions found, 284 labelled</title></circle>
+<text class="f-t" x="508.0" y="186.0" text-anchor="end">0.704</text>
+<text class="f-t" x="636.0" y="186.0" text-anchor="end">263 / 284</text>
+<text class="f-lm" x="95.0" y="213.0" text-anchor="end">DFL 7</text>
+<line class="ch-mark" x1="110.0" y1="208.0" x2="384.3" y2="208.0"/>
+<circle class="ch-f-on" cx="384.3" cy="208.0" r="5"><title>DFL 7: 0.722, 235 possessions found, 267 labelled</title></circle>
+<text class="f-t" x="508.0" y="212.0" text-anchor="end">0.722</text>
+<text class="f-t" x="636.0" y="212.0" text-anchor="end">235 / 267</text>
+<text class="f-lm" x="95.0" y="239.0" text-anchor="end">Metrica 1</text>
+<line class="ch-mark" x1="110.0" y1="234.0" x2="399.8" y2="234.0"/>
+<circle class="ch-f-on" cx="399.8" cy="234.0" r="5"><title>Metrica 1: 0.729, 246 possessions found, 209 labelled</title></circle>
+<text class="f-t" x="508.0" y="238.0" text-anchor="end">0.729</text>
+<text class="f-t" x="636.0" y="238.0" text-anchor="end">246 / 209</text>
+<text class="f-lm" x="95.0" y="265.0" text-anchor="end">Metrica 2</text>
+<line class="ch-mark" x1="110.0" y1="260.0" x2="399.6" y2="260.0"/>
+<circle class="ch-f-on" cx="399.6" cy="260.0" r="5"><title>Metrica 2: 0.729, 230 possessions found, 202 labelled</title></circle>
+<text class="f-t" x="508.0" y="264.0" text-anchor="end">0.729</text>
+<text class="f-t" x="636.0" y="264.0" text-anchor="end">230 / 202</text>
+<text class="f-lm" x="95.0" y="291.0" text-anchor="end">Metrica 3</text>
+<line class="ch-mark" x1="110.0" y1="286.0" x2="401.6" y2="286.0"/>
+<circle class="ch-f-on" cx="401.6" cy="286.0" r="5"><title>Metrica 3: 0.730, 258 possessions found, 242 labelled</title></circle>
+<text class="f-t" x="508.0" y="290.0" text-anchor="end">0.730</text>
+<text class="f-t" x="636.0" y="290.0" text-anchor="end">258 / 242</text>
+</svg>
+      <p class="fig-cap">Figure 6. Held-out spellF1 per match for the final model, and possessions found against possessions in the labels. The dashed line is the mean.</p>
+    </div>
+
+    <p>
+      Every match lands between 0.656 and 0.730. The model finds fewer possessions than DFL's labels in every
+      match (by 7 to 20%) and more than Metrica's (by 7 to 18%). Part of that is the two sources defining a
+      possession differently. It's a reminder that the labels I learned from are proxies, not the answer key.
+    </p>
+
+    <p>
+      Then the real match. The public 5 minutes were scored once, after everything was frozen:
+    </p>
+
+    <div class="figure">
+<svg viewBox="0 0 640 192" role="img" aria-label="spellF1 on the public five minutes with 90 percent bootstrap intervals">
+<line class="ch-axis" x1="230.0" y1="20.0" x2="230.0" y2="164.0"/>
+<text class="f-t" x="230.0" y="182.0" text-anchor="middle">0</text>
+<line class="ch-grid" x1="326.2" y1="20.0" x2="326.2" y2="164.0"/>
+<text class="f-t" x="326.2" y="182.0" text-anchor="middle">0.25</text>
+<line class="ch-grid" x1="422.5" y1="20.0" x2="422.5" y2="164.0"/>
+<text class="f-t" x="422.5" y="182.0" text-anchor="middle">0.50</text>
+<line class="ch-grid" x1="518.8" y1="20.0" x2="518.8" y2="164.0"/>
+<text class="f-t" x="518.8" y="182.0" text-anchor="middle">0.75</text>
+<line class="ch-grid" x1="615.0" y1="20.0" x2="615.0" y2="164.0"/>
+<text class="f-t" x="615.0" y="182.0" text-anchor="middle">1</text>
+<text class="f-lm" x="214.0" y="51.0" text-anchor="end">2 s baseline, the floor</text>
+<line class="ch-id" x1="310.9" y1="46.0" x2="403.2" y2="46.0"/>
+<line class="ch-id" x1="310.9" y1="40.0" x2="310.9" y2="52.0"/>
+<line class="ch-id" x1="403.2" y1="40.0" x2="403.2" y2="52.0"/>
+<circle class="ch-f-cc" cx="355.4" cy="46.0" r="6"><title>2 s baseline, the floor: 0.326 [0.21, 0.45]</title></circle>
+<text class="f-t" x="355.4" y="33.0" text-anchor="middle">0.33</text>
+<text class="f-lm" x="214.0" y="99.0" text-anchor="end">5 s baseline</text>
+<line class="ch-id" x1="333.9" y1="94.0" x2="457.1" y2="94.0"/>
+<line class="ch-id" x1="333.9" y1="88.0" x2="333.9" y2="100.0"/>
+<line class="ch-id" x1="457.1" y1="88.0" x2="457.1" y2="100.0"/>
+<circle class="ch-f-cc" cx="393.2" cy="94.0" r="6"><title>5 s baseline: 0.424 [0.27, 0.59]</title></circle>
+<text class="f-t" x="393.2" y="81.0" text-anchor="middle">0.42</text>
+<text class="f-l" x="214.0" y="147.0" text-anchor="end">EM FC, scored once</text>
+<line class="ch-on" x1="403.2" y1="142.0" x2="549.5" y2="142.0"/>
+<line class="ch-on" x1="403.2" y1="136.0" x2="403.2" y2="148.0"/>
+<line class="ch-on" x1="549.5" y1="136.0" x2="549.5" y2="148.0"/>
+<circle class="ch-f-on" cx="481.5" cy="142.0" r="6"><title>EM FC, scored once: 0.653 [0.45, 0.83]</title></circle>
+<text class="f-t f-red" x="481.5" y="129.0" text-anchor="middle">0.65</text>
+</svg>
+      <p class="fig-cap">Figure 7. spellF1 on the public 5 minutes of Barcelona v Athletic (17 possessions), with 90% bootstrap intervals. The baselines are the organisers'.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Public 5 minutes</th><th class="num">spellF1</th><th class="num">macroF1</th><th class="num">Dead-ball F1</th><th class="num">Team right, ball alive</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>EM FC</strong></td><td class="num"><strong>0.653</strong></td><td class="num"><strong>0.833</strong></td><td class="num"><strong>0.714</strong></td><td class="num"><strong>94.2%</strong></td></tr>
+          <tr><td>Organisers' 5 s baseline</td><td class="num">0.424</td><td class="num">0.581</td><td class="num">0.146</td><td class="num">88.5%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      0.653 is below the 0.715 out of sample, and that's fine. It's a different match and a different
+      tracker, scored on 17 possessions, and we predicted 13 against those 17. The interval runs from 0.45 to 0.83. The
+      0.715 is the estimate; the 0.653 is one noisy draw from somewhere near it.
+    </p>
+
+    <p>
+      For the full match there are no answers yet, so the checks are the ones a risk manager runs on a live
+      book: does the exposure look like a real strategy's?
+    </p>
+
+    <ul>
+      <li><strong>266 possessions</strong> (Barcelona 128, Athletic 138), within the 202 to 315 found in the external matches' labels.</li>
+      <li><strong>42.4% dead ball</strong>, close to the 44.8 to 45.1% in the training data.</li>
+      <li>A possession lasts <strong>13.8 s</strong> on average, <strong>8.0 s</strong> at the median.</li>
+      <li>Barcelona hold the ball for <strong>59.5%</strong> of live-ball time.</li>
+    </ul>
+
+    <h2><span class="sec">&sect; 14</span>What Didn't Make the Cut</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Idea</th><th>Out of sample</th><th>Verdict</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Hand-built model with hand-set weights</td><td>about 0.56</td><td>Replaced by the learned model</td></tr>
+          <tr><td>Referee whistle from the audio</td><td>Needs a threshold tuned on our match</td><td>Dropped</td></tr>
+          <tr><td>Shirt colours from the video</td><td>The learned model doesn't need them</td><td>Dropped, so no video is read at all</td></tr>
+          <tr><td>Smart Tagging (automatic phase tags)</td><td>Phases aren't possessions</td><td>Not used</td></tr>
+          <tr><td>Minimum length for a stoppage</td><td>No gain</td><td>Dropped</td></tr>
+          <tr><td>Ball-out-of-bounds evidence</td><td>+0.0006</td><td>Dropped as noise</td></tr>
+          <tr><td>Second degraded copy on its own</td><td>0.712, nested 0.706</td><td>Kept only with the extra GRU seeds</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      +0.0006 is not alpha. It's noise in a nice suit. The rule is the same as in markets: if it doesn't
+      survive out of sample, it doesn't ship, however clever it felt at 2 am.
+    </p>
+
+    <h2><span class="sec">&sect; 15</span>Reproducible or It Didn't Happen</h2>
+
+    <p>
+      The rules demand that the public repository regenerates the submitted file exactly. Not
+      approximately, exactly. I treated that the way I treat a backtest: if I can't rerun it and get the
+      same equity curve, I don't have a result.
+    </p>
+
+    <ul>
+      <li>One command, under a minute on a laptop CPU. It reads only tracking and pitch maps, no video.</li>
+      <li>The output has SHA-256 <code>9b029648&hellip;</code> on Windows (Python 3.11) and Linux (Python 3.12), starting from empty caches.</li>
+      <li>LightGBM retrains to identical model files. The GRUs train with fixed seeds and deterministic kernels.</li>
+      <li>Every external dataset is pinned to an exact version, and no match data sits in the repository.</li>
+    </ul>
+
+    <p>
+      The code is public: <a href="https://github.com/yash72hours/submission_MTAH2027_EM-FC" target="_blank" rel="noopener">submission_MTAH2027_EM-FC</a>.
+    </p>
+
+    <h2><span class="sec">&sect; 16</span>Limits, and What I'd Do Next</h2>
+
+    <ul>
+      <li><strong>The labels are proxies.</strong> The 2-second control rule is a reasoned default, not a measured one, and Metrica's possession comes from event data.</li>
+      <li><strong>Short possessions still get merged.</strong> On the public window we predicted 13 possessions against 17.</li>
+      <li><strong>Stoppages with the ball in view</strong>, like a quick free kick or an injury near the ball, can be caught late, because the model leans on players slowing down.</li>
+      <li><strong>Some sizes can't be checked</strong> without the answer key: the degrader's noise levels and the cut-away weight.</li>
+    </ul>
+
+    <p>With more time:</p>
+
+    <ul>
+      <li>More labelled matches, especially ones where the ball stays tracked through stoppages.</li>
+      <li>A model of each team's controlling player, not just team averages.</li>
+      <li>A duration model for possessions (a semi-Markov decoder). In trading terms, a model of holding periods, not just of signals.</li>
+    </ul>
+
+    <h2><span class="sec">&sect; 17</span>What to Carry Forward</h2>
+
+    <ol class="takeaways">
+      <li>Read the scoring rule before building anything. It is the strategy.</li>
+      <li>A tiny test set is a trap. Look at it once, at the end.</li>
+      <li>Train on other markets, but make them look like yours. The frictions belong in the backtest.</li>
+      <li>Keep data quirks out of the labels, and estimate them separately, without answers.</li>
+      <li>Every switch has a cost. Charge it, and make it cheap only where a change is likely.</li>
+      <li>Small gains are noise until several independent checks agree.</li>
+      <li>If you can't reproduce it byte for byte, you don't have a result.</li>
+    </ol>
+
+    <p>
+      Whatever the leaderboard says on 26 November, the thing I'll keep is this. A football match and a
+      market are both noisy streams hiding a state you can't see, and the tools carry over almost
+      untouched. That's what made it more than a hack.
+    </p>
+
+    <h2 class="appendix-head"><span class="sec">Refs</span> Data, Code and Further Reading</h2>
+
+    <ol class="refs">
+      <li>The challenge: Metrica Sports, <a href="https://github.com/metrica-sports/more-than-a-hack-2027" target="_blank" rel="noopener">more-than-a-hack-2027</a> (rules, scorer, baselines, public 5 minutes). The match data itself is licensed to participants and isn't reproduced here.</li>
+      <li>Our code and technical document: <a href="https://github.com/yash72hours/submission_MTAH2027_EM-FC" target="_blank" rel="noopener">submission_MTAH2027_EM-FC</a>.</li>
+      <li>Bassek, M., Rein, R., Weber, H. and Memmert, D. (2025). An Integrated Dataset of Spatiotemporal and Event Data in Elite Soccer. <em>Scientific Data</em>. DFL / IDSSE open data, CC BY 4.0.</li>
+      <li>Metrica Sports, <a href="https://github.com/metrica-sports/sample-data" target="_blank" rel="noopener">sample-data</a>. SkillCorner, <a href="https://github.com/SkillCorner/opendata" target="_blank" rel="noopener">opendata</a> (MIT).</li>
+      <li>Ke, G. et al. (2017). LightGBM: A Highly Efficient Gradient Boosting Decision Tree. <em>NeurIPS</em>.</li>
+      <li>Cho, K. et al. (2014). Learning Phrase Representations using RNN Encoder&ndash;Decoder for Statistical Machine Translation. <em>EMNLP</em>.</li>
+      <li>Viterbi, A. (1967). Error Bounds for Convolutional Codes and an Asymptotically Optimum Decoding Algorithm. <em>IEEE Transactions on Information Theory</em>, 13(2).</li>
+      <li>Dempster, A., Laird, N. and Rubin, D. (1977). Maximum Likelihood from Incomplete Data via the EM Algorithm. <em>Journal of the Royal Statistical Society B</em>, 39(1).</li>
+      <li>Hamilton, J. D. (1989). A New Approach to the Economic Analysis of Nonstationary Time Series and the Business Cycle. <em>Econometrica</em>, 57(2).</li>
+      <li>Bailey, D. H. and L&oacute;pez de Prado, M. (2014). The Deflated Sharpe Ratio. <em>Journal of Portfolio Management</em>, 40(5).</li>
+    </ol>
+  </div>
+
+
+</div>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('theme-toggle');
+    var icon = document.getElementById('toggle-icon');
+    var lbl = document.getElementById('toggle-label');
+    function apply(t) {
+      root.setAttribute('data-theme', t);
+      try { localStorage.setItem('bb-theme', t); } catch (e) {}
+      icon.textContent = t === 'dark' ? '\u25d1' : '\u25d0';
+      lbl.textContent = t === 'dark' ? 'Light' : 'Dark';
+    }
+    apply(root.getAttribute('data-theme') || 'light');
+    btn.addEventListener('click', function () {
+      apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+  })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script>
+  (function () {
+    if (!window.katex) return;
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('.eq-tex'));
+    boxes.forEach(function (el) {
+      try { katex.render(el.textContent, el, { displayMode: true, throwOnError: false }); } catch (e) {}
+    });
+    document.querySelectorAll('.m').forEach(function (el) {
+      try { katex.render(el.textContent, el, { displayMode: false, throwOnError: false }); } catch (e) {}
+    });
+    /* keep every equation on one line: shrink step by step on narrow screens, scroll if still too wide */
+    function fit() {
+      boxes.forEach(function (el) {
+        var k = el.querySelector('.katex');
+        if (!k) return;
+        k.style.fontSize = '';
+        var base = parseFloat(getComputedStyle(k).fontSize);
+        var size = base;
+        var guard = 0;
+        while (el.scrollWidth > el.clientWidth + 1 && size > base * 0.6 && guard < 40) {
+          size = size * 0.96;
+          k.style.fontSize = size + 'px';
+          guard += 1;
+        }
+      });
+    }
+    fit();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    var timer;
+    window.addEventListener('resize', function () { clearTimeout(timer); timer = setTimeout(fit, 120); });
+  })();
+</script>
+<script>
+  /* switch-cost widget: a simulated five minutes (made-up data), decoded with Viterbi at each cost */
+  (function () {
+    var box = document.getElementById('switch');
+    if (!box) return;
+    var NS = 'http://www.w3.org/2000/svg';
+    function mulberry32(a) {
+      return function () {
+        a = a + 0x6D2B79F5 | 0;
+        var t = a;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+    var rnd = mulberry32(2027);
+    function gauss() { var u = Math.max(rnd(), 1e-12), v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+    var T = 1500, SIG = 1.6, PHI = 0.85, SD = 1.1;
+    var truth = [], team = 0, i, k;
+    while (truth.length < T) {
+      var d = Math.max(3, Math.round(Math.exp(Math.log(40) + 0.8 * gauss())));
+      for (i = 0; i < d; i++) truth.push(team);
+      if (rnd() < 0.3) {
+        var dd = Math.max(10, Math.round(Math.exp(Math.log(60) + 0.6 * gauss())));
+        for (i = 0; i < dd; i++) truth.push(2);
+        team = rnd() < 0.5 ? 0 : 1;
+      } else { team = 1 - team; }
+    }
+    truth.length = T;
+    var noise = [0, 0, 0], S = [], raw = [];
+    var amp = Math.sqrt(1 - PHI * PHI) * SD, floor = Math.log(1e-4);
+    for (var t = 0; t < T; t++) {
+      for (k = 0; k < 3; k++) noise[k] = PHI * noise[k] + amp * gauss();
+      var L = [], mx = -Infinity;
+      for (k = 0; k < 3; k++) { L[k] = noise[k] + (truth[t] === k ? SIG : 0); if (L[k] > mx) mx = L[k]; }
+      var z = 0;
+      for (k = 0; k < 3; k++) z += Math.exp(L[k] - mx);
+      var row = [], best = 0;
+      for (k = 0; k < 3; k++) { row[k] = Math.max(L[k] - mx - Math.log(z), floor); if (row[k] > row[best]) best = k; }
+      S.push(row); raw.push(best);
+    }
+    function viterbi(c) {
+      var tot = S[0].slice(), back = [], path = new Array(T);
+      for (var t = 1; t < T; t++) {
+        var nt = [0, 0, 0], b = [0, 0, 0];
+        for (var j = 0; j < 3; j++) {
+          var bv = -Infinity, bi = 0;
+          for (var i = 0; i < 3; i++) { var v = tot[i] - (i === j ? 0 : c); if (v > bv) { bv = v; bi = i; } }
+          nt[j] = bv + S[t][j]; b[j] = bi;
+        }
+        tot = nt; back.push(b);
+      }
+      var s = 0;
+      for (var j2 = 1; j2 < 3; j2++) if (tot[j2] > tot[s]) s = j2;
+      path[T - 1] = s;
+      for (var t2 = T - 1; t2 > 0; t2--) { s = back[t2 - 1][s]; path[t2 - 1] = s; }
+      return path;
+    }
+    function runs(x) {
+      var out = [], s = 0;
+      for (var t = 1; t <= x.length; t++) if (t === x.length || x[t] !== x[s]) { out.push([s, t, x[s]]); s = t; }
+      return out;
+    }
+    function spells(x) { return runs(x).filter(function (r) { return r[2] !== 2; }); }
+    var G = spells(truth);
+    function spellF1(x) {
+      var P = spells(x), ov = [];
+      G.forEach(function (g, gi) {
+        P.forEach(function (p, pi) {
+          if (p[2] !== g[2] || p[1] <= g[0] || g[1] <= p[0]) return;
+          ov.push([(Math.min(g[1], p[1]) - Math.max(g[0], p[0])) / (Math.max(g[1], p[1]) - Math.min(g[0], p[0])), gi, pi]);
+        });
+      });
+      ov.sort(function (a, b) { return (b[0] - a[0]) || (a[1] - b[1]) || (a[2] - b[2]); });
+      var f = 0;
+      [0.3, 0.4, 0.5, 0.6, 0.7].forEach(function (th) {
+        var mg = {}, mp = {}, tp = 0;
+        for (var q = 0; q < ov.length; q++) {
+          if (ov[q][0] < th) break;
+          if (mg[ov[q][1]] || mp[ov[q][2]]) continue;
+          mg[ov[q][1]] = mp[ov[q][2]] = true; tp++;
+        }
+        var pr = P.length ? tp / P.length : 0, rc = G.length ? tp / G.length : 0;
+        f += pr + rc ? 2 * pr * rc / (pr + rc) : 0;
+      });
+      return { f1: f / 5, n: P.length };
+    }
+    function acc(x) { var r = 0; for (var t = 0; t < T; t++) if (x[t] === truth[t]) r++; return r / T; }
+    var MAXC = 40, res = [];
+    for (var c = 0; c <= MAXC; c++) {
+      var path = c === 0 ? raw : viterbi(c), sf = spellF1(path);
+      res.push({ path: path, f1: sf.f1, n: sf.n, acc: acc(path) });
+    }
+    var W = 540, cls = ['s-h', 's-a', 's-d'];
+    function strip(id, x) {
+      var g = document.getElementById(id);
+      while (g.firstChild) g.removeChild(g.firstChild);
+      runs(x).forEach(function (r) {
+        var e = document.createElementNS(NS, 'rect');
+        e.setAttribute('x', (r[0] / T * W).toFixed(2));
+        e.setAttribute('width', ((r[1] - r[0]) / T * W).toFixed(2));
+        e.setAttribute('y', 0); e.setAttribute('height', 20);
+        e.setAttribute('class', cls[r[2]]);
+        g.appendChild(e);
+      });
+    }
+    function cx(c) { return 92 + c / MAXC * 468; }
+    function cy(v) { return 270 - v * 124; }
+    function line(key) { return res.map(function (r, c) { return (c ? 'L' : 'M') + cx(c).toFixed(1) + ',' + cy(r[key]).toFixed(1); }).join(' '); }
+    strip('w-truth', truth); strip('w-raw', raw);
+    document.getElementById('w-f1').setAttribute('d', line('f1'));
+    document.getElementById('w-acc').setAttribute('d', line('acc'));
+    document.getElementById('w-f1-l').setAttribute('y', cy(res[MAXC].f1) + 4);
+    document.getElementById('w-acc-l').setAttribute('y', cy(res[MAXC].acc) + 4);
+    var sl = document.getElementById('sw-cost'), out = document.getElementById('sw-costv');
+    function upd() {
+      var c = +sl.value, r = res[c];
+      out.textContent = c;
+      strip('w-dec', r.path);
+      var m = document.getElementById('w-mark'); m.setAttribute('x1', cx(c)); m.setAttribute('x2', cx(c));
+      var a = document.getElementById('w-dot-acc'); a.setAttribute('cx', cx(c)); a.setAttribute('cy', cy(r.acc));
+      var f = document.getElementById('w-dot-f1'); f.setAttribute('cx', cx(c)); f.setAttribute('cy', cy(r.f1));
+      document.getElementById('sw-n').textContent = r.n + ' / ' + G.length;
+      document.getElementById('sw-acc').textContent = Math.round(r.acc * 100) + '%';
+      document.getElementById('sw-f1').textContent = r.f1.toFixed(2);
+    }
+    sl.addEventListener('input', upd);
+    upd();
+  })();
+</script>
+</body>
+</html>
